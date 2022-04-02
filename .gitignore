@@ -1,0 +1,12 @@
+$ cat .gitignore
+# comment
+    
+game_project/obj/
+
+bin/
+
+.vs/
+
+build/
+
+raylib/
