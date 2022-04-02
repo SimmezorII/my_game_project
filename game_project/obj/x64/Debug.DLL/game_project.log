@@ -1,9 +1,0 @@
-﻿  file_handler.cpp
-h:\my_game_project\game_project\code\header_files\globals.h(32): warning C4091: 'static ': ignored on left of 'Direction' when no variable is declared
-h:\my_game_project\game_project\code\header_files\globals.h(34): warning C4091: 'static ': ignored on left of '<unnamed-enum-SQUARE>' when no variable is declared
-h:\my_game_project\game_project\code\header_files\globals.h(171): warning C4305: 'initializing': truncation from 'double' to 'float'
-h:\my_game_project\game_project\code\source_files\file_handler.cpp(750): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-h:\my_game_project\game_project\code\source_files\file_handler.cpp(751): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-h:\my_game_project\game_project\code\source_files\file_handler.cpp(755): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-h:\my_game_project\game_project\code\source_files\file_handler.cpp(756): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-  game_project.vcxproj -> H:\my_game_project\game_project\..\bin\Debug.DLL\game_project.exe
