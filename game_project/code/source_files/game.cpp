@@ -47,6 +47,8 @@ inline void Load()
 
 	}
 
+	cout << "Hello World" << endl;
+
 	ReadSpriteData(MAPS_PATH + "game_sprite_data.txt");
 
 	SetSpriteTextures();
