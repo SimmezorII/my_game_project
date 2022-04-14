@@ -1,40 +1,60 @@
 ------
 entity ID : [1]
-entity x : [0]
-entity y : [0]
-entity w : [740]
-entity h : [420]
+entity w : [1280]
+entity h : [640]
 entity sprite ID : [1]
 ------
 ------
 entity ID : [2]
-entity x : [56]
-entity y : [58]
-entity w : [177]
-entity h : [144]
-entity sprite ID : [4]
-------
-------
-entity ID : [2]
-entity x : [316]
-entity y : [326]
-entity w : [177]
-entity h : [144]
+entity w : [1280]
+entity h : [640]
 entity sprite ID : [2]
 ------
 ------
-entity ID : [2]
-entity x : [416]
-entity y : [426]
-entity w : [177]
-entity h : [144]
+entity ID : [3]
+entity w : [64]
+entity h : [32]
 entity sprite ID : [3]
 ------
 ------
-entity ID : [2]
-entity x : [216]
-entity y : [126]
+entity ID : [4]
+entity w : [64]
+entity h : [32]
+entity sprite ID : [4]
+------
+------
+entity ID : [5]
+entity w : [64]
+entity h : [32]
+entity sprite ID : [5]
+------
+------
+entity ID : [6]
+entity w : [64]
+entity h : [32]
+entity sprite ID : [6]
+------
+------
+entity ID : [7] "target"
+entity w : [64]
+entity h : [32]
+entity sprite ID : [7]
+------
+------
+entity ID : [8]
 entity w : [177]
 entity h : [144]
-entity sprite ID : [2]
+entity sprite ID : [8]
+------
+------
+entity ID : [9]
+entity w : [177]
+entity h : [144]
+entity sprite ID : [9]
+------
+------
+entity ID : [10]
+entity w : [177]
+entity h : [144]
+entity sprite ID : [10]
 ------

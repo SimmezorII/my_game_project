@@ -416,9 +416,6 @@ inline void setSprite(entity *e, int ID) {
 
 }
 
-
-
-
 inline void LoadSpriteData(int sprite_count){
 
 		//------
@@ -466,8 +463,6 @@ inline void LoadSpriteData(int sprite_count){
 		{
 			sprite_png_list = sprite_png_list + ";" + tmp_str;
 		}
-
-
 
 		tmp_str = GetDataFromReadline(sprite_lines[index]);
 		temp.x = atoi(tmp_str.c_str());
@@ -526,7 +521,7 @@ inline void LoadEntityData(int entity_count) {
 	{
 
 		tmp_str = GetDataFromReadline(entity_lines[index]);
-		temp.ID = atoi(tmp_str.c_str());
+		temp.ID = atoi(tmp_str.c_str()); // entity ID : [n]
 		index++;
 
 		//tmp_str = GetDataFromReadline(entity_lines[index]);
@@ -538,16 +533,15 @@ inline void LoadEntityData(int entity_count) {
 		//index++;
 
 		tmp_str = GetDataFromReadline(entity_lines[index]);
-		temp.w = atoi(tmp_str.c_str());
+		temp.w = atoi(tmp_str.c_str()); // entity w : [n]
 		index++;
 
 		tmp_str = GetDataFromReadline(entity_lines[index]);
-		temp.h = atoi(tmp_str.c_str());
+		temp.h = atoi(tmp_str.c_str()); // entity h : [n]
 		index++;
 
 		tmp_str = GetDataFromReadline(entity_lines[index]);
-
-		tempSpriteID = atoi(tmp_str.c_str());
+		tempSpriteID = atoi(tmp_str.c_str()); // entity sprite ID : [n]
 
 		setSprite(&temp,tempSpriteID);
 
@@ -556,11 +550,7 @@ inline void LoadEntityData(int entity_count) {
 		temp.entity_tile = { (float)temp.x,(float)temp.y, (float)tile_width, (float)tile_height };
 
 		entity_list.push_back(temp);
-
-
-
 	}
-
 }
 
 inline bool ReadEntityData(string path) {
@@ -741,7 +731,7 @@ inline void setEntityCords()
 			{
 				if (entity_list[k].ID == cords[i][j]) 
 				{
-					cout << "Found: " << cords[i][j] << endl;
+					cout << "setEntityCords Found: " << cords[i][j] << endl;
 
 
 					temp.ID = entity_list[k].ID;
@@ -778,6 +768,8 @@ inline void setGuiEntities()
 	{
 		if (entity_list[k].ID == 1)
 		{
+			cout << "ID == 1 found" << endl;
+			
 			temp.ID = entity_list[k].ID;
 			temp.x = 0;
 			temp.y = 0;
@@ -806,12 +798,33 @@ inline void setGuiEntities()
 	}
 }
 
+
+inline void InitLog()
+{
+
+	string temp;
+
+
+	for (size_t i = 0; i < 100; i++)
+	{
+
+		temp = "Log line " + to_string(i);
+
+		log_lines.push_back(temp);
+	}
+
+
+}
+
+
 inline void setPlayer()
 {
 	entity temp;
 
 	for (size_t k = 0; k < map_entity_list.size(); k++)
 	{
+		cout << "setPlayer: " << map_entity_list[k].ID << endl;
+
 		if (map_entity_list[k].ID == player_entity_ID || map_entity_list[k].ID == 8)
 		{
 			//temp.ID = map_entity_list[k].ID;
@@ -821,6 +834,8 @@ inline void setPlayer()
 			//temp.h = map_entity_list[k].h;
 			//temp.entity_tile = map_entity_list[k].entity_tile;
 			//temp.sprite = map_entity_list[k].sprite;
+
+			cout << "true setPlayer: "<< map_entity_list[k].ID << endl;
 
 			game_entity_list.push_back(&map_entity_list[k]);
 
@@ -847,27 +862,25 @@ inline bool ReadSpriteData(string path) {
 	int divider_count = 0;
 
 	ifstream myfile(path);
+
 	if (myfile.is_open())
 	{
-
 		while (getline(myfile, line))
 		{
 			if (line.find(comment_token) == string::npos) {
-
 
 				if (line.find(entity_divider) == string::npos) {
 
 					sprite_lines.push_back(line);
 				}
-
-				else {
+				else 
+				{
 					divider_count++;
 				}
-
 			}
-			else {
+			else 
+			{
 				//	cout << line << endl;
-
 			}
 		}
 
@@ -883,8 +896,6 @@ inline bool ReadSpriteData(string path) {
 	printf("sprite count: %d \n", sprite_count);
 
 	LoadSpriteData(sprite_count);
-
-
 
 	return success;
 }

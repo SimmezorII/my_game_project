@@ -1,0 +1,40 @@
+------
+entity ID : [1]
+entity x : [0]
+entity y : [0]
+entity w : [740]
+entity h : [420]
+entity sprite ID : [1]
+------
+------
+entity ID : [3]
+entity x : [56]
+entity y : [58]
+entity w : [177]
+entity h : [144]
+entity sprite ID : [4]
+------
+------
+entity ID : [4]
+entity x : [316]
+entity y : [326]
+entity w : [177]
+entity h : [144]
+entity sprite ID : [2]
+------
+------
+entity ID : [5]
+entity x : [416]
+entity y : [426]
+entity w : [177]
+entity h : [144]
+entity sprite ID : [3]
+------
+------
+entity ID : [6]
+entity x : [216]
+entity y : [126]
+entity w : [177]
+entity h : [144]
+entity sprite ID : [2]
+------

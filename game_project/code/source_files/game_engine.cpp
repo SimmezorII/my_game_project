@@ -552,7 +552,7 @@ inline entity& getEnityByID(int entity_ID, vector<entity> &entities) {
 
 		if (entities[i].ID == entity_ID)
 		{
-			//cout << "entity found " << entity_list[i].ID << endl;
+			cout << "getEnityByID entity found " << entity_list[i].ID << endl;
 
 			return entities[i];
 		}
@@ -569,16 +569,15 @@ inline entity* getEnityByID(int entity_ID, vector<entity *> entities) {
 
 		if (entities[i]->ID == entity_ID)
 		{
-			
 
-			Log(entities[i]->sprite->name);
+			//Log(entities[i]->sprite->name);
 
 			return entities[i];
 		}
 
 	}
 
-	Log(entities[0]->sprite->name);
+	//Log(entities[0]->sprite->name);
 
 	return entities[0];
 }

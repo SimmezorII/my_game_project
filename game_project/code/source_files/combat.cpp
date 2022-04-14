@@ -1155,7 +1155,7 @@ inline void setField(field &fieldRef, int nx, int ny, int field_type)
 inline void initCombat()
 {
 
-	Log("InitCombat");
+	//Log("InitCombat");
 
 	gui_entity_list[0].render_this = true;
 

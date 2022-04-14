@@ -1,0 +1,16 @@
+------
+sprite ID : [1]
+sprite filename : [GridBLUE1920X1080.png]
+sprite x : [0]
+sprite y : [0]
+sprite w : [740]
+sprite h : [420]
+------
+------
+sprite ID : [2]
+sprite filename : [newTiles.png]
+sprite x : [0]
+sprite y : [0]
+sprite w : [64]
+sprite h : [32]
+------

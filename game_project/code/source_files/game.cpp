@@ -34,7 +34,6 @@ inline Rectangle ctrlvalue = { 0, 0, 0, 0 };
 
 inline void Load()
 {
-	
 	png_list = GetPNG_FilesInDir(GAME_ASSET_PATH.c_str());
 
 	//Load media
@@ -47,13 +46,13 @@ inline void Load()
 
 	}
 
-	cout << "Hello World" << endl;
-
 	ReadSpriteData(MAPS_PATH + "game_sprite_data.txt");
 
 	SetSpriteTextures();
 
 	ReadEntityData(MAPS_PATH + "game_entity_data.txt");
+
+	printf(" read entity data \n");
 
 	ReadMapData(MAPS_PATH + "map1.txt");
 
@@ -76,8 +75,10 @@ inline void Init()
 {
 	Load();
 
-	//InitLog();
+	InitLog();
 	//InitDebugLog();
+
+	printf("Load done\n");
 
 	game_entity = &entity_list[0];
 	
@@ -87,19 +88,24 @@ inline void Init()
 
 	player.move_range = 7;
 
+	for (size_t i = 0; i < game_entity_list.size(); i++)
+	{
+		cout << "entity in init " << game_entity_list[i]->ID << endl;
+	}
+
 	player.pEntity = getEnityByID(8, game_entity_list);
 
-	world_player.pEntity = getEnityByID(9, game_entity_list);
+	world_player.pEntity = getEnityByID(8, game_entity_list);
 
 	world_player.move_range = 7;
 
 	world_player.attack_range = 2;
 
-	target_field.range = world_player.move_range;
+	target_field.range = 5;
 
 	setField(target_field, entity_list[0].x, entity_list[0].y, SQUARE);
 
-	combatant_list.push_back(world_player);
+	//combatant_list.push_back(world_player);
 
 	combatant_list.push_back(player);
 
@@ -117,7 +123,9 @@ inline void Init()
 	objects_to_render.push_back(0);
 	objects_to_render.push_back(0);
 
-	//initCombat();
+	printf("before init combat\n");
+
+	initCombat();
 
 
 	//Log("test 1");
@@ -127,7 +135,7 @@ inline void Init()
 	//	Log("Log",i);
 	//}
 
-	Log("Init");
+	//Log("Init");
 }
 
 
@@ -158,8 +166,6 @@ inline void InitGameplayScreen(void)
 inline void UpdateGameplayScreen(void)
 {
 	CheckKeyboardInput();
-
-
 	//UpdateDebugText();
 	
 
@@ -248,11 +254,11 @@ inline void DrawGameplayScreen(void)
 
 	//drawIsoTriangles(target);
 	
-	DebugLog("test 14: ", LogScrollCounter);
+	//DebugLog("test 14: ", LogScrollCounter);
 
-	RenderLog();
+	//RenderLog();
 
-	RenderDebugLog();
+	//RenderDebugLog();
 }
 
 
