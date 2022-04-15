@@ -2,8 +2,8 @@
 #include <iostream>
 #include <fstream>
 
-#include "raylib.h"
-#include "code/header_files/globals.h"
+#include "../header_files/raylib.h"
+#include "../header_files/globals.h"
 
 
 
@@ -553,9 +553,9 @@ inline void LoadEntityData(int entity_count) {
 	}
 }
 
-inline bool ReadEntityData(string path) {
+inline int ReadEntityData(string path) {
 
-	bool success = false;
+	int temp_entity_count = 0;
 
 	entity_lines.clear();
 
@@ -570,31 +570,25 @@ inline bool ReadEntityData(string path) {
 	ifstream myfile(path);
 	if (myfile.is_open())
 	{
-
 		while (getline(myfile, line))
 		{
 			if (line.find(comment_token) == string::npos) {
 
-
 				if (line.find(entity_divider) == string::npos) {
-
 
 					entity_lines.push_back(line);
 
 				}
-
-				else {
+				else 
+				{
 					divider_count++;
 				}
-
 			}
-			else {
+			else
+			{
 				//	cout << line << endl;
-
 			}
-
 		}
-
 
 		myfile.close();
 	}
@@ -603,30 +597,15 @@ inline bool ReadEntityData(string path) {
 		printf("Unable to open file\n");
 	}
 
-	//for (size_t i = 0; i < lines.size(); i++)
-	//{
+	temp_entity_count = divider_count / 2;
 
-	//	cout << lines[i] << endl;
-	//}
-
-
-	entity_count = divider_count / 2;
-
-	printf("entity count: %d \n", entity_count);
-
-
-	LoadEntityData(entity_count);
-
-	return success;
-
-
+	return temp_entity_count;
 }
 
 inline bool ReadMapData(string path) {
 
 	//string map_path = path + "map1.txt";
 	
-
 	bool success = false;
 
 	string entity_divider = "------";
@@ -637,58 +616,44 @@ inline bool ReadMapData(string path) {
 
 	int divider_count = 0;
 
-
 	map_lines.clear();
 
 	ifstream myfile(path);
 	if (myfile.is_open())
 	{
-
 		while (getline(myfile, line))
 		{
-			if (line.find(comment_token) == string::npos) {
-
-
-				if (line.find(entity_divider) == string::npos) {
-
-
+			if (line.find(comment_token) == string::npos)
+			{
+				if (line.find(entity_divider) == string::npos)
+				{
 					map_lines.push_back(line);
-
 				}
-
-				else {
+				else 
+				{
 					divider_count++;
 				}
-
 			}
-			else {
+			else 
+			{
 				//	cout << line << endl;
-
 			}
-
 		}
 
-
 		myfile.close();
+		success = true;
 	}
 	else
 	{
 		printf("Unable to open file\n");
 	}
 
-
 	for (size_t i = 0; i < map_lines.size(); i++)
 	{
-
-			cout << map_lines[i] << endl;
+		cout << map_lines[i] << endl;
 	}
 
-	//entity_count = divider_count / 2;
-
-	//printf("entity count: %d \n", entity_count);
 	return success;
-
-
 }
 
 inline void setMapCords()
@@ -799,24 +764,6 @@ inline void setGuiEntities()
 }
 
 
-inline void InitLog()
-{
-
-	string temp;
-
-
-	for (size_t i = 0; i < 100; i++)
-	{
-
-		temp = "Log line " + to_string(i);
-
-		log_lines.push_back(temp);
-	}
-
-
-}
-
-
 inline void setPlayer()
 {
 	entity temp;
@@ -845,13 +792,11 @@ inline void setPlayer()
 }
 
 
-inline bool ReadSpriteData(string path) {
-
-	bool success = false;
+inline int ReadSpriteData(string path) {
 
 	sprite_lines.clear();
 
-	int sprite_count;
+	int sprite_count = -1;
 
 	string entity_divider = "------";
 
@@ -893,11 +838,7 @@ inline bool ReadSpriteData(string path) {
 
 	sprite_count = divider_count / 2;
 
-	printf("sprite count: %d \n", sprite_count);
-
-	LoadSpriteData(sprite_count);
-
-	return success;
+	return sprite_count;
 }
 
 inline int WriteEntityDataSingle(entity e) {

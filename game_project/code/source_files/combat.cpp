@@ -5,11 +5,9 @@
 
 
 #include <iostream>
-#include "raylib.h"
-#include "code/header_files/raygui.h"
-#include "code/header_files/globals.h"
-#include "code/source_files/game_engine.cpp"
-
+#include "../header_files/raylib.h"
+#include "../header_files/globals.h"
+#include "game_engine.cpp"
 
 
 

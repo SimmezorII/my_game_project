@@ -9,13 +9,15 @@
 
 
 #include <iostream>
-#include "raylib.h"
-#include "code/header_files/raylib_functions.h"
+#include "../header_files/raylib.h"
+#include "../header_files/raylib_functions.h"
 
-#include "code/header_files/raygui.h"
-#include "code/header_files/globals.h"
-#include "code/header_files/game_entities.h"
+//#include "code/header_files/raygui.h"
+#include "../header_files/globals.h"
+#include "../header_files/game_entities.h"
 //#include "code/source_files/file_handler.cpp"
+
+//#include "code/header_files/screens.h"
 
 using namespace std;
 
@@ -28,8 +30,8 @@ using namespace std;
 static tile_triangles temp4;
 
 //Used by ColorFieldTileEntityList, reset with MovePressed
-inline static bool enemy_colored = false;
-inline static int entity_checked = 0;
+ static bool enemy_colored = false;
+ static int entity_checked = 0;
 
 
 inline void Log(string text, float value)
@@ -584,9 +586,9 @@ inline entity* getEnityByID(int entity_ID, vector<entity *> entities) {
 
 
 
-inline Rectangle tempcheckrect = { 0,0,0,0 };
+ Rectangle tempcheckrect = { 0,0,0,0 };
 
-inline Rectangle & getEntityRect(entity & e){
+ Rectangle & getEntityRect(entity & e){
 
 	tempcheckrect = { (float)(e.x + e.sprite->offset_x), (float)(e.y +e.sprite->offset_y),(float)e.w, (float)e.h };
 
@@ -613,14 +615,11 @@ inline entity& getEnityByID(int entity_ID) {
 
 
 
-inline Vector2 get_entity_vector()
-{
-
-}
 
 
-inline Rectangle recSprite2;
-inline Rectangle recEntity2;
+
+ Rectangle recSprite2;
+ Rectangle recEntity2;
 
 
 
@@ -643,7 +642,7 @@ inline int getCurrentToRender()
 }
 
 
-inline pos temp = { 0,0 };
+ pos temp = { 0,0 };
 
 static int index_counter = 0;
 
@@ -1362,7 +1361,7 @@ inline void RenderTextList() {
 
 
 
-inline Rectangle infoRect = { (GameGui.x - 200) , GameGui.y , 100, 16 };
+ Rectangle infoRect = { (GameGui.x - 200) , GameGui.y , 100, 16 };
 
 
 //inline void RendedDebugInfo()
@@ -1385,55 +1384,10 @@ inline Rectangle infoRect = { (GameGui.x - 200) , GameGui.y , 100, 16 };
 //}
 
 
-inline Rectangle LogInfoRect = { 0 , 0 , 100, 16 };
 
-inline Rectangle ScrollBar = { 8 , GAMEWINDOW_HEIGHT - 200 - 16, 10, 16 * 11 };
+ Rectangle DebugLogInfoRect = { 0 , 0 , 100, 16 };
 
-
-
-inline void RenderLog()
-{
-	LogInfoRect.x = 20;
-
-	LogInfoRect.y = GAMEWINDOW_HEIGHT - 200;
-
-	int rendernum = 0;
-
-	for (size_t i = log_lines.size(); i-- > 0; )
-	{
-		if (rendernum < currentline_log)
-		{
-			// Render only 11 lines at the time, as it scrolls
-			if (rendernum < 89) {
-
-				if (rendernum > 89 - LogScrollCounter - 1)
-				{
-					//GuiLabel({ LogInfoRect.x, LogInfoRect.y + ((i - LogScrollCounter) * LogInfoRect.height) - (LogInfoRect.height * 1), LogInfoRect.width, LogInfoRect.height }, log_lines[(currentline_log - 1 - rendernum)].c_str());
-					rendernum++;
-				}
-				else
-				{
-					rendernum++;
-				}
-
-			}
-			else
-			{
-				//GuiLabel({ LogInfoRect.x, LogInfoRect.y + ((i - LogScrollCounter) * LogInfoRect.height) - (LogInfoRect.height * 1), LogInfoRect.width, LogInfoRect.height }, log_lines[(currentline_log - 1 - rendernum)].c_str());
-
-				rendernum++;
-			}
-		}
-	}
-
-	//LogScrollCounter = GuiScrollBar(ScrollBar, LogScrollCounter, 100 - currentline_log, 89);
-
-}
-
-
-inline Rectangle DebugLogInfoRect = { 0 , 0 , 100, 16 };
-
-inline Rectangle DebugScrollBar = { 8 + 400, GAMEWINDOW_HEIGHT - 200 - 16, 10, 16 * 11 };
+ Rectangle DebugScrollBar = { 8 + 400, GAMEWINDOW_HEIGHT - 200 - 16, 10, 16 * 11 };
 
 
 inline void RenderDebugLog()
@@ -1579,7 +1533,7 @@ inline bool CheckCollisionMouseEntity() {
 
 
 
-inline float offset = 4;
+ float offset = 4;
 
 
 inline void initActionMenu()
@@ -1722,11 +1676,11 @@ inline bool setMouseEntity(vector<entity> &entities) {
 
 /////-------------------------------------------------  RenderField -------------------------------------------
 
-inline Rectangle recSprite = { 64, 0, 64, 32 };
+ Rectangle recSprite = { 64, 0, 64, 32 };
 
-inline Rectangle recEntity = { 0, 0, 0,0 };
+ Rectangle recEntity = { 0, 0, 0,0 };
 
-inline Vector2 vec = { 0 , 0 };
+ Vector2 vec = { 0 , 0 };
 
 inline void RenderField(field &fieldRef) {
 
@@ -1898,9 +1852,9 @@ inline void RenderAllLayers()
 
 /////-------------------------------------------------  ColorFieldTile -------------------------------------------
 
-inline Rectangle temp1 = { -100,-100,0,0 };
+ Rectangle temp1 = { -100,-100,0,0 };
 
-inline Rectangle temp2 = { -100,-100,0,0 };
+ Rectangle temp2 = { -100,-100,0,0 };
 
 inline void SetFieldTileColors(field &fieldRef, int Sprite_ID)
 {
@@ -2588,7 +2542,39 @@ inline bool CollisionIsoTrianglesMouse(Rectangle  &e)
 
 }
 
+inline void InitDebugLog()
+{
 
+	string temp;
+
+
+	for (size_t i = 0; i < 100; i++)
+	{
+
+		temp = "Log line " + to_string(i);
+
+		debuglog_lines.push_back(temp);
+	}
+
+
+}
+
+inline void InitLog()
+{
+
+	string temp;
+
+
+	for (size_t i = 0; i < 100; i++)
+	{
+
+		temp = "Log line " + to_string(i);
+
+		log_lines.push_back(temp);
+	}
+
+
+}
 
 
 

@@ -5,7 +5,7 @@
 
 ======================================================================== */
 #include <string>
-#include "code/header_files/globals.h"
+#include "globals.h"
 
 struct win32_window_dimension
 {

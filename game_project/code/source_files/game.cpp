@@ -8,7 +8,9 @@
 
 #include "logic.cpp"
 #include "combat.cpp"
-//#include "code/header_files/screens.h"
+#include "../header_files/raylib.h"
+
+#include "../header_files/raylib_functions.h"
 
 
 //----------------------------------------------------------------------------------
@@ -22,11 +24,11 @@ static int finishScreen;
 //  Variables Definition 
 //----------------------------------------------------------------------------------
 
-inline Rectangle panelRec2 = { 20, 40, 200, 150 };
-inline Rectangle panelContentRec2 = { 0, 0, 340, 340 };
-inline Vector2 panelScroll2 = { 99, -20 };
+ Rectangle panelRec2 = { 20, 40, 200, 150 };
+ Rectangle panelContentRec2 = { 0, 0, 340, 340 };
+ Vector2 panelScroll2 = { 99, -20 };
 
-inline Rectangle ctrlvalue = { 0, 0, 0, 0 };
+ Rectangle ctrlvalue = { 0, 0, 0, 0 };
 
 //----------------------------------------------------------------------------------
 // Function Definitions
@@ -34,6 +36,8 @@ inline Rectangle ctrlvalue = { 0, 0, 0, 0 };
 
 inline void Load()
 {
+	int sprite_count;
+
 	png_list = GetPNG_FilesInDir(GAME_ASSET_PATH.c_str());
 
 	//Load media
@@ -46,17 +50,41 @@ inline void Load()
 
 	}
 
-	ReadSpriteData(MAPS_PATH + "game_sprite_data.txt");
+	sprite_count = ReadSpriteData(MAPS_PATH + "game_sprite_data.txt");
+
+	if (sprite_count > 0) 
+	{
+		printf("LoadSpriteData(sprite_count), sprite_count was %d\n", sprite_count);
+		LoadSpriteData(sprite_count);
+	}
+	else 
+	{
+		printf("LoadSpriteData(sprite_count), sprite_count was %d\n", sprite_count);
+	}
+
+
+	entity_count = ReadEntityData(MAPS_PATH + "game_entity_data.txt");
+
+	if (sprite_count > 0)
+	{
+		printf("LoadEntityData(entity_count), entity_count was %d\n", entity_count);
+		LoadEntityData(entity_count);
+	}
+	else
+	{
+		printf("LoadEntityData(entity_count), entity_count was %d\n", entity_count);
+	}
 
 	SetSpriteTextures();
 
-	ReadEntityData(MAPS_PATH + "game_entity_data.txt");
-
-	printf(" read entity data \n");
-
-	ReadMapData(MAPS_PATH + "map1.txt");
-
-	setMapCords();
+	if (ReadMapData(MAPS_PATH + "map1.txt")) 
+	{
+		setMapCords();
+	}
+	else
+	{
+		printf("\n");
+	}
 
 	setEntityCords();
 
@@ -68,6 +96,9 @@ inline void Load()
 
 	printf("Sprite string:%s\n", sprite_png_list.c_str()); 
 
+
+	printf("Load done\n");
+
 }
 
 
@@ -76,9 +107,7 @@ inline void Init()
 	Load();
 
 	InitLog();
-	//InitDebugLog();
-
-	printf("Load done\n");
+	InitDebugLog();
 
 	game_entity = &entity_list[0];
 	
@@ -105,9 +134,9 @@ inline void Init()
 
 	setField(target_field, entity_list[0].x, entity_list[0].y, SQUARE);
 
-	//combatant_list.push_back(world_player);
+	combatant_list.push_back(world_player);
 
-	combatant_list.push_back(player);
+	//combatant_list.push_back(player);
 
 	action_target = &action_target_rect;
 
@@ -128,14 +157,14 @@ inline void Init()
 	initCombat();
 
 
-	//Log("test 1");
+	Log("test 1");
 
-	//for (size_t i = 0; i < 15; i++)
-	//{
-	//	Log("Log",i);
-	//}
+	for (size_t i = 0; i < 15; i++)
+	{
+		Log("Log");
+	}
 
-	//Log("Init");
+	Log("Init");
 }
 
 
@@ -256,7 +285,10 @@ inline void DrawGameplayScreen(void)
 	
 	//DebugLog("test 14: ", LogScrollCounter);
 
-	//RenderLog();
+
+	//GuiLabel({ 800, 100, 100,100 },"This label works");
+
+	RenderLog();
 
 	//RenderDebugLog();
 }

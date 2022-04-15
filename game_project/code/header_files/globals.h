@@ -8,7 +8,7 @@
 
 #include <string>
 #include <vector>
-#include "code/header_files/game_entities.h"
+#include "game_entities.h"
 
 
 using namespace std;
@@ -42,7 +42,7 @@ global_variable  int currentScreen = 0;
 global_variable  int GAMEWINDOW_WIDTH = 1600;
 global_variable  int GAMEWINDOW_HEIGHT = 940;
 
-
+// This path is relative to the .exe file
 global_variable char cstrGAME_ASSET_PATH[100] = "resources\\assets\\game\\";
 
 global_variable char cstrGUI_ASSET_PATH[100] = "resources\\assets\\gui\\";

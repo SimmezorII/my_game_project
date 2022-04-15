@@ -2,13 +2,18 @@
 
 ======================================================================== */
 
+#pragma once
+
+#ifndef logic_cpp
+#define logic_cpp
+
+
 #include <iostream>
-#include "raylib.h"
-#include "code/header_files/raygui.h"
-#include "code/header_files/globals.h"
-#include "code/header_files/game_entities.h"
-#include "code/source_files/game_engine.cpp"
-#include "code/source_files/combat.cpp"
+#include "../header_files/raylib.h"
+#include "../header_files/globals.h"
+#include "../header_files/game_entities.h"
+#include "game_engine.cpp"
+#include "combat.cpp"
 //#include "gui.cpp"
 #include "file_handler.cpp"
 
@@ -32,15 +37,15 @@ static float time1;
 
 static float time2;
 
-inline bool on_field = false;
+ bool on_field = false;
 
-inline bool moved_combatant = false;
+ bool moved_combatant = false;
 
-inline bool moved_target = false;
+ bool moved_target = false;
 
-inline static double last = 0;
+ static double last = 0;
 
-inline static double last2 = 0;
+ static double last2 = 0;
 
 inline void UpdateTargetFieldRange()
 {
@@ -232,7 +237,7 @@ inline void AttackLogic()
 	}
 }
 
-inline Rectangle temptarget;
+ Rectangle temptarget;
 
 inline void ResetFieldVariables()
 {
@@ -444,7 +449,7 @@ inline void ActionGuiLogic()
 
 }
 
-inline bool collision = false;
+ bool collision = false;
 
 inline void TargetLogic() {
 
@@ -804,7 +809,7 @@ inline void MoveUnit()
 	}
 }
 
-inline static bool startset = false;
+ static bool startset = false;
 
 inline bool HoverSelect(field &fieldRef, entity *e)
 {
@@ -909,7 +914,7 @@ inline void EditorGuiLogic()
 	}
 }
 
-inline bool run_init = false;
+ bool run_init = false;
 
 
 
@@ -965,3 +970,7 @@ inline void CombatLogic()
 	}
 
 }
+
+
+
+#endif

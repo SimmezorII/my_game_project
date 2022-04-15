@@ -12,10 +12,10 @@
 *
 ********************************************************************************************/
 
-#include "raylib.h"
+#include "../header_files/raylib.h"
 //#include "code/header_files/screens.h"
-#include "code/header_files/globals.h"
-#include "code/source_files/game.cpp"
+#include "../header_files/globals.h"
+#include "game.cpp"
 
 
 // Required variables to manage screen transitions (fade-in, fade-out)
