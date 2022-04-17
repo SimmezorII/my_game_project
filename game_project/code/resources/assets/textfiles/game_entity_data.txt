@@ -2,59 +2,59 @@
 entity ID : [1]
 entity w : [1280]
 entity h : [640]
-entity sprite ID : [1]
+entity sprite ID : [6]
 ------
 ------
 entity ID : [2]
 entity w : [1280]
 entity h : [640]
-entity sprite ID : [2]
+entity sprite ID : [29]
 ------
 ------
 entity ID : [3]
 entity w : [64]
 entity h : [32]
-entity sprite ID : [3]
+entity sprite ID : [45]
 ------
 ------
 entity ID : [4]
 entity w : [64]
 entity h : [32]
-entity sprite ID : [4]
+entity sprite ID : [61]
 ------
 ------
 entity ID : [5]
 entity w : [64]
 entity h : [32]
-entity sprite ID : [5]
+entity sprite ID : [45]
 ------
 ------
 entity ID : [6]
 entity w : [64]
 entity h : [32]
-entity sprite ID : [6]
+entity sprite ID : [45]
 ------
 ------
 entity ID : [7] "target"
 entity w : [64]
 entity h : [32]
-entity sprite ID : [7]
+entity sprite ID : [59]
 ------
 ------
 entity ID : [8] "sedric"
 entity w : [122]
 entity h : [106]
-entity sprite ID : [8]
+entity sprite ID : [52]
 ------
 ------
 entity ID : [9]
 entity w : [80]
 entity h : [60]
-entity sprite ID : [8]
+entity sprite ID : [9]
 ------
 ------
 entity ID : [10]
 entity w : [177]
 entity h : [144]
-entity sprite ID : [10]
+entity sprite ID : [60]
 ------

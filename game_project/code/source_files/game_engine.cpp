@@ -570,14 +570,17 @@ inline entity& getEnityByID(string sprite_name, vector<entity>& entities) {
 	for (size_t i = 0; i < entities.size(); i++)
 	{
 
-		if (sprite_name.compare(entities[i].sprite->name) == true)
+		if (sprite_name.compare(entities[i].sprite->name) == 0)
 		{
-			cout << "getEnityByID entity found " << entity_list[i].ID << endl;
+			cout << "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx getEnityByID entity found " << entity_list[i].ID << endl;
 
 			return entities[i];
 		}
 
 	}
+
+	cout << "getEnityByID entity not found " << entity_list[0].ID << endl;
+
 
 	return entities[0];
 }
