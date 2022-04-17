@@ -10,3 +10,7 @@ bin/
 build/
 
 raylib/
+
+old/
+
+gameproject_bat/

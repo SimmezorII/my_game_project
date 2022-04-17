@@ -15,7 +15,7 @@
 //#include "code/header_files/raygui.h"
 #include "../header_files/globals.h"
 #include "../header_files/game_entities.h"
-//#include "code/source_files/file_handler.cpp"
+
 
 //#include "code/header_files/screens.h"
 
@@ -563,6 +563,27 @@ inline entity& getEnityByID(int entity_ID, vector<entity> &entities) {
 
 	return entities[0];
 }
+
+
+inline entity& getEnityByID(string sprite_name, vector<entity>& entities) {
+
+	for (size_t i = 0; i < entities.size(); i++)
+	{
+
+		if (sprite_name.compare(entities[i].sprite->name) == true)
+		{
+			cout << "getEnityByID entity found " << entity_list[i].ID << endl;
+
+			return entities[i];
+		}
+
+	}
+
+	return entities[0];
+}
+
+
+
 
 inline entity* getEnityByID(int entity_ID, vector<entity *> entities) {
 
@@ -2575,6 +2596,7 @@ inline void InitLog()
 
 
 }
+
 
 
 

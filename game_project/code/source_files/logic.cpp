@@ -144,6 +144,13 @@ inline void CheckKeyboardInput()
 		cout << endl;
 	}
 
+	if (IsKeyPressed(KEY_F5))
+	{
+
+		cout << "WriteSpriteDataRaw" << endl;
+		WriteSpriteDataRaw(MAPS_PATH + "game_sprite_data_raw.txt");
+	}
+
 
 }
 

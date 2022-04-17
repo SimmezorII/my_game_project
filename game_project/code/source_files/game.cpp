@@ -41,7 +41,7 @@ inline void Load()
 
 	png_list = GetPNG_FilesInDir(GAME_ASSET_PATH.c_str());
 
-	//Load media
+	//Loads all png files into textures
 	if (!GAME_CreateTextures())
 	{
 		printf("Failed to load GUI media!\n");
@@ -112,7 +112,7 @@ inline void Init()
 
 	game_entity = &entity_list[0];
 	
-	target = &getEnityByID(7, gui_entity_list);
+	target = &getEnityByID("target", gui_entity_list);
 
 	target->render_this = false;
 

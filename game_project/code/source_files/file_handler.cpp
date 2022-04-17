@@ -4,8 +4,7 @@
 
 #include "../header_files/raylib.h"
 #include "../header_files/globals.h"
-
-
+#include "game_engine.cpp"
 
 using namespace std;
 
@@ -950,3 +949,42 @@ inline int WriteSpriteData(string path) {
 
 }
 
+
+
+
+inline int WriteSpriteDataRaw(string path) {
+
+	ofstream myfile(path);
+
+
+	if (myfile.is_open())
+	{
+
+
+		for (size_t i = 0; i < png_list.size(); i++)
+		{
+
+			myfile << "------" << "\n";
+			myfile << "sprite ID : [" << i+1 << "]" << "\n";
+			myfile << "sprite name : [" << png_list[i].substr(0, png_list[i].length()-4) << "]" << "\n";
+			myfile << "sprite filename : [" << png_list[i] << "]" << "\n";
+
+			myfile << "sprite x : [" << 0 << "]" << "\n";
+			myfile << "sprite y : [" << 0 << "]" << "\n";
+			myfile << "sprite w : [" << gui_texture_list[i].tex.width << "]" << "\n";
+			myfile << "sprite h : [" << gui_texture_list[i].tex.height << "]" << "\n";
+			myfile << "sprite offset_x: [" << 0 << "]" << "\n";
+			myfile << "sprite offset_y: [" << 0 << "]" << "\n";
+
+			myfile << "------" << "\n";
+
+		}
+
+
+		myfile.close();
+		return 1;
+	}
+	else cout << "Unable to open file";
+	return 0;
+
+}
