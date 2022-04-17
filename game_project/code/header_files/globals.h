@@ -27,6 +27,15 @@ global_variable bool SaveButton001;
 global_variable bool SaveButton002;
 global_variable bool ReloadButton;
 
+global_variable bool ToggleSpriteOffsetX = false;
+global_variable bool ToggleSpriteX = false;
+global_variable bool ToggleSpriteOffsetY = false;
+global_variable bool ToggleSpriteY = false;
+
+global_variable bool dropDown001EditMode = false;
+global_variable bool ToggleEntityBoxes = false;
+
+
 global_variable enum { TITLE = 0, OPTIONS, GAMEPLAY, ENDING, GUI } GameScreen;
 
 global_variable enum Direction { UP = 0, DOWN, LEFT, RIGHT };

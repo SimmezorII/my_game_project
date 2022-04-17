@@ -13,3 +13,6 @@ copy ..\code\lib_files\raylib.dll
 
 
 popd
+
+..\build\my_game.exe
+

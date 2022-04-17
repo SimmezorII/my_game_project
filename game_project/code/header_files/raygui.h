@@ -508,7 +508,10 @@ RAYGUIAPI Rectangle GuiScrollPanel(Rectangle bounds, const char *text, Rectangle
 
 // Basic controls set
 RAYGUIAPI void GuiLabel(Rectangle bounds, const char *text);                                            // Label control, shows text
-RAYGUIAPI bool GuiButton(Rectangle bounds, const char *text);                                           // Button control, returns true when clicked
+RAYGUIAPI bool GuiButton(Rectangle bounds, const char *text);  // Button control, returns true when clicked
+
+RAYGUIAPI bool GuiButtonEx(Rectangle bounds, const char *text, Rectangle rect, int key);
+
 RAYGUIAPI bool GuiLabelButton(Rectangle bounds, const char *text);                                      // Label button control, show true when clicked
 RAYGUIAPI bool GuiToggle(Rectangle bounds, const char *text, bool active);                              // Toggle Button control, returns true when active
 RAYGUIAPI int GuiToggleGroup(Rectangle bounds, const char *text, int active);                           // Toggle Group control, returns active toggle index
@@ -1643,6 +1646,48 @@ bool GuiButton(Rectangle bounds, const char *text)
 
     return pressed;
 }
+
+// Button control, returns true when clicked
+bool GuiButtonEx(Rectangle bounds, const char *text, Rectangle rect, int key)
+{
+	GuiControlState state = guiState;
+	bool pressed = false;
+
+	// Update control
+	//--------------------------------------------------------------------
+	if ((state != GUI_STATE_DISABLED) && !guiLocked)
+	{
+		Vector2 mousePoint = GetMousePosition();
+
+		// Check button state
+		if (CheckCollisionRecs(rect, bounds))
+		{
+			if (IsKeyPressed(key))
+			{
+				state = GUI_STATE_PRESSED;
+			}
+			else
+			{
+				state = GUI_STATE_FOCUSED;
+			}
+
+			if (IsKeyReleased(key))
+			{
+				pressed = true;
+			}
+		}
+	}
+	//--------------------------------------------------------------------
+
+	// Draw control
+	//--------------------------------------------------------------------
+	GuiDrawRectangle(bounds, GuiGetStyle(BUTTON, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(BUTTON, BORDER + (state * 3))), guiAlpha), Fade(GetColor(GuiGetStyle(BUTTON, BASE + (state * 3))), guiAlpha));
+	GuiDrawText(text, GetTextBounds(BUTTON, bounds), GuiGetStyle(BUTTON, TEXT_ALIGNMENT), Fade(GetColor(GuiGetStyle(BUTTON, TEXT + (state * 3))), guiAlpha));
+	//------------------------------------------------------------------
+
+	return pressed;
+}
+
 
 // Label button control
 bool GuiLabelButton(Rectangle bounds, const char *text)
@@ -4363,6 +4408,10 @@ static const char *CodepointToUTF8(int codepoint, int *byteSize)
 
     return utf8;
 }
+
+
+
+
 
 // Get next codepoint in a UTF-8 encoded text, scanning until '\0' is found
 // When a invalid UTF-8 byte is encountered we exit as soon as possible and a '?'(0x3f) codepoint is returned

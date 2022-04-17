@@ -8,6 +8,7 @@
 
 #include "logic.cpp"
 #include "combat.cpp"
+#include "gui.cpp"
 #include "../header_files/raylib.h"
 
 #include "../header_files/raylib_functions.h"
@@ -124,7 +125,7 @@ inline void Init()
 
 	player.pEntity = getEnityByID(8, game_entity_list);
 
-	world_player.pEntity = getEnityByID(8, game_entity_list);
+	world_player.pEntity = getEnityByID(9, game_entity_list);
 
 	world_player.move_range = 7;
 
@@ -136,7 +137,7 @@ inline void Init()
 
 	combatant_list.push_back(world_player);
 
-	//combatant_list.push_back(player);
+	combatant_list.push_back(player);
 
 	action_target = &action_target_rect;
 
@@ -165,6 +166,8 @@ inline void Init()
 	}
 
 	Log("Init");
+
+	
 }
 
 
@@ -232,7 +235,7 @@ inline void UpdateGameplayScreen(void)
 		TargetLogic();
 	}
 
-	//render_entity_boxes = ToggleEntityBoxes;
+	render_entity_boxes = ToggleEntityBoxes;
 
 	if (combatant_selected > -1)
 	{
@@ -274,19 +277,17 @@ inline void DrawGameplayScreen(void)
 
 	RenderEntityBoxes(map_entity_list);
 
-	//DrawGui();
+	DrawGui();
 
 	if (ActionMenuUp == true)
 	{
-		//DrawActionGui();
+		DrawActionGui();
 	}
 
 	//drawIsoTriangles(target);
 	
 	//DebugLog("test 14: ", LogScrollCounter);
 
-
-	//GuiLabel({ 800, 100, 100,100 },"This label works");
 
 	RenderLog();
 
