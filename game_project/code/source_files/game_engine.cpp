@@ -27,7 +27,7 @@ using namespace std;
 #define local_persist static 
 #define global_variable static
 
-static tile_triangles temp4;
+
 
 //Used by ColorFieldTileEntityList, reset with MovePressed
  static bool enemy_colored = false;
@@ -266,78 +266,6 @@ inline bool Init(int width, int height, char title[]) {
 
 
 	return 0;
-}
-
-
-inline texture& getTexture(string sprite_name)
-{
-
-	string temp_img = "";
-
-	for (size_t i = 0; i < sprite_list.size(); i++)
-	{
-		if (sprite_list[i].name == sprite_name)
-		{
-			//cout << "Sprite found " << sprite_list[i].img << endl;
-
-			temp_img = sprite_list[i].img;
-			break;
-		}
-	}
-
-
-
-	for (size_t n = 0; n < gui_texture_list.size(); n++)
-	{
-		//	cout << "Path found " << gui_texture_list[n].path << endl;
-
-		std::size_t found = gui_texture_list[n].path.find(temp_img);
-		if (found != std::string::npos)
-		{
-			//cout << "Texture found " << gui_texture_list[n].path << endl;
-
-			return gui_texture_list[n];
-			break;
-		}
-	}
-
-	return gui_texture_list[0];
-}
-
-
-inline texture& getTexture(int sprite_ID)
-{
-
-	string temp_img = "";
-
-	for (size_t i = 0; i < sprite_list.size(); i++)
-	{
-		if (sprite_list[i].ID == sprite_ID)
-		{
-			//cout << "Sprite found " << sprite_list[i].img << endl;
-
-			temp_img = sprite_list[i].img;
-			break;
-		}
-	}
-
-
-
-	for (size_t n = 0; n < gui_texture_list.size(); n++)
-	{
-		//	cout << "Path found " << gui_texture_list[n].path << endl;
-
-		std::size_t found = gui_texture_list[n].path.find(temp_img);
-		if (found != std::string::npos)
-		{
-			//cout << "Texture found " << gui_texture_list[n].path << endl;
-
-			return gui_texture_list[n];
-			break;
-		}
-	}
-
-	return gui_texture_list[0];
 }
 
 
@@ -961,14 +889,14 @@ inline void RenderEntityBoxes(vector<entity> &entities) {
 		entities[i].entity_tile.y = entities[i].y;
 
 
-		if (render_entity_boxes == true)
-		{
-			DrawRectangleLines(entities[i].entity_tile.x, entities[i].entity_tile.y, tile_width, tile_height, BLUE);
+		//if (render_entity_boxes == true)
+		//{
+			DrawRectangleLines(gamescreen_offset_x + entities[i].entity_tile.x, gamescreen_offset_y + entities[i].entity_tile.y, tile_width, tile_height, BLUE);
 
-			DrawRectangleLines(entities[i].x, entities[i].y, entities[i].w, entities[i].h, RED);
+			DrawRectangleLines(gamescreen_offset_x + entities[i].x, gamescreen_offset_y + entities[i].y, entities[i].w, entities[i].h, RED);
 
-			DrawRectangleLines((float)entities[i].x + entities[i].sprite->offset_x, (float)entities[i].y + entities[i].sprite->offset_y, entities[i].w, entities[i].h, GREEN);
-		}
+			DrawRectangleLines(gamescreen_offset_x + (float)entities[i].x + entities[i].sprite->offset_x, gamescreen_offset_y + (float)entities[i].y + entities[i].sprite->offset_y, entities[i].w, entities[i].h, GREEN);
+		//}
 
 	}
 
@@ -1667,8 +1595,8 @@ inline bool setMouseEntity(vector<entity> &entities) {
 
 	bool ret = false;
 
-	int mouseX = GetMouseX();
-	int mouseY = GetMouseY();
+	int mouseX = GetMouseX() - gamescreen_offset_x;
+	int mouseY = GetMouseY() - gamescreen_offset_y;
 
 	Rectangle mouseRect = { mouseX,mouseY,1,1 };
 	//	Rectangle tempEntityRect;
@@ -1719,7 +1647,7 @@ inline void RenderField(field &fieldRef) {
 
 		//DrawTexturePro( getTexture("BlueTile").tex , recSprite, recEntity, vec, 0, WHITE);
 
-		//DrawTexturePro(getTexture(target_field.tiles[i].sprite->ID).tex, recSprite, recEntity, vec, 0, WHITE);
+		//
 
 		//cout << objects_to_render[list_next] << endl;
 
@@ -1832,45 +1760,20 @@ inline void SortLayerRenderObjectList()
 
 inline void RenderAllLayers() 
 {
-
-
 	for (size_t i = 0; i < SortedRenderObject_list.size(); i++)
 	{
 		if (SortedRenderObject_list[i] != NULL)
 		{
 			if (SortedRenderObject_list[i]->render_this == true)
 			{
-				DrawTexturePro(SortedRenderObject_list[i]->texture, SortedRenderObject_list[i]->source, SortedRenderObject_list[i]->dest, SortedRenderObject_list[i]->origin, SortedRenderObject_list[i]->rotation, SortedRenderObject_list[i]->tint);
+				DrawTexturePro(SortedRenderObject_list[i]->texture, SortedRenderObject_list[i]->source, 
+					{ SortedRenderObject_list[i]->dest.x + gamescreen_offset_x, SortedRenderObject_list[i]->dest.y + gamescreen_offset_y, SortedRenderObject_list[i]->dest.width,  SortedRenderObject_list[i]->dest.height },
+					SortedRenderObject_list[i]->origin, SortedRenderObject_list[i]->rotation, SortedRenderObject_list[i]->tint);
 			}		
 		}
 	}
 }
 
-//inline void Render_listsTwo()
-//{
-//	int draw = 1;
-//
-//	for (size_t i = 0; i < Render_lists[draw].size(); i++)
-//	{
-//	
-//			DrawTexturePro(Render_lists[draw][i]->texture, Render_lists[draw][i]->source, Render_lists[draw][i]->dest, Render_lists[draw][i]->origin, Render_lists[draw][i]->rotation, Render_lists[draw][i]->tint);
-//
-//	}
-//
-//}
-//
-//inline void Render_listsOne()
-//{
-//	int draw = 0;
-//
-//	for (size_t i = 0; i < Render_lists[draw].size(); i++)
-//	{
-//
-//		DrawTexturePro(Render_lists[draw][i]->texture, Render_lists[draw][i]->source, Render_lists[draw][i]->dest, Render_lists[draw][i]->origin, Render_lists[draw][i]->rotation, Render_lists[draw][i]->tint);
-//
-//	}
-//
-//}
 
 /////----------------------------------------------------------------------------------------------------
 
@@ -2114,120 +2017,6 @@ inline void randomSpawnTile(field &fieldRef, field &spawn_field)
 	
 }
 
-inline tile_rect getTileRect(Rectangle &t)
-{
-	tile_rect temp;
-
-	temp.line_1_p1_x = t.x + t.width / 2;
-	temp.line_1_p1_y = t.y;
-
-	temp.line_1_p2_x = t.x;
-	temp.line_1_p2_y = t.y + t.height / 2;
-
-	temp.line_2_p1_x = t.x;
-	temp.line_2_p1_y = t.y + t.height / 2;
-
-	temp.line_2_p2_x = t.x + t.width / 2;
-	temp.line_2_p2_y = t.y + t.height;
-
-	temp.line_3_p1_x = t.x + t.width / 2;
-	temp.line_3_p1_y = t.y + t.height;
-
-	temp.line_3_p2_x = t.x + t.width;
-	temp.line_3_p2_y = t.y + t.height / 2;
-
-	temp.line_4_p1_x = t.x + t.width;
-	temp.line_4_p1_y = t.y + t.height / 2;
-
-	temp.line_4_p2_x = t.x + t.width /2;
-	temp.line_4_p2_y = t.y;
-
-
-
-	//cout << "temp.line_1_p1_x: " << temp.line_1_p1_x << "temp.line_1_p1_y" << temp.line_1_p1_y << endl;
-
-	return temp;
-}
-
-
-inline tile_triangles getTileTriangles(Rectangle &t)
-{
-	tile_triangles temp;
-
-	temp.tri_1_line_1_x = t.x + t.width / 2;
-	temp.tri_1_line_1_y = t.y;
-
-	temp.tri_1_line_2_x = t.x;
-	temp.tri_1_line_2_y = t.y + t.height / 2;
-
-	temp.tri_1_line_3_x = t.x + t.width  / 2 + 1;
-	temp.tri_1_line_3_y = t.y + t.height / 2 + 1;
-
-	temp.tri_2_line_1_x = t.x;
-	temp.tri_2_line_1_y = t.y + t.height / 2;
-
-	temp.tri_2_line_2_x = t.x + t.width / 2;
-	temp.tri_2_line_2_y = t.y + t.height - 1;
-
-	temp.tri_2_line_3_x = t.x + t.width  / 2 - 1;
-	temp.tri_2_line_3_y = t.y + t.height / 2 - 1;
-
-	temp.tri_3_line_1_x = t.x + t.width / 2;
-	temp.tri_3_line_1_y = t.y + t.height - 1;
-
-	temp.tri_3_line_2_x = t.x + t.width;
-	temp.tri_3_line_2_y = t.y + t.height / 2;
-
-	temp.tri_3_line_3_x = t.x + t.width  / 2 - 1;
-	temp.tri_3_line_3_y = t.y + t.height / 2 - 1;
-
-	temp.tri_4_line_1_x = t.x + t.width;
-	temp.tri_4_line_1_y = t.y + t.height / 2;
-
-	temp.tri_4_line_2_x = t.x + t.width / 2;
-	temp.tri_4_line_2_y = t.y;
-
-	temp.tri_4_line_3_x = t.x + t.width / 2 + 1;
-	temp.tri_4_line_3_y = t.y + t.height / 2 + 1;
-
-	return temp;
-}
-
-
-inline tile_rect getTileInnerRect(Rectangle &t)
-{
-	tile_rect temp;
-
-	temp.line_1_p1_x = t.x + t.width / 2;
-	temp.line_1_p1_y = t.y + 1;
-
-	temp.line_1_p2_x = t.x + 2;
-	temp.line_1_p2_y = t.y + t.height / 2;
-
-	temp.line_2_p1_x = t.x + 2;
-	temp.line_2_p1_y = t.y + t.height / 2;
-
-	temp.line_2_p2_x = t.x + t.width / 2;
-	temp.line_2_p2_y = t.y + t.height - 1;
-
-	temp.line_3_p1_x = t.x + t.width / 2;
-	temp.line_3_p1_y = t.y + t.height - 1;
-
-	temp.line_3_p2_x = t.x + t.width -2 ;
-	temp.line_3_p2_y = t.y + t.height / 2;
-
-	temp.line_4_p1_x = t.x + t.width - 2;
-	temp.line_4_p1_y = t.y + t.height / 2;
-
-	temp.line_4_p2_x = t.x + t.width / 2;
-	temp.line_4_p2_y = t.y + 1;
-
-	//cout << "temp.line_1_p1_x: " << temp.line_1_p1_x << "temp.line_1_p1_y" << temp.line_1_p1_y << endl;
-
-	return temp;
-}
-
-
 
 
 inline void drawIsoTriangles( entity * e)
@@ -2306,265 +2095,6 @@ inline void drawInnerIsoRect(entity * e)
 
 
 
-inline void CollisionIsoRect(entity * e)
-{
-	Vector2 mouse;
-
-	Vector2 p1;
-	Vector2 p2;
-
-	bool coll_line1;
-	bool coll_line2;
-	bool coll_line3;
-	bool coll_line4;
-
-	bool inner_coll_line1;
-	bool inner_coll_line2;
-	bool inner_coll_line3;
-	bool inner_coll_line4;
-
-
-	tile_rect temp3 = getTileRect(e->entity_tile);
-
-	mouse.x = GetMouseX();
-	mouse.y = GetMouseY();
-
-	p1.x = temp3.line_1_p1_x;
-	p1.y = temp3.line_1_p1_y;
-
-	p2.x = temp3.line_1_p2_x;
-	p2.y = temp3.line_1_p2_y;
-
-	coll_line1 = CheckCollisionPointLine(mouse, p1, p2, 1);
-
-	p1.x = temp3.line_2_p1_x;
-	p1.y = temp3.line_2_p1_y;
-
-	p2.x = temp3.line_2_p2_x;
-	p2.y = temp3.line_2_p2_y;
-
-	coll_line2 = CheckCollisionPointLine(mouse, p1, p2, 1);
-
-	p1.x = temp3.line_3_p1_x;
-	p1.y = temp3.line_3_p1_y;
-
-	p2.x = temp3.line_3_p2_x;
-	p2.y = temp3.line_3_p2_y;
-
-	coll_line3 = CheckCollisionPointLine(mouse, p1, p2, 1);
-
-	p1.x = temp3.line_4_p1_x;
-	p1.y = temp3.line_4_p1_y;
-
-	p2.x = temp3.line_4_p2_x;
-	p2.y = temp3.line_4_p2_y;
-
-	coll_line4 = CheckCollisionPointLine(mouse, p1, p2, 1);
-
-	temp3 = getTileInnerRect(e->entity_tile);
-
-	p1.x = temp3.line_1_p1_x;
-	p1.y = temp3.line_1_p1_y;
-
-	p2.x = temp3.line_1_p2_x;
-	p2.y = temp3.line_1_p2_y;
-
-	inner_coll_line1 = CheckCollisionPointLine(mouse, p1, p2, 1);
-
-	p1.x = temp3.line_2_p1_x;
-	p1.y = temp3.line_2_p1_y;
-
-	p2.x = temp3.line_2_p2_x;
-	p2.y = temp3.line_2_p2_y;
-
-	inner_coll_line2 = CheckCollisionPointLine(mouse, p1, p2, 1);
-
-	p1.x = temp3.line_3_p1_x;
-	p1.y = temp3.line_3_p1_y;
-
-	p2.x = temp3.line_3_p2_x;
-	p2.y = temp3.line_3_p2_y;
-
-	inner_coll_line3 = CheckCollisionPointLine(mouse, p1, p2, 1);
-
-	p1.x = temp3.line_4_p1_x;
-	p1.y = temp3.line_4_p1_y;
-
-	p2.x = temp3.line_4_p2_x;
-	p2.y = temp3.line_4_p2_y;
-
-	inner_coll_line4 = CheckCollisionPointLine(mouse, p1, p2, 1);
-
-
-
-	if ( (coll_line1 || coll_line2 || coll_line3 || coll_line4)  ||  (inner_coll_line1 || inner_coll_line2 || inner_coll_line3 || inner_coll_line4)  )
-	{
-
-		cout << "Collission line "  << endl;
-
-	}
-
-}
-
-//tile_triangles temp4;
-
-inline bool CollisionIsoTrianglesMouse(entity * e)
-{
-	Vector2 mouse;
-
-	bool coll_tri1;
-	bool coll_tri2;
-	bool coll_tri3;
-	bool coll_tri4;
-
-	bool collision = false;
-
-	Vector2 p1;
-	Vector2 p2;
-	Vector2 p3;
-
-	temp4 = getTileTriangles(e->entity_tile);
-
-	mouse.x = GetMouseX();
-	mouse.y = GetMouseY();
-
-
-	p1.x = temp4.tri_1_line_1_x;
-	p1.y = temp4.tri_1_line_1_y;
-
-	p2.x = temp4.tri_1_line_2_x;
-	p2.y = temp4.tri_1_line_2_y;
-
-	p3.x = temp4.tri_1_line_3_x;
-	p3.y = temp4.tri_1_line_3_y;
-
-
-	coll_tri1 = CheckCollisionPointTriangle( mouse,  p1,  p2,  p3);
-
-	p1.x = temp4.tri_2_line_1_x;
-	p1.y = temp4.tri_2_line_1_y;
-
-	p2.x = temp4.tri_2_line_2_x;
-	p2.y = temp4.tri_2_line_2_y;
-
-	p3.x = temp4.tri_2_line_3_x;
-	p3.y = temp4.tri_2_line_3_y;
-
-
-	coll_tri2 = CheckCollisionPointTriangle(mouse, p1, p2, p3);
-
-	p1.x = temp4.tri_3_line_1_x;
-	p1.y = temp4.tri_3_line_1_y;
-
-	p2.x = temp4.tri_3_line_2_x;
-	p2.y = temp4.tri_3_line_2_y;
-
-	p3.x = temp4.tri_3_line_3_x;
-	p3.y = temp4.tri_3_line_3_y;
-
-
-	coll_tri3 = CheckCollisionPointTriangle(mouse, p1, p2, p3);
-
-	p1.x = temp4.tri_4_line_1_x;
-	p1.y = temp4.tri_4_line_1_y;
-
-	p2.x = temp4.tri_4_line_2_x;
-	p2.y = temp4.tri_4_line_2_y;
-
-	p3.x = temp4.tri_4_line_3_x;
-	p3.y = temp4.tri_4_line_3_y;
-
-
-	coll_tri4 = CheckCollisionPointTriangle(mouse, p1, p2, p3);
-
-
-	if ((coll_tri1 || coll_tri2 || coll_tri3 || coll_tri4))
-	{
-		collision = true;
-	}
-
-	return collision;
-
-}
-
-inline bool CollisionIsoTrianglesMouse(Rectangle  &e)
-{
-	Vector2 mouse;
-
-	bool coll_tri1;
-	bool coll_tri2;
-	bool coll_tri3;
-	bool coll_tri4;
-
-	bool collision = false;
-
-	Vector2 p1;
-	Vector2 p2;
-	Vector2 p3;
-
-	temp4 = getTileTriangles(e);
-
-	mouse.x = GetMouseX();
-	mouse.y = GetMouseY();
-
-
-	p1.x = temp4.tri_1_line_1_x;
-	p1.y = temp4.tri_1_line_1_y;
-
-	p2.x = temp4.tri_1_line_2_x;
-	p2.y = temp4.tri_1_line_2_y;
-
-	p3.x = temp4.tri_1_line_3_x;
-	p3.y = temp4.tri_1_line_3_y;
-
-
-	coll_tri1 = CheckCollisionPointTriangle(mouse, p1, p2, p3);
-
-	p1.x = temp4.tri_2_line_1_x;
-	p1.y = temp4.tri_2_line_1_y;
-
-	p2.x = temp4.tri_2_line_2_x;
-	p2.y = temp4.tri_2_line_2_y;
-
-	p3.x = temp4.tri_2_line_3_x;
-	p3.y = temp4.tri_2_line_3_y;
-
-
-	coll_tri2 = CheckCollisionPointTriangle(mouse, p1, p2, p3);
-
-	p1.x = temp4.tri_3_line_1_x;
-	p1.y = temp4.tri_3_line_1_y;
-
-	p2.x = temp4.tri_3_line_2_x;
-	p2.y = temp4.tri_3_line_2_y;
-
-	p3.x = temp4.tri_3_line_3_x;
-	p3.y = temp4.tri_3_line_3_y;
-
-
-	coll_tri3 = CheckCollisionPointTriangle(mouse, p1, p2, p3);
-
-	p1.x = temp4.tri_4_line_1_x;
-	p1.y = temp4.tri_4_line_1_y;
-
-	p2.x = temp4.tri_4_line_2_x;
-	p2.y = temp4.tri_4_line_2_y;
-
-	p3.x = temp4.tri_4_line_3_x;
-	p3.y = temp4.tri_4_line_3_y;
-
-
-	coll_tri4 = CheckCollisionPointTriangle(mouse, p1, p2, p3);
-
-
-	if ((coll_tri1 || coll_tri2 || coll_tri3 || coll_tri4))
-	{
-		collision = true;
-	}
-
-	return collision;
-
-}
 
 inline void InitDebugLog()
 {

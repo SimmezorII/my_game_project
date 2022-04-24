@@ -64,7 +64,7 @@ inline void Load()
 	}
 
 
-	entity_count = ReadEntityData(MAPS_PATH + "game_entity_data.txt");
+	entity_count = ReadEntityData(MAPS_PATH + "game_entity_data_temp.txt");
 
 	if (sprite_count > 0)
 	{
@@ -78,7 +78,7 @@ inline void Load()
 
 	SetSpriteTextures();
 
-	if (ReadMapData(MAPS_PATH + "map1.txt")) 
+	if (ReadMapData(MAPS_PATH + "map2.txt")) 
 	{
 		setMapCords();
 	}
@@ -86,6 +86,8 @@ inline void Load()
 	{
 		printf("\n");
 	}
+
+	setPosCords();
 
 	setEntityCords();
 
@@ -127,6 +129,10 @@ inline void Init()
 
 	world_player.pEntity = getEnityByID(9, game_entity_list);
 
+
+	player.pEntity->sprite->offset_x = (-0 * (player.pEntity->w / 4) );
+	player.pEntity->sprite->offset_y = (-0 * player.pEntity->h / 2);
+
 	world_player.move_range = 7;
 
 	world_player.attack_range = 2;
@@ -167,7 +173,7 @@ inline void Init()
 
 	Log("Init");
 
-	
+	render_entity_boxes = true;
 }
 
 
@@ -215,10 +221,19 @@ inline void UpdateGameplayScreen(void)
 	}
 
 
+	if (NewEntityButton) 
+	{
+		printf("NewEntityButton Clicked\n");
+		PLACING_ENTITY = true;
+		NewEntityButton = false;
+	}
+
 	if (setMouseEntity(map_entity_list)  == true) 
 	{
 
 	}
+
+	CreateNewEntity();
 
 	MouseLogic();
 
@@ -275,14 +290,25 @@ inline void DrawGameplayScreen(void)
 
 	RenderAllLayers();
 
-	RenderEntityBoxes(map_entity_list);
+
 
 	DrawGui();
+
+	RenderSelectedSprite();
 
 	if (ActionMenuUp == true)
 	{
 		DrawActionGui();
 	}
+
+
+	if (PLACING_ENTITY == true)
+	{
+		RenderNewEntity();
+	}
+
+	RenderEntityBoxes(gui_entity_list);
+	RenderEntityBoxes(map_entity_list);
 
 	//drawIsoTriangles(target);
 	

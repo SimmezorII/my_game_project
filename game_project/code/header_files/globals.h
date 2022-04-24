@@ -27,6 +27,10 @@ global_variable bool SaveButton001;
 global_variable bool SaveButton002;
 global_variable bool ReloadButton;
 
+global_variable bool NewEntityButton = false;
+
+global_variable bool PLACING_ENTITY = false;
+
 global_variable bool ToggleSpriteOffsetX = false;
 global_variable bool ToggleSpriteX = false;
 global_variable bool ToggleSpriteOffsetY = false;
@@ -35,6 +39,8 @@ global_variable bool ToggleSpriteY = false;
 global_variable bool dropDown001EditMode = false;
 global_variable bool ToggleEntityBoxes = false;
 
+global_variable int gamescreen_offset_x = 32;
+global_variable int gamescreen_offset_y = 32;
 
 global_variable enum { TITLE = 0, OPTIONS, GAMEPLAY, ENDING, GUI } GameScreen;
 
@@ -51,6 +57,9 @@ global_variable  int currentScreen = 0;
 global_variable  int GAMEWINDOW_WIDTH = 1600;
 global_variable  int GAMEWINDOW_HEIGHT = 940;
 
+global_variable  int GRID_WIDTH = 1280;
+global_variable  int GRID_HEIGHT = 640;
+
 // This path is relative to the .exe file
 global_variable char cstrGAME_ASSET_PATH[100] = "resources\\assets\\game\\";
 
@@ -64,8 +73,6 @@ global_variable string GAME_ASSET_PATH = "resources\\assets\\game\\";
 global_variable string GUI_ASSET_PATH = "resources\\assets\\gui\\";
 
 global_variable string MAPS_PATH = "resources\\assets\\textfiles\\";
-
-
 
 //global_variable TTF_Font *GAME_FONT = NULL;
 
@@ -223,6 +230,17 @@ global_variable int logreset = 0;
 global_variable int game_turn = 0;
 
 global_variable bool PLAYER_TURN = false;
+
+global_variable int num_of_added = 1;
+
+global_variable string string_cords[40][20];
+
+global_variable int cords[40][20];
+
+global_variable pos pos_cords[40][20];
+
+global_variable int row = 0;
+
 
 #define GLOBALS_H
 #endif

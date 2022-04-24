@@ -28,6 +28,78 @@ inline bool CheckCollisionPointLine(Vector2 point, Vector2 p1, Vector2 p2, int t
 }
 
 
+inline texture& getTexture(string sprite_name)
+{
+
+	string temp_img = "";
+
+	for (size_t i = 0; i < sprite_list.size(); i++)
+	{
+		if (sprite_list[i].name == sprite_name)
+		{
+			//cout << "Sprite found " << sprite_list[i].img << endl;
+
+			temp_img = sprite_list[i].img;
+			break;
+		}
+	}
+
+
+
+	for (size_t n = 0; n < gui_texture_list.size(); n++)
+	{
+		//	cout << "Path found " << gui_texture_list[n].path << endl;
+
+		std::size_t found = gui_texture_list[n].path.find(temp_img);
+		if (found != std::string::npos)
+		{
+			//cout << "Texture found " << gui_texture_list[n].path << endl;
+
+			return gui_texture_list[n];
+			break;
+		}
+	}
+
+	return gui_texture_list[0];
+}
+
+
+inline texture& getTexture(int sprite_ID)
+{
+
+	string temp_img = "";
+
+	for (size_t i = 0; i < sprite_list.size(); i++)
+	{
+		if (sprite_list[i].ID == sprite_ID)
+		{
+			//cout << "Sprite found " << sprite_list[i].img << endl;
+
+			temp_img = sprite_list[i].img;
+			break;
+		}
+	}
+
+
+
+	for (size_t n = 0; n < gui_texture_list.size(); n++)
+	{
+		//	cout << "Path found " << gui_texture_list[n].path << endl;
+
+		std::size_t found = gui_texture_list[n].path.find(temp_img);
+		if (found != std::string::npos)
+		{
+			//cout << "Texture found " << gui_texture_list[n].path << endl;
+
+			return gui_texture_list[n];
+			break;
+		}
+	}
+
+	return gui_texture_list[0];
+}
+
+
 
 
 

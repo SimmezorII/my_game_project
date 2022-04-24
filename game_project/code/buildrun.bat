@@ -9,7 +9,6 @@ pushd ..\build
 
 cl -Zi ..\code\source_files\my_game.cpp  ..\code\lib_files\raylib.lib
 
-copy ..\code\lib_files\raylib.dll 
 
 
 popd

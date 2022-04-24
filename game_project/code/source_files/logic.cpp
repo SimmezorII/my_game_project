@@ -12,6 +12,7 @@
 #include "../header_files/raylib.h"
 #include "../header_files/globals.h"
 #include "../header_files/game_entities.h"
+#include "../header_files/Logic_func.h"
 #include "game_engine.cpp"
 #include "combat.cpp"
 //#include "gui.cpp"
@@ -882,11 +883,19 @@ inline void MouseLogic()
 	if (IsMouseButtonDown(MOUSE_LEFT_BUTTON) && true)
 	{
 		//	printf("Button LEFT is pressed and Entity one clicked");
+
 	}
 
 	if (IsMouseButtonDown(MOUSE_RIGHT_BUTTON))
 	{
-		//	printf("Button RIGHT is pressed");
+		//printf("Button RIGHT is pressed");
+
+		if (PLACING_ENTITY)
+		{
+			PLACING_ENTITY = false;
+			//printf("Button RIGHT is pressed");
+		}
+
 	}
 
 }

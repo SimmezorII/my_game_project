@@ -121,7 +121,7 @@ inline vector <string> GetPNG_FilesInDir(const char * path)
 
 	ClearDirectoryFiles();
 
-	printf("Png list: %s\n", all_png_list.c_str());
+	//printf("Png list: %s\n", all_png_list.c_str());
 
 	return png_list;
 }
@@ -266,11 +266,6 @@ inline string GetDataFromReadlineTwo(string line)
 
 
 
-global_variable string string_cords[40][20];
-
-global_variable int cords[40][20];
-
-global_variable int row = 0;
 
 inline string GetDataFromReadlineThree(string line)
 {
@@ -724,15 +719,43 @@ inline void setEntityCords()
 	}
 }
 
+
+inline void setPosCords()
+{
+	cout << "Testing setPosCords" << endl;
+	//cords[39][20]
+
+	for (size_t i = 0; i < 40; i++)
+	{
+		for (size_t j = 0; j < 20; j++)
+		{
+			if (i % 2 == 0)
+			{
+				pos_cords[i][j].x = (j * 64);
+				pos_cords[i][j].y = (i * 16);
+			}
+			else
+			{
+				pos_cords[i][j].x = (j * 64) + 32;
+				pos_cords[i][j].y = (i * 16);
+			}
+
+
+		}
+	}
+}
+
+
+
 inline void setGuiEntities()
 {
 	entity temp;
 
 	for (size_t k = 0; k < entity_list.size(); k++)
 	{
-		if (entity_list[k].ID == 1)
+		if (entity_list[k].ID == 99) //
 		{
-			cout << "ID == 1 found" << endl;
+			cout << "ID == 1 found, background set, setGuiEntities" << endl;
 			
 			temp.ID = entity_list[k].ID;
 			temp.x = 0;
@@ -747,7 +770,7 @@ inline void setGuiEntities()
 
 		if (entity_list[k].ID == 7) 
 		{
-			cout << "target found" << endl;
+			cout << "target found, setGuiEntities" << endl;
 			temp.ID = entity_list[k].ID;
 			temp.x = 32;
 			temp.y = 32;
@@ -840,35 +863,7 @@ inline int ReadSpriteData(string path) {
 	return sprite_count;
 }
 
-inline int WriteEntityDataSingle(entity e) {
 
-	ofstream myfile("../assets/textfiles/game_data_temp.txt");
-	if (myfile.is_open())
-	{	
-		myfile << "------" << "\n";
-		myfile << "entity ID : [" << e.ID << "]" << "\n";
-		myfile << "entity x : [" << e.x <<"]" << "\n";
-		myfile << "entity y : [" << e.y << "]" << "\n";
-		myfile << "entity w : [" << e.w << "]" << "\n";
-		myfile << "entity h : [" << e.h << "]" << "\n";
-
-//		myfile << "entity sprite ID : [" << e.sprite_ID << "]" << "\n";
-//		myfile << "entity sprite filename : [" << e.sprite.img << "]" << "\n";
-//		myfile << "entity sprite x : [" << e.sprite.x << "]" << "\n";
-//		myfile << "entity sprite y : [" << e.sprite.y << "]" << "\n";
-//		myfile << "entity sprite w : [" << e.sprite.w << "]" << "\n";
-//		myfile << "entity sprite h : [" << e.sprite.h << "\n";
-
-		myfile << "------" << "\n";
-
-
-		myfile.close();
-		return 1;
-	}
-	else cout << "Unable to open file";
-	return 0;
-
-}
 
 inline int WriteEntityData(string path) {
 
