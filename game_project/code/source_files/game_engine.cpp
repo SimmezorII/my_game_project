@@ -286,7 +286,6 @@ inline texture myLoadTexture(std::string path)
 	else
 	{
 		printf("Unable to create texture from %s\n", path.c_str());
-
 	}
 
 	return myTemp;
@@ -359,14 +358,12 @@ inline bool GUI_CreateTextures()
 
 	for (size_t i = 0; i < png_list.size(); i++)
 	{
-
 		texture temp = myLoadTexture(GUI_ASSET_PATH + png_list[i]);
 
 		gui_texture_list.push_back(temp);
-
 	}
-	cout << "entity texture list: " << gui_texture_list.size() << endl;
 
+	cout << "entity texture list: " << gui_texture_list.size() << endl;
 
 	return success;
 }
@@ -386,7 +383,6 @@ inline bool GAME_CreateTextures()
 
 	}
 	cout << "entity texture list: " << gui_texture_list.size() << endl;
-
 
 	return success;
 }
@@ -500,7 +496,7 @@ inline entity& getEnityByID(string sprite_name, vector<entity>& entities) {
 
 		if (sprite_name.compare(entities[i].sprite->name) == 0)
 		{
-			cout << "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx getEnityByID entity found " << entity_list[i].ID << endl;
+			cout << "getEnityByID entity found " << entity_list[i].ID << endl;
 
 			return entities[i];
 		}
@@ -537,7 +533,6 @@ inline entity* getEnityByID(int entity_ID, vector<entity *> entities) {
 }
 
 
-
  Rectangle tempcheckrect = { 0,0,0,0 };
 
  Rectangle & getEntityRect(entity & e){
@@ -565,14 +560,8 @@ inline entity& getEnityByID(int entity_ID) {
 	return entity_list[0];
 }
 
-
-
-
-
-
  Rectangle recSprite2;
  Rectangle recEntity2;
-
 
 
 global_variable vector<pos> Layer1;
@@ -889,14 +878,14 @@ inline void RenderEntityBoxes(vector<entity> &entities) {
 		entities[i].entity_tile.y = entities[i].y;
 
 
-		//if (render_entity_boxes == true)
-		//{
+		if (ToggleEntityBoxes == true)
+		{
 			DrawRectangleLines(gamescreen_offset_x + entities[i].entity_tile.x, gamescreen_offset_y + entities[i].entity_tile.y, tile_width, tile_height, BLUE);
 
 			DrawRectangleLines(gamescreen_offset_x + entities[i].x, gamescreen_offset_y + entities[i].y, entities[i].w, entities[i].h, RED);
 
 			DrawRectangleLines(gamescreen_offset_x + (float)entities[i].x + entities[i].sprite->offset_x, gamescreen_offset_y + (float)entities[i].y + entities[i].sprite->offset_y, entities[i].w, entities[i].h, GREEN);
-		//}
+		}
 
 	}
 

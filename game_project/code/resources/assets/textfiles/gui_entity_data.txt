@@ -1,0 +1,42 @@
+------
+entity ID : [1]
+entity w : [1280]
+entity h : [640]
+entity sprite ID : [1]
+------
+------
+entity ID : [2]
+entity w : [1280]
+entity h : [640]
+entity sprite ID : [2]
+------
+------
+entity ID : [3]
+entity w : [64]
+entity h : [32]
+entity sprite ID : [3]
+------
+------
+entity ID : [4]
+entity w : [64]
+entity h : [32]
+entity sprite ID : [4]
+------
+------
+entity ID : [5]
+entity w : [64]
+entity h : [32]
+entity sprite ID : [5]
+------
+------
+entity ID : [6]
+entity w : [64]
+entity h : [32]
+entity sprite ID : [6]
+------
+------
+entity ID : [7] "target"
+entity w : [64]
+entity h : [32]
+entity sprite ID : [7]
+------

@@ -15,12 +15,21 @@ Rectangle SpriteGroupBoxRect = { gamescreen_offset_x + GRID_WIDTH + 60, 20, 200,
 
 entity gui_temp_entity;
 
+Rectangle temp_sprite_rec;
+
+entity new_e;
+
+int selected_sprite = 1;
+
+inline void InitGui() 
+{
+	new_game_entity = &new_e;
+
+}
 
 inline void DrawGui()
 {
-
 	int n = 0;
-
 
 	bool ToggleSpriteOffsetX = false;
 	bool ToggleSpriteX = false;
@@ -28,9 +37,8 @@ inline void DrawGui()
 	bool ToggleSpriteY = false;
 
 	bool dropDown001EditMode = false;
-	bool ToggleEntityBoxes = false;
 
-	 Rectangle SaveRect2 = { 0, 0 , 40 , 24 };
+	Rectangle SaveRect2 = { 0, 0 , 40 , 24 };
 
 	 SaveButton002 = GuiButton({ SaveRect2.x,  SaveRect2.y, SaveRect2.width, SaveRect2.height }, "Save");
 
@@ -136,9 +144,9 @@ inline void DrawGui()
  }
 
 
- Rectangle temp_sprite_rec;
 
- int selected_sprite = 1;
+
+
 
 inline void RenderSelectedSprite() 
 {
@@ -147,19 +155,13 @@ inline void RenderSelectedSprite()
 	temp_sprite_rec.width = 100;
 
 	temp_sprite_rec.x = gamescreen_offset_x + GRID_WIDTH + 100;
-
 	temp_sprite_rec.y = gamescreen_offset_y + 400;
+
+
 
 	GuiSpinner({ temp_sprite_rec.x,temp_sprite_rec.y - 30, 100,20}, "sprite id", &selected_sprite, 1, sprite_list.size(), false);
 
-
 	DrawTexturePro(getTexture(selected_sprite).tex, { 0, 0, (float)getTexture(selected_sprite).tex.width, (float)getTexture(selected_sprite).tex.height}, temp_sprite_rec, {0,0}, 0, WHITE);
-
-	temp_sprite_rec.y = temp_sprite_rec.y + temp_sprite_rec.height + (n * 20) ;
-
-	GuiSpinner({ temp_sprite_rec.x,temp_sprite_rec.y, 100,20 }, "entity x", &game_entity->sprite->x, 0, 2000, ToggleSpriteX);
-	n++;
-
 
 	//ToggleSpriteX = GuiToggle({ gui_temp.x + gui_temp.width + 2, gui_temp.y, 40, gui_temp.height }, "Edit", ToggleSpriteX);
 
@@ -171,6 +173,25 @@ inline void RenderSelectedSprite()
 	//ToggleSpriteY = GuiToggle({ gui_temp.x + gui_temp.width + 2, gui_temp.y, 40, gui_temp.height }, "Edit", ToggleSpriteY);
 
 	NewEntityButton = GuiButton({ temp_sprite_rec.x,temp_sprite_rec.y + temp_sprite_rec.height + 20, 40,20 }, "New");
+
+	new_e.sprite = &getSpriteEx(selected_sprite);
+
+
+
+	temp_sprite_rec.y = temp_sprite_rec.y + temp_sprite_rec.height + (n * 20);
+
+	GuiSpinner({ temp_sprite_rec.x,temp_sprite_rec.y, 100,20 }, "new entity w", &new_e.sprite->w, 0, 2000, ToggleSpriteX);
+	n++;
+
+	temp_sprite_rec.y = temp_sprite_rec.y + temp_sprite_rec.height + (n * 20);
+
+	GuiSpinner({ temp_sprite_rec.x,temp_sprite_rec.y, 100,20 }, "new entity h", &new_e.sprite->h, 0, 2000, ToggleSpriteX);
+	n++;
+
+	//new_e.w = new_e.sprite->w;
+	//new_e.h = new_e.sprite->h;
+
+
 }
 
 inline void RenderNewEntity()
@@ -188,7 +209,7 @@ inline void RenderNewEntity()
 
 }
 
-entity new_e;
+
 
 
 inline void AddNewEntity(int x, int y)
@@ -201,7 +222,6 @@ inline void AddNewEntity(int x, int y)
 	new_e.ID = entity_list[entity_list.size()-1].ID + num_of_added;
 
 	new_e.sprite = &getSpriteEx(selected_sprite);
-
 
 	new_e.render_this = true;
 

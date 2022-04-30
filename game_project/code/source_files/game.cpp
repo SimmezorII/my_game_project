@@ -63,7 +63,6 @@ inline void Load()
 		printf("LoadSpriteData(sprite_count), sprite_count was %d\n", sprite_count);
 	}
 
-
 	entity_count = ReadEntityData(MAPS_PATH + "game_entity_data_temp.txt");
 
 	if (sprite_count > 0)
@@ -91,6 +90,7 @@ inline void Load()
 
 	setEntityCords();
 
+	// Loads entities seperate from game entities that need to be present on a map
 	setGuiEntities();
 
 	player_entity_ID = 9;
@@ -185,7 +185,7 @@ inline void InitGameplayScreen(void)
 
 	Init();
 
-	//InitGui();
+	InitGui();
 
 	initActionMenu();
 
@@ -250,7 +250,7 @@ inline void UpdateGameplayScreen(void)
 		TargetLogic();
 	}
 
-	render_entity_boxes = ToggleEntityBoxes;
+	//render_entity_boxes = ToggleEntityBoxes;
 
 	if (combatant_selected > -1)
 	{

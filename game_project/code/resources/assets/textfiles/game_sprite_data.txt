@@ -314,7 +314,7 @@ sprite x : [0]
 sprite y : [0]
 sprite w : [1280]
 sprite h : [640]
-sprite offset_x: [-64]
+sprite offset_x: [0]
 sprite offset_y: [0]
 ------
 ------

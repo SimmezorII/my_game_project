@@ -82,6 +82,8 @@ global_variable int FONT_SIZE = 10;
 
 global_variable vector <string> png_list;
 
+global_variable vector <string> gui_png_list;
+
 global_variable string all_png_list;
 
 global_variable string sprite_png_list;
@@ -187,6 +189,8 @@ global_variable bool attacking = false;
 global_variable float input_delay = 0.1;
 
 global_variable entity * game_entity;
+
+global_variable entity * new_game_entity;
 
 global_variable entity * target;
 

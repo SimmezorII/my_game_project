@@ -112,3 +112,33 @@ entity w : [62]
 entity h : [32]
 entity sprite ID : [57]
 ------
+------
+entity ID : [20]
+entity w : [5]
+entity h : [7]
+entity sprite ID : [1]
+------
+------
+entity ID : [21]
+entity w : [5]
+entity h : [7]
+entity sprite ID : [1]
+------
+------
+entity ID : [22]
+entity w : [62]
+entity h : [32]
+entity sprite ID : [7]
+------
+------
+entity ID : [23]
+entity w : [64]
+entity h : [32]
+entity sprite ID : [34]
+------
+------
+entity ID : [24]
+entity w : [37]
+entity h : [35]
+entity sprite ID : [24]
+------

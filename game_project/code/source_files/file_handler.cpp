@@ -753,7 +753,7 @@ inline void setGuiEntities()
 
 	for (size_t k = 0; k < entity_list.size(); k++)
 	{
-		if (entity_list[k].ID == 99) //
+		if (entity_list[k].ID == 1) // Background
 		{
 			cout << "ID == 1 found, background set, setGuiEntities" << endl;
 			
@@ -767,6 +767,22 @@ inline void setGuiEntities()
 
 			gui_entity_list.push_back(temp);
 		}
+
+		if (entity_list[k].ID == 2) // Grid
+		{
+			cout << "ID == 2 found, Grid set, setGuiEntities" << endl;
+
+			temp.ID = entity_list[k].ID;
+			temp.x = 0;
+			temp.y = 0;
+			temp.w = entity_list[k].w;
+			temp.h = entity_list[k].h;
+			temp.entity_tile = entity_list[k].entity_tile;
+			temp.sprite = entity_list[k].sprite;
+
+			gui_entity_list.push_back(temp);
+		}
+
 
 		if (entity_list[k].ID == 7) 
 		{
@@ -951,6 +967,21 @@ inline int WriteSpriteDataRaw(string path) {
 
 	ofstream myfile(path);
 
+	for (size_t i = 0; i < gui_texture_list.size(); i++)
+	{
+		for (size_t j = 0; j < gui_texture_list.size(); j++)
+		{
+			if (gui_texture_list[j].path.find(png_list[i]) != std::string::npos)
+			{
+				cout << "2:" << gui_texture_list[j].path << endl;
+			}
+		}
+				
+	}
+
+
+
+
 
 	if (myfile.is_open())
 	{
@@ -959,20 +990,26 @@ inline int WriteSpriteDataRaw(string path) {
 		for (size_t i = 0; i < png_list.size(); i++)
 		{
 
-			myfile << "------" << "\n";
-			myfile << "sprite ID : [" << i+1 << "]" << "\n";
-			myfile << "sprite name : [" << png_list[i].substr(0, png_list[i].length()-4) << "]" << "\n";
-			myfile << "sprite filename : [" << png_list[i] << "]" << "\n";
+			//for (size_t j = 0; j < gui_texture_list.size(); j++)
+			//{
+				//if (gui_texture_list[j].path.find(png_list[i]) == 0) 
+				//{
+					myfile << "------" << "\n";
+					myfile << "sprite ID : [" << i + 1 << "]" << "\n";
+					myfile << "sprite name : [" << png_list[i].substr(0, png_list[i].length() - 4) << "]" << "\n";
+					myfile << "sprite filename : [" << png_list[i] << "]" << "\n";
 
-			myfile << "sprite x : [" << 0 << "]" << "\n";
-			myfile << "sprite y : [" << 0 << "]" << "\n";
-			myfile << "sprite w : [" << gui_texture_list[i].tex.width << "]" << "\n";
-			myfile << "sprite h : [" << gui_texture_list[i].tex.height << "]" << "\n";
-			myfile << "sprite offset_x: [" << 0 << "]" << "\n";
-			myfile << "sprite offset_y: [" << 0 << "]" << "\n";
+					myfile << "sprite x : [" << 0 << "]" << "\n";
+					myfile << "sprite y : [" << 0 << "]" << "\n";
+					myfile << "sprite w : [" << gui_texture_list[i].tex.width << "]" << "\n";
+					myfile << "sprite h : [" << gui_texture_list[i].tex.height << "]" << "\n";
+					myfile << "sprite offset_x: [" << 0 << "]" << "\n";
+					myfile << "sprite offset_y: [" << 0 << "]" << "\n";
 
-			myfile << "------" << "\n";
+					myfile << "------" << "\n";
 
+			//	}
+			//}			
 		}
 
 
