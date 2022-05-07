@@ -661,7 +661,7 @@ inline void RenderGuiEntities() {
 
 		DrawRectangleLines(gui_entity_list[i].x, gui_entity_list[i].y, gui_entity_list[i].w, gui_entity_list[i].h, RED);
 
-		DrawRectangleLines((float)gui_entity_list[i].x + gui_entity_list[i].sprite->offset_x, (float)gui_entity_list[i].y + gui_entity_list[i].sprite->offset_y, gui_entity_list[i].w, gui_entity_list[i].h, GREEN);
+		//DrawRectangleLines((float)gui_entity_list[i].x + gui_entity_list[i].sprite->offset_x, (float)gui_entity_list[i].y + gui_entity_list[i].sprite->offset_y, gui_entity_list[i].w, gui_entity_list[i].h, GREEN);
 		
 
 		if (gui_entity_list[i].ID == target->ID)
@@ -736,11 +736,11 @@ inline void RenderMapEntities() {
 
 		map_entity_list[i].entity_tile.y = map_entity_list[i].y;
 
-		DrawRectangleLines(map_entity_list[i].entity_tile.x, map_entity_list[i].entity_tile.y, tile_width, tile_height, BLUE);
+		//DrawRectangleLines(map_entity_list[i].entity_tile.x, map_entity_list[i].entity_tile.y, tile_width, tile_height, BLUE);
 
-		DrawRectangleLines(map_entity_list[i].x, map_entity_list[i].y, map_entity_list[i].w, map_entity_list[i].h, RED);
+		//DrawRectangleLines(map_entity_list[i].x, map_entity_list[i].y, map_entity_list[i].w, map_entity_list[i].h, RED);
 
-		DrawRectangleLines((float)map_entity_list[i].x + map_entity_list[i].sprite->offset_x, (float)map_entity_list[i].y + map_entity_list[i].sprite->offset_y, map_entity_list[i].w, map_entity_list[i].h, GREEN);
+		//DrawRectangleLines((float)map_entity_list[i].x + map_entity_list[i].sprite->offset_x, (float)map_entity_list[i].y + map_entity_list[i].sprite->offset_y, map_entity_list[i].w, map_entity_list[i].h, GREEN);
 
 
 		if (map_entity_list[i].ID == target->ID)
@@ -865,6 +865,8 @@ inline void RenderEntityBoxes(vector<entity> &entities) {
 
 	int lowerlayer = 0;
 
+	int offset_x = 0;
+	int offset_y = 0;
 
 	for (size_t i = 0; i < entities.size(); i++)
 	{
@@ -880,9 +882,21 @@ inline void RenderEntityBoxes(vector<entity> &entities) {
 
 		if (ToggleEntityBoxes == true)
 		{
+
+			if (entities[i].w < 500)
+			{
+				offset_x = (entities[i].w - tile_width) / 2;
+			}
+
+			if (entities[i].h < 500)
+			{
+				offset_y = entities[i].h - (tile_height);
+			}
+
+
 			DrawRectangleLines(gamescreen_offset_x + entities[i].entity_tile.x, gamescreen_offset_y + entities[i].entity_tile.y, tile_width, tile_height, BLUE);
 
-			DrawRectangleLines(gamescreen_offset_x + entities[i].x, gamescreen_offset_y + entities[i].y, entities[i].w, entities[i].h, RED);
+			DrawRectangleLines(gamescreen_offset_x + entities[i].x - offset_x, gamescreen_offset_y + entities[i].y - offset_y, entities[i].w, entities[i].h, RED);
 
 			DrawRectangleLines(gamescreen_offset_x + (float)entities[i].x + entities[i].sprite->offset_x, gamescreen_offset_y + (float)entities[i].y + entities[i].sprite->offset_y, entities[i].w, entities[i].h, GREEN);
 		}
@@ -1326,53 +1340,6 @@ inline void RenderTextList() {
 
 
 
- Rectangle DebugLogInfoRect = { 0 , 0 , 100, 16 };
-
- Rectangle DebugScrollBar = { 8 + 400, GAMEWINDOW_HEIGHT - 200 - 16, 10, 16 * 11 };
-
-
-inline void RenderDebugLog()
-{
-	DebugLogInfoRect.x = 20 + 400;
-
-	DebugLogInfoRect.y = GAMEWINDOW_HEIGHT - 200;
-
-	int rendernum = 0;
-
-	for (size_t i = debuglog_lines.size(); i-- > 0; )
-	{
-		if (rendernum < currentline_debuglog)
-		{
-			// Render only 11 lines at the time, as it scrolls
-			if (rendernum < 89) {
-
-				if (rendernum > 89 - DebugLogScrollCounter - 1)
-				{
-					//GuiLabel({ DebugLogInfoRect.x, DebugLogInfoRect.y + ((i - DebugLogScrollCounter) * DebugLogInfoRect.height) - (DebugLogInfoRect.height * 1), DebugLogInfoRect.width, DebugLogInfoRect.height }, debuglog_lines[(currentline_debuglog - 1 - rendernum)].c_str());
-					rendernum++;
-				}
-				else
-				{
-					rendernum++;
-
-				}
-
-			}
-			else
-			{
-				//GuiLabel({ DebugLogInfoRect.x, DebugLogInfoRect.y + ((i - DebugLogScrollCounter) * DebugLogInfoRect.height) - (DebugLogInfoRect.height * 1), DebugLogInfoRect.width, DebugLogInfoRect.height }, debuglog_lines[(currentline_debuglog - 1 - rendernum)].c_str());
-
-				rendernum++;
-
-			}
-
-		}
-
-	}
-
-	//DebugLogScrollCounter = GuiScrollBar(DebugScrollBar, DebugLogScrollCounter, 100 - currentline_debuglog, 89);
-}
-
 
 
 
@@ -1746,18 +1713,33 @@ inline void SortLayerRenderObjectList()
 }
 
 
-
 inline void RenderAllLayers() 
 {
+	float offset_x = 0;
+	float offset_y = 0;
+
+
 	for (size_t i = 0; i < SortedRenderObject_list.size(); i++)
 	{
 		if (SortedRenderObject_list[i] != NULL)
 		{
 			if (SortedRenderObject_list[i]->render_this == true)
 			{
-				DrawTexturePro(SortedRenderObject_list[i]->texture, SortedRenderObject_list[i]->source, 
-					{ SortedRenderObject_list[i]->dest.x + gamescreen_offset_x, SortedRenderObject_list[i]->dest.y + gamescreen_offset_y, SortedRenderObject_list[i]->dest.width,  SortedRenderObject_list[i]->dest.height },
+				if (SortedRenderObject_list[i]->dest.width < 500)
+				{
+					offset_x = (SortedRenderObject_list[i]->dest.width - tile_width) / 2;
+				}
+
+				if (SortedRenderObject_list[i]->dest.height < 500 )
+				{
+					offset_y = SortedRenderObject_list[i]->dest.height - (tile_height);
+				}
+			
+				DrawTexturePro(SortedRenderObject_list[i]->texture, SortedRenderObject_list[i]->source,
+					{ SortedRenderObject_list[i]->dest.x + gamescreen_offset_x - offset_x, SortedRenderObject_list[i]->dest.y + gamescreen_offset_y - offset_y, SortedRenderObject_list[i]->dest.width,  SortedRenderObject_list[i]->dest.height },
 					SortedRenderObject_list[i]->origin, SortedRenderObject_list[i]->rotation, SortedRenderObject_list[i]->tint);
+
+
 			}		
 		}
 	}
@@ -1813,7 +1795,7 @@ inline bool ColorFieldTileEntityList(vector<tile> &colored_tiles , field *fieldR
 
 						if (last_tile.x != temp2.x || last_tile.y != temp2.y)
 						{
-							fieldRef->tiles[j].sprite = &getSprite(4); // red tile
+							fieldRef->tiles[j].sprite = &getSprite(RED_TILE); // red tile
 
 							colored_enemy_tiles.push_back(fieldRef->tiles[j]);
 
@@ -1864,7 +1846,7 @@ inline bool ColorFieldTile( field &fieldRef, entity  *target)
 		{
 			if (last_tile.x != temp2.x || last_tile.y != temp2.y)
 			{
-				fieldRef.tiles[i].sprite = &getSprite(4); // red tile
+				fieldRef.tiles[i].sprite = &getSprite(RED_TILE); // red tile
 
 				colored_moved_tiles.push_back(fieldRef.tiles[i]);
 
@@ -1991,7 +1973,7 @@ inline void randomSpawnTile(field &fieldRef, field &spawn_field)
 			tempvar = fieldRef.tiles[randomTilesIndex[i]].y;
 			spawn_field.tiles[i].y = tempvar;
 
-			spawn_field.tiles[i].sprite = &getSprite(4);
+			spawn_field.tiles[i].sprite = &getSprite(BLUE_TILE);
 
 		}
 

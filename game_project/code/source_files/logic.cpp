@@ -653,7 +653,7 @@ inline void TargetLogic() {
 
 
 
-				ResetMovedTilesColor(target_field, 3);
+				ResetMovedTilesColor(target_field, 2);
 
 				colored_moved_tiles.clear();
 
@@ -695,7 +695,7 @@ inline void TargetLogic() {
 
 				if (move_list.empty() == false)
 				{
-					ResetMovedTilesColor(target_field, 3);
+					ResetMovedTilesColor(target_field, 2);
 				}
 
 				colored_moved_tiles.clear();

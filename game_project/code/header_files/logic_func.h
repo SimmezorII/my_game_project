@@ -538,7 +538,7 @@ inline pos GetCordsCollisionXY(Rectangle e)
 
 inline pos GetCordsCollisionIndex(Rectangle e)
 {
-	pos temp = { 0,0,0 };
+	pos temp = { -1,-1, 0 };
 	//cout << "Testing setEntityCords" << endl;
 	//cords[39][20]
 

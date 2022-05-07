@@ -95,7 +95,7 @@ inline void setSquareField(field &fieldRef, int nx, int ny)
 		//	cout << "fieldtile y: "<<fieldRef.tiles[i].y << endl;
 		//	cout << "fieldtile x: " << fieldRef.tiles[i].x << endl;
 
-		fieldRef.tiles[i].sprite = &getSprite(3);
+		fieldRef.tiles[i].sprite = &getSprite(GREEN_TILE);
 
 		tilecount += 1;
 		numRect += 1;
@@ -138,7 +138,7 @@ inline void setSquareField(field &fieldRef, int nx, int ny)
 		}
 
 
-		fieldRef.tiles[start].sprite = &getSprite(3);
+		fieldRef.tiles[start].sprite = &getSprite(GREEN_TILE);
 
 		tilecount += 1;
 		numRect += 1;
@@ -201,7 +201,7 @@ inline void setInverseSquareField(field &fieldRef, int nx, int ny)
 
 	for (size_t i = 0; i < fieldRef.sum_of_field_tiles; i++)
 	{
-		fieldRef.tiles[i].sprite = &getSprite(3);
+		fieldRef.tiles[i].sprite = &getSprite(GREEN_TILE);
 
 		fieldRef.tiles[i].w = tile_width;
 		fieldRef.tiles[i].h = tile_height;
@@ -287,7 +287,7 @@ inline void setTriangleField(field &fieldRef, int nx, int ny, Direction dir)
 
 			}
 
-			fieldRef.tiles[i].sprite = &getSprite(3);
+			fieldRef.tiles[i].sprite = &getSprite(GREEN_TILE);
 
 			tilecount += 1;
 			numRect += 1;
@@ -325,7 +325,7 @@ inline void setTriangleField(field &fieldRef, int nx, int ny, Direction dir)
 				fieldx = fieldRef.tiles[start].x;
 			}
 
-			fieldRef.tiles[start].sprite = &getSprite(3);
+			fieldRef.tiles[start].sprite = &getSprite(GREEN_TILE);
 
 			tilecount += 1;
 			numRect += 1;
@@ -388,7 +388,7 @@ inline void setTriangleField(field &fieldRef, int nx, int ny, Direction dir)
 
 			}
 
-			fieldRef.tiles[i].sprite = &getSprite(3);
+			fieldRef.tiles[i].sprite = &getSprite(GREEN_TILE);
 
 			tilecount += 1;
 			numRect += 1;
@@ -426,7 +426,7 @@ inline void setTriangleField(field &fieldRef, int nx, int ny, Direction dir)
 				fieldx = fieldRef.tiles[start].x;
 			}
 
-			fieldRef.tiles[start].sprite = &getSprite(3);
+			fieldRef.tiles[start].sprite = &getSprite(GREEN_TILE);
 
 			tilecount += 1;
 			numRect += 1;
@@ -491,7 +491,7 @@ inline void setTriangleField(field &fieldRef, int nx, int ny, Direction dir)
 			//	cout << "fieldtile x: " << fieldRef.tiles[i].x << endl;
 
 
-			fieldRef.tiles[i].sprite = &getSprite(3);
+			fieldRef.tiles[i].sprite = &getSprite(GREEN_TILE);
 
 
 			tilecount += 1;
@@ -536,7 +536,7 @@ inline void setTriangleField(field &fieldRef, int nx, int ny, Direction dir)
 			}
 
 
-			fieldRef.tiles[start].sprite = &getSprite(3);
+			fieldRef.tiles[start].sprite = &getSprite(GREEN_TILE);
 
 			tilecount += 1;
 			numRect += 1;
@@ -599,7 +599,7 @@ inline void setTriangleField(field &fieldRef, int nx, int ny, Direction dir)
 
 			}
 
-			fieldRef.tiles[i].sprite = &getSprite(3);
+			fieldRef.tiles[i].sprite = &getSprite(GREEN_TILE);
 
 			tilecount += 1;
 			numRect += 1;
@@ -637,7 +637,7 @@ inline void setTriangleField(field &fieldRef, int nx, int ny, Direction dir)
 				fieldx = fieldRef.tiles[start].x;
 			}
 
-			fieldRef.tiles[start].sprite = &getSprite(3);
+			fieldRef.tiles[start].sprite = &getSprite(GREEN_TILE);
 
 			tilecount += 1;
 			numRect += 1;
@@ -734,7 +734,7 @@ inline void setConeField(field &fieldRef, int nx, int ny, Direction dir)
 
 			}
 
-			fieldRef.tiles[i].sprite = &getSprite(3);
+			fieldRef.tiles[i].sprite = &getSprite(GREEN_TILE);
 
 			tilecount += 1;
 			numRect += 1;
@@ -772,7 +772,7 @@ inline void setConeField(field &fieldRef, int nx, int ny, Direction dir)
 				fieldx = fieldRef.tiles[start].x;
 			}
 
-			fieldRef.tiles[start].sprite = &getSprite(3);
+			fieldRef.tiles[start].sprite = &getSprite(GREEN_TILE);
 
 			tilecount += 1;
 			numRect += 1;
@@ -834,7 +834,7 @@ inline void setConeField(field &fieldRef, int nx, int ny, Direction dir)
 
 			}
 
-			fieldRef.tiles[i].sprite = &getSprite(3);
+			fieldRef.tiles[i].sprite = &getSprite(GREEN_TILE);
 
 			tilecount += 1;
 			numRect += 1;
@@ -872,7 +872,7 @@ inline void setConeField(field &fieldRef, int nx, int ny, Direction dir)
 				fieldx = fieldRef.tiles[start].x;
 			}
 
-			fieldRef.tiles[start].sprite = &getSprite(3);
+			fieldRef.tiles[start].sprite = &getSprite(GREEN_TILE);
 
 			tilecount += 1;
 			numRect += 1;
@@ -935,7 +935,7 @@ inline void setConeField(field &fieldRef, int nx, int ny, Direction dir)
 
 			}
 
-			fieldRef.tiles[i].sprite = &getSprite(3);
+			fieldRef.tiles[i].sprite = &getSprite(GREEN_TILE);
 
 			tilecount += 1;
 			numRect += 1;
@@ -973,7 +973,7 @@ inline void setConeField(field &fieldRef, int nx, int ny, Direction dir)
 				fieldx = fieldRef.tiles[start].x;
 			}
 
-			fieldRef.tiles[start].sprite = &getSprite(3);
+			fieldRef.tiles[start].sprite = &getSprite(GREEN_TILE);
 
 			tilecount += 1;
 			numRect += 1;
@@ -1036,7 +1036,7 @@ inline void setConeField(field &fieldRef, int nx, int ny, Direction dir)
 
 			}
 
-			fieldRef.tiles[i].sprite = &getSprite(3);
+			fieldRef.tiles[i].sprite = &getSprite(GREEN_TILE);
 
 			tilecount += 1;
 			numRect += 1;
@@ -1074,7 +1074,7 @@ inline void setConeField(field &fieldRef, int nx, int ny, Direction dir)
 				fieldx = fieldRef.tiles[start].x;
 			}
 
-			fieldRef.tiles[start].sprite = &getSprite(3);
+			fieldRef.tiles[start].sprite = &getSprite(GREEN_TILE);
 
 			tilecount += 1;
 			numRect += 1;

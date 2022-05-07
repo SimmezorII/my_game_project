@@ -173,7 +173,7 @@ inline void Init()
 
 	Log("Init");
 
-	render_entity_boxes = true;
+	//render_entity_boxes = true;
 }
 
 
@@ -290,8 +290,6 @@ inline void DrawGameplayScreen(void)
 
 	RenderAllLayers();
 
-
-
 	DrawGui();
 
 	RenderSelectedSprite();
@@ -312,12 +310,12 @@ inline void DrawGameplayScreen(void)
 
 	//drawIsoTriangles(target);
 	
-	//DebugLog("test 14: ", LogScrollCounter);
+	DebugLog("test 14: ", LogScrollCounter);
 
 
 	RenderLog();
 
-	//RenderDebugLog();
+	RenderDebugLog();
 }
 
 

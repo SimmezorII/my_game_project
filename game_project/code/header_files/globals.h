@@ -39,7 +39,7 @@ global_variable bool ToggleSpriteY = false;
 global_variable bool dropDown001EditMode = false;
 global_variable bool ToggleEntityBoxes = false;
 
-global_variable int gamescreen_offset_x = 32;
+global_variable int gamescreen_offset_x = 64;
 global_variable int gamescreen_offset_y = 32;
 
 global_variable enum { TITLE = 0, OPTIONS, GAMEPLAY, ENDING, GUI } GameScreen;
@@ -47,6 +47,9 @@ global_variable enum { TITLE = 0, OPTIONS, GAMEPLAY, ENDING, GUI } GameScreen;
 global_variable enum Direction { UP = 0, DOWN, LEFT, RIGHT };
 
 global_variable enum  { SQUARE = 0, NON_ISO_SQUARE = 1, LINE = 2, CROSS = 3 , CHECKERED_SQURE = 4, TRIANGLE = 10, CONE = 20 };
+
+global_variable enum { BLUE_TILE = 1, GREEN_TILE = 2, RED_TILE = 3,  YELLOW_TILE = 4 };
+
 
 global_variable  int currentScreen = 0;
 

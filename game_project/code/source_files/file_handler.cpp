@@ -751,19 +751,19 @@ inline void setGuiEntities()
 {
 	entity temp;
 
-	for (size_t k = 0; k < entity_list.size(); k++)
+	for (size_t k = 0; k < sprite_list.size(); k++)
 	{
-		if (entity_list[k].ID == 1) // Background
+		if (sprite_list[k].ID == 29) // Background
 		{
-			cout << "ID == 1 found, background set, setGuiEntities" << endl;
+			cout << "ID == 29 found, background set, setGuiEntities" << endl;
 			
-			temp.ID = entity_list[k].ID;
+			temp.ID = 999;
 			temp.x = 0;
 			temp.y = 0;
-			temp.w = entity_list[k].w;
-			temp.h = entity_list[k].h;
-			temp.entity_tile = entity_list[k].entity_tile;
-			temp.sprite = entity_list[k].sprite;
+			temp.w = sprite_list[k].w;
+			temp.h = sprite_list[k].h;
+			//temp.entity_tile = entity_list[k].entity_tile;
+			temp.sprite = &sprite_list[k];
 
 			gui_entity_list.push_back(temp);
 		}

@@ -158,7 +158,6 @@ inline void RenderSelectedSprite()
 	temp_sprite_rec.y = gamescreen_offset_y + 400;
 
 
-
 	GuiSpinner({ temp_sprite_rec.x,temp_sprite_rec.y - 30, 100,20}, "sprite id", &selected_sprite, 1, sprite_list.size(), false);
 
 	DrawTexturePro(getTexture(selected_sprite).tex, { 0, 0, (float)getTexture(selected_sprite).tex.width, (float)getTexture(selected_sprite).tex.height}, temp_sprite_rec, {0,0}, 0, WHITE);
@@ -197,12 +196,29 @@ inline void RenderSelectedSprite()
 inline void RenderNewEntity()
 {
 
-	temp_sprite_rec.height = 60;
-	temp_sprite_rec.width = 100;
+	temp_sprite_rec.height = new_e.sprite->h;
+	temp_sprite_rec.width = new_e.sprite->w;
 
-	temp_sprite_rec.x = GetMousePosition().x;
 
-	temp_sprite_rec.y = GetMousePosition().y;
+	if (temp_sprite_rec.height <= 32)
+	{
+		temp_sprite_rec.y = GetMousePosition().y - (temp_sprite_rec.height / 2);
+	}
+	else
+	{
+		temp_sprite_rec.y = GetMousePosition().y - (temp_sprite_rec.height ) + tile_height/2;
+	}
+
+	if (temp_sprite_rec.width <= 64)
+	{
+		temp_sprite_rec.x = GetMousePosition().x - (temp_sprite_rec.width / 2);
+	}
+	else
+	{
+		temp_sprite_rec.x = GetMousePosition().x - (temp_sprite_rec.width / 2);
+	}
+
+
 	//sprite_list
 
 	DrawTexturePro(getTexture(selected_sprite).tex, { 0, 0, (float)getTexture(selected_sprite).tex.width, (float)getTexture(selected_sprite).tex.height }, temp_sprite_rec, { 0,0 }, 0, WHITE);
@@ -214,11 +230,6 @@ inline void RenderNewEntity()
 
 inline void AddNewEntity(int x, int y)
 {
-	Rectangle rTemp = { 0,0,2,2 };
-
-	int i, j;
-	pos p;
-
 	new_e.ID = entity_list[entity_list.size()-1].ID + num_of_added;
 
 	new_e.sprite = &getSpriteEx(selected_sprite);
@@ -228,16 +239,7 @@ inline void AddNewEntity(int x, int y)
 	new_e.w = new_e.sprite->w;
 	new_e.h = new_e.sprite->h;
 
-	p = GetCordsCollisionIndex({(float) x, (float)y, 1,1 });
-
-	i = p.x;
-	j = p.y;
-
-	cords[i][j] = new_e.ID;
-
-	new_e.x = x;
-	new_e.y = y;
-
+	cords[x][y] = new_e.ID;
 
 	WriteEntityDataSingle(new_e, MAPS_PATH + "game_entity_data_temp.txt");
 
@@ -249,6 +251,8 @@ inline void AddNewEntity(int x, int y)
 
 inline void CreateNewEntity()
 {
+	pos p;
+
 	if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
 	{
 		//	printf("Button LEFT is pressed and Entity one clicked");
@@ -260,13 +264,14 @@ inline void CreateNewEntity()
 
 		if (PLACING_ENTITY)
 		{
-			AddNewEntity(GetMousePosition().x, GetMousePosition().y);
+			p = GetCordsCollisionIndex({ GetMousePosition().x, GetMousePosition().y, 1,1 });
 
+			if (p.x != -1 && p.y != -1)
+			{
+				AddNewEntity(p.x,p.y );
 
-		
-
-			PLACING_ENTITY = false;
-			//printf("Button RIGHT is pressed");
+				PLACING_ENTITY = false;
+			}
 		}
 
 
@@ -411,5 +416,52 @@ inline void RenderLog()
 
 }
 
+
+Rectangle DebugLogInfoRect = { 0 , 0 , 100, 16 };
+
+Rectangle DebugScrollBar = { 8 + 400, GAMEWINDOW_HEIGHT - 200 - 16, 10, 16 * 11 };
+
+
+inline void RenderDebugLog()
+{
+	DebugLogInfoRect.x = 20 + 400;
+
+	DebugLogInfoRect.y = GAMEWINDOW_HEIGHT - 200;
+
+	int rendernum = 0;
+
+	for (size_t i = debuglog_lines.size(); i-- > 0; )
+	{
+		if (rendernum < currentline_debuglog)
+		{
+			// Render only 11 lines at the time, as it scrolls
+			if (rendernum < 89) {
+
+				if (rendernum > 89 - DebugLogScrollCounter - 1)
+				{
+					GuiLabel({ DebugLogInfoRect.x, DebugLogInfoRect.y + ((i - DebugLogScrollCounter) * DebugLogInfoRect.height) - (DebugLogInfoRect.height * 1), DebugLogInfoRect.width, DebugLogInfoRect.height }, debuglog_lines[(currentline_debuglog - 1 - rendernum)].c_str());
+					rendernum++;
+				}
+				else
+				{
+					rendernum++;
+
+				}
+
+			}
+			else
+			{
+				GuiLabel({ DebugLogInfoRect.x, DebugLogInfoRect.y + ((i - DebugLogScrollCounter) * DebugLogInfoRect.height) - (DebugLogInfoRect.height * 1), DebugLogInfoRect.width, DebugLogInfoRect.height }, debuglog_lines[(currentline_debuglog - 1 - rendernum)].c_str());
+
+				rendernum++;
+
+			}
+
+		}
+
+	}
+
+	DebugLogScrollCounter = GuiScrollBar(DebugScrollBar, DebugLogScrollCounter, 100 - currentline_debuglog, 89);
+}
 
 
