@@ -35,12 +35,6 @@ entity h : [64]
 entity sprite ID : [62]
 ------
 ------
-entity ID : [9]
-entity w : [80]
-entity h : [60]
-entity sprite ID : [9]
-------
-------
 entity ID : [10]
 entity w : [177]
 entity h : [144]
@@ -396,241 +390,91 @@ entity sprite ID : [35]
 ------
 ------
 entity ID : [69]
-entity w : [64]
+entity w : [62]
 entity h : [32]
-entity sprite ID : [34]
+entity sprite ID : [7]
 ------
 ------
 entity ID : [70]
-entity w : [64]
+entity w : [62]
 entity h : [32]
-entity sprite ID : [34]
+entity sprite ID : [7]
 ------
 ------
 entity ID : [71]
-entity w : [64]
-entity h : [32]
-entity sprite ID : [35]
+entity w : [106]
+entity h : [133]
+entity sprite ID : [60]
 ------
 ------
 entity ID : [72]
-entity w : [64]
-entity h : [32]
-entity sprite ID : [35]
-------
-------
-entity ID : [73]
-entity w : [64]
-entity h : [32]
-entity sprite ID : [35]
-------
-------
-entity ID : [74]
-entity w : [64]
-entity h : [32]
-entity sprite ID : [35]
-------
-------
-entity ID : [75]
-entity w : [64]
-entity h : [32]
-entity sprite ID : [35]
-------
-------
-entity ID : [76]
-entity w : [64]
-entity h : [32]
-entity sprite ID : [37]
-------
-------
-entity ID : [77]
-entity w : [64]
-entity h : [32]
-entity sprite ID : [37]
-------
-------
-entity ID : [78]
-entity w : [64]
-entity h : [32]
-entity sprite ID : [37]
-------
-------
-entity ID : [79]
-entity w : [64]
-entity h : [32]
-entity sprite ID : [37]
-------
-------
-entity ID : [80]
-entity w : [62]
-entity h : [32]
-entity sprite ID : [57]
-------
-------
-entity ID : [81]
-entity w : [62]
-entity h : [32]
-entity sprite ID : [57]
-------
-------
-entity ID : [82]
-entity w : [62]
-entity h : [32]
-entity sprite ID : [57]
-------
-------
-entity ID : [83]
-entity w : [62]
-entity h : [32]
-entity sprite ID : [57]
-------
-------
-entity ID : [84]
-entity w : [62]
-entity h : [32]
-entity sprite ID : [57]
-------
-------
-entity ID : [85]
-entity w : [62]
-entity h : [32]
-entity sprite ID : [57]
-------
-------
-entity ID : [86]
-entity w : [62]
-entity h : [32]
-entity sprite ID : [57]
-------
-------
-entity ID : [87]
-entity w : [62]
-entity h : [32]
-entity sprite ID : [57]
-------
-------
-entity ID : [88]
-entity w : [64]
-entity h : [32]
-entity sprite ID : [36]
-------
-------
-entity ID : [89]
-entity w : [64]
-entity h : [32]
-entity sprite ID : [39]
-------
-------
-entity ID : [90]
-entity w : [64]
-entity h : [32]
-entity sprite ID : [39]
-------
-------
-entity ID : [91]
-entity w : [64]
-entity h : [32]
-entity sprite ID : [39]
-------
-------
-entity ID : [92]
-entity w : [64]
-entity h : [32]
-entity sprite ID : [39]
-------
-------
-entity ID : [93]
-entity w : [64]
-entity h : [32]
-entity sprite ID : [39]
-------
-------
-entity ID : [94]
-entity w : [64]
-entity h : [32]
-entity sprite ID : [39]
-------
-------
-entity ID : [95]
-entity w : [64]
-entity h : [32]
-entity sprite ID : [38]
-------
-------
-entity ID : [96]
-entity w : [64]
-entity h : [32]
-entity sprite ID : [38]
-------
-------
-entity ID : [97]
-entity w : [64]
-entity h : [32]
-entity sprite ID : [38]
-------
-------
-entity ID : [98]
-entity w : [106]
-entity h : [133]
-entity sprite ID : [60]
-------
-------
-entity ID : [99]
-entity w : [64]
-entity h : [32]
-entity sprite ID : [34]
-------
-------
-entity ID : [100]
-entity w : [106]
-entity h : [133]
-entity sprite ID : [60]
-------
-------
-entity ID : [101]
-entity w : [74]
-entity h : [90]
-entity sprite ID : [20]
-------
-------
-entity ID : [102]
-entity w : [37]
-entity h : [35]
-entity sprite ID : [24]
-------
-------
-entity ID : [104]
 entity w : [126]
 entity h : [143]
 entity sprite ID : [62]
 ------
 ------
-entity ID : [105]
+entity ID : [73]
+entity w : [62]
+entity h : [32]
+entity sprite ID : [7]
+------
+------
+entity ID : [74]
+entity w : [62]
+entity h : [32]
+entity sprite ID : [7]
+------
+------
+entity ID : [75]
+entity w : [62]
+entity h : [32]
+entity sprite ID : [7]
+------
+------
+entity ID : [76]
+entity w : [62]
+entity h : [32]
+entity sprite ID : [7]
+------
+------
+entity ID : [77]
+entity w : [62]
+entity h : [32]
+entity sprite ID : [7]
+------
+------
+entity ID : [78]
+entity w : [62]
+entity h : [32]
+entity sprite ID : [7]
+------
+------
+entity ID : [79]
 entity w : [64]
 entity h : [32]
-entity sprite ID : [1]
+entity sprite ID : [10]
 ------
 ------
-entity ID : [106]
-entity w : [116]
-entity h : [76]
-entity sprite ID : [33]
-------
-------
-entity ID : [107]
-entity w : [132]
-entity h : [83]
-entity sprite ID : [32]
-------
-------
-entity ID : [108]
-entity w : [58]
-entity h : [54]
-entity sprite ID : [17]
-------
-------
-entity ID : [109]
+entity ID : [80]
 entity w : [64]
-entity h : [83]
-entity sprite ID : [66]
+entity h : [32]
+entity sprite ID : [10]
+------
+------
+entity ID : [81]
+entity w : [64]
+entity h : [32]
+entity sprite ID : [10]
+------
+------
+entity ID : [82]
+entity w : [64]
+entity h : [32]
+entity sprite ID : [10]
+------
+------
+entity ID : [9]
+entity w : [28]
+entity h : [40]
+entity sprite ID : [67]
 ------

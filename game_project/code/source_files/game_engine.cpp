@@ -797,7 +797,6 @@ inline void RenderEntities(vector<entity> &entities) {
 
 		entities[i].entity_tile.y = entities[i].y;
 
-
 		if (entities[i].ID == target->ID)
 		{
 			lowerlayer = 1;
@@ -878,6 +877,8 @@ inline void RenderEntityBoxes(vector<entity> &entities) {
 		entities[i].entity_tile.x = entities[i].x;
 
 		entities[i].entity_tile.y = entities[i].y;
+
+	
 
 
 		if (ToggleEntityBoxes == true)

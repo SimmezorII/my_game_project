@@ -551,6 +551,10 @@ inline pos GetCordsCollisionIndex(Rectangle e)
 
 			if (CollisionIsoTrianglesMouse(cTemp))
 			{
+
+				temp.screen_x = cTemp.x;
+				temp.screen_y = cTemp.y;
+
 				cout << "CheckCordsCollision i j:" << i << " " << j << endl;
 				temp.x = i;
 				temp.y = j;

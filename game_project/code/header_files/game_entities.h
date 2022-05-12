@@ -93,8 +93,10 @@ struct entity {
 
 struct pos {
 
-	float x;
-	float y;
+	float x; // index
+	float y; // index
+	float screen_x;
+	float screen_y;
 	int index;
 };
 

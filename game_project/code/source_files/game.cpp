@@ -278,6 +278,8 @@ inline void DrawGameplayScreen(void)
 
 	RenderEntities(gui_entity_list);
 
+	RenderEntities(new_entity_list);
+
 	RenderField(position_field);
 
 	RenderField(spawn_field);
@@ -307,6 +309,8 @@ inline void DrawGameplayScreen(void)
 
 	RenderEntityBoxes(gui_entity_list);
 	RenderEntityBoxes(map_entity_list);
+
+	RenderEntityBoxes(new_entity_list);
 
 	//drawIsoTriangles(target);
 	

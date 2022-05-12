@@ -107,6 +107,8 @@ global_variable vector<entity>	gui_entity_list;
 
 global_variable vector<entity>	map_entity_list;
 
+global_variable vector<entity>	new_entity_list;
+
 global_variable vector<entity *>	game_entity_list;
 
 global_variable vector<tile>	colored_moved_tiles;

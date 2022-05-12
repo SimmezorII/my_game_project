@@ -724,3 +724,14 @@ sprite h : [83]
 sprite offset_x: [0]
 sprite offset_y: [0]
 ------
+------
+sprite ID : [67]
+sprite name : [Julius]
+sprite filename : [Julius.png]
+sprite x : [0]
+sprite y : [0]
+sprite w : [28]
+sprite h : [40]
+sprite offset_x: [0]
+sprite offset_y: [0]
+------

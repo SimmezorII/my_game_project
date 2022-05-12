@@ -19,6 +19,9 @@ Rectangle temp_sprite_rec;
 
 entity new_e;
 
+int temp_w;
+int temp_h;
+
 int selected_sprite = 1;
 
 inline void InitGui() 
@@ -82,7 +85,6 @@ inline void DrawGui()
 	 n++;
 	 ToggleSpriteOffsetX = GuiToggle({ gui_temp.x + gui_temp.width + 2, gui_temp.y, 40, gui_temp.height }, "Edit", ToggleSpriteOffsetX);
 
-
 	 gui_temp.y = 12 + SpriteGroupBoxRect.y + (n * 20);
 	 GuiSpinner({ gui_temp.x, gui_temp.y, gui_temp.width, gui_temp.height }, "offset_y", &game_entity->sprite->offset_y, -800, 2000, ToggleSpriteOffsetY);
 	 n++;
@@ -144,9 +146,9 @@ inline void DrawGui()
  }
 
 
+ static int current_selected = 0;
 
-
-
+ static int init_done = 0;
 
 inline void RenderSelectedSprite() 
 {
@@ -159,6 +161,12 @@ inline void RenderSelectedSprite()
 
 
 	GuiSpinner({ temp_sprite_rec.x,temp_sprite_rec.y - 30, 100,20}, "sprite id", &selected_sprite, 1, sprite_list.size(), false);
+	
+	if (current_selected != selected_sprite)
+	{
+		current_selected = selected_sprite;
+		init_done = 0;
+	}
 
 	DrawTexturePro(getTexture(selected_sprite).tex, { 0, 0, (float)getTexture(selected_sprite).tex.width, (float)getTexture(selected_sprite).tex.height}, temp_sprite_rec, {0,0}, 0, WHITE);
 
@@ -171,33 +179,38 @@ inline void RenderSelectedSprite()
 
 	//ToggleSpriteY = GuiToggle({ gui_temp.x + gui_temp.width + 2, gui_temp.y, 40, gui_temp.height }, "Edit", ToggleSpriteY);
 
-	NewEntityButton = GuiButton({ temp_sprite_rec.x,temp_sprite_rec.y + temp_sprite_rec.height + 20, 40,20 }, "New");
 
 	new_e.sprite = &getSpriteEx(selected_sprite);
 
+	if (init_done == 0)
+	{
+		temp_w = new_e.sprite->w;
+		temp_h = new_e.sprite->h;
 
+		init_done = 1;
+	}
 
-	temp_sprite_rec.y = temp_sprite_rec.y + temp_sprite_rec.height + (n * 20);
+	temp_sprite_rec.y = temp_sprite_rec.y + 100;
 
-	GuiSpinner({ temp_sprite_rec.x,temp_sprite_rec.y, 100,20 }, "new entity w", &new_e.sprite->w, 0, 2000, ToggleSpriteX);
+	temp_sprite_rec.y = temp_sprite_rec.y + (n * 20);
+
+	GuiSpinner({ temp_sprite_rec.x,temp_sprite_rec.y, 100,20 }, "new entity w", &temp_w, 0, 2000, ToggleSpriteX);
 	n++;
 
-	temp_sprite_rec.y = temp_sprite_rec.y + temp_sprite_rec.height + (n * 20);
+	temp_sprite_rec.y = temp_sprite_rec.y + (n * 20);
 
-	GuiSpinner({ temp_sprite_rec.x,temp_sprite_rec.y, 100,20 }, "new entity h", &new_e.sprite->h, 0, 2000, ToggleSpriteX);
-	n++;
+	GuiSpinner({ temp_sprite_rec.x,temp_sprite_rec.y, 100,20 }, "new entity h", &temp_h, 0, 2000, ToggleSpriteX);
 
-	//new_e.w = new_e.sprite->w;
-	//new_e.h = new_e.sprite->h;
+	temp_sprite_rec.y = temp_sprite_rec.y + (n * 24);
 
-
+	NewEntityButton = GuiButton({ temp_sprite_rec.x,temp_sprite_rec.y, 40,20 }, "New");
 }
 
 inline void RenderNewEntity()
 {
 
-	temp_sprite_rec.height = new_e.sprite->h;
-	temp_sprite_rec.width = new_e.sprite->w;
+	temp_sprite_rec.height = temp_h;
+	temp_sprite_rec.width = temp_w;
 
 
 	if (temp_sprite_rec.height <= 32)
@@ -228,24 +241,27 @@ inline void RenderNewEntity()
 
 
 
-inline void AddNewEntity(int x, int y)
+inline void AddNewEntity(int x, int y, int screen_x, int screen_y)
 {
 	new_e.ID = entity_list[entity_list.size()-1].ID + num_of_added;
 
-	new_e.sprite = &getSpriteEx(selected_sprite);
-
 	new_e.render_this = true;
 
-	new_e.w = new_e.sprite->w;
-	new_e.h = new_e.sprite->h;
+	new_e.w = temp_w;
+	new_e.h = temp_h;
 
 	cords[x][y] = new_e.ID;
+
+	new_e.x = screen_x;
+	new_e.y = screen_y;
 
 	WriteEntityDataSingle(new_e, MAPS_PATH + "game_entity_data_temp.txt");
 
 	WriteUpdatedMap(MAPS_PATH + "map2.txt");
 
 	num_of_added++;
+
+	new_entity_list.push_back(new_e);
 }
 
 
@@ -268,16 +284,12 @@ inline void CreateNewEntity()
 
 			if (p.x != -1 && p.y != -1)
 			{
-				AddNewEntity(p.x,p.y );
+				AddNewEntity( p.x, p.y, p.screen_x, p.screen_y );
 
 				PLACING_ENTITY = false;
 			}
 		}
-
-
-
 	}
-
 
 	if (IsMouseButtonDown(MOUSE_RIGHT_BUTTON))
 	{
@@ -287,12 +299,8 @@ inline void CreateNewEntity()
 		{
 			PLACING_ENTITY = false;
 			//printf("Button RIGHT is pressed");
-
-
 		}
-
 	}
-
 }
 
 
@@ -369,13 +377,9 @@ inline void UpdateDebugText()
 
 }
 
-
-
 Rectangle LogInfoRect = { 0 , 0 , 100, 16 };
 
 Rectangle ScrollBar = { gamescreen_offset_x + 8 ,gamescreen_offset_y + GAMEWINDOW_HEIGHT - 200 - 16, 10, 16 * 11 };
-
-
 
 inline void RenderLog()
 {
@@ -445,9 +449,7 @@ inline void RenderDebugLog()
 				else
 				{
 					rendernum++;
-
 				}
-
 			}
 			else
 			{
@@ -456,9 +458,7 @@ inline void RenderDebugLog()
 				rendernum++;
 
 			}
-
 		}
-
 	}
 
 	DebugLogScrollCounter = GuiScrollBar(DebugScrollBar, DebugLogScrollCounter, 100 - currentline_debuglog, 89);
