@@ -64,16 +64,14 @@ inline void setSquareField(field &fieldRef, int nx, int ny)
 
 		//field.fieldRects[i] = [x, y]
 
-
 		fieldRef.tiles[i].w = tile_width;
 		fieldRef.tiles[i].h = tile_height;
 
 		fieldRef.tiles[i].x = x;
 		fieldRef.tiles[i].y = y;
 
-
-
 		if (i == 0) {
+
 			fieldy = fieldRef.tiles[i].y;
 			fieldx = fieldRef.tiles[i].x;
 
@@ -1152,7 +1150,6 @@ inline void setField(field &fieldRef, int nx, int ny, int field_type)
 
 inline void initCombat()
 {
-
 	//Log("InitCombat");
 
 	gui_entity_list[0].render_this = true;
@@ -1163,12 +1160,9 @@ inline void initCombat()
 
 	//setField(position_field, 512, 512, TRIANGLE + UP);
 
-
 	position_field.range = 5;
 
 	setField(position_field, 512, 512, NON_ISO_SQUARE);
-
-
 }
 
 inline void SelectStartingTile()
@@ -1179,8 +1173,6 @@ inline void SelectStartingTile()
 	{
 
 	}
-
-
 }
 
 

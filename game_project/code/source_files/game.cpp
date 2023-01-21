@@ -31,6 +31,9 @@ static int finishScreen;
 
  Rectangle ctrlvalue = { 0, 0, 0, 0 };
 
+ float offset_x = 0;
+ float offset_y = 0;
+
 //----------------------------------------------------------------------------------
 // Function Definitions
 //----------------------------------------------------------------------------------
@@ -99,7 +102,6 @@ inline void Load()
 
 	printf("Sprite string:%s\n", sprite_png_list.c_str()); 
 
-
 	printf("Load done\n");
 
 }
@@ -129,21 +131,32 @@ inline void Init()
 
 	world_player.pEntity = getEnityByID(9, game_entity_list);
 
-
 	player.pEntity->sprite->offset_x = (-0 * (player.pEntity->w / 4) );
 	player.pEntity->sprite->offset_y = (-0 * player.pEntity->h / 2);
 
-	world_player.move_range = 7;
+	world_player.move_range = 5;
 
 	world_player.attack_range = 2;
 
 	target_field.range = 5;
+
+	combatant e1;
+
+	combatant e2;
+
+	e1.pEntity = &getEnityByID(24, map_entity_list);
+
+	e2.pEntity = &getEnityByID(25, map_entity_list);
 
 	setField(target_field, entity_list[0].x, entity_list[0].y, SQUARE);
 
 	combatant_list.push_back(world_player);
 
 	combatant_list.push_back(player);
+
+	enemy_list.push_back(e1);
+
+	enemy_list.push_back(e2);
 
 	action_target = &action_target_rect;
 
@@ -162,7 +175,6 @@ inline void Init()
 	printf("before init combat\n");
 
 	initCombat();
-
 
 	Log("test 1");
 
@@ -189,16 +201,11 @@ inline void InitGameplayScreen(void)
 
 	initActionMenu();
 
-	//for (size_t i = 1; i < 80; i++)
-	//{
-		//calcDrawLayer(i, Layers[i-1]);
-	//}
-
-	render_list[0].render_this = true;
+	//render_list[0].render_this = true;
 
 }
 
-
+static int UpdateGameplayScreen_runonce = 0;
 
 // Game logic
 inline void UpdateGameplayScreen(void)
@@ -207,19 +214,25 @@ inline void UpdateGameplayScreen(void)
 	//UpdateDebugText();
 	
 
-	for (size_t i = 0; i < map_entity_list.size(); i++)
-	{
-		if (map_entity_list[i].ID == 6)
-		{
-			if (CheckCollisionRecs({(float)world_player.pEntity->x, (float)world_player.pEntity->y,  (float)world_player.pEntity->w, (float)world_player.pEntity->h },
-				                   {(float)(map_entity_list[i].x),(float)(map_entity_list[i].y), (float)(map_entity_list[i].w) / 2, (float)(map_entity_list[i].h) / 2 }))
-			{
-			//	cout << "collision sedric" << endl;
-				combat = true;
-			}
-		}
-	}
+	//for (size_t i = 0; i < map_entity_list.size(); i++)
+	//{
+	//	if (map_entity_list[i].ID == 6)
+	//	{
+	//		if (CheckCollisionRecs({(float)world_player.pEntity->x, (float)world_player.pEntity->y,  (float)world_player.pEntity->w, (float)world_player.pEntity->h },
+	//			                   {(float)(map_entity_list[i].x),(float)(map_entity_list[i].y), (float)(map_entity_list[i].w) / 2, (float)(map_entity_list[i].h) / 2 }))
+	//		{
+	//			cout << "collision sedric" << endl;
+	//			combat = true;
+	//		}
+	//	}
+	//}
 
+	if (UpdateGameplayScreen_runonce == 0)
+	{
+		printf("UpdateGameplayScreen\n");
+
+		UpdateGameplayScreen_runonce++;
+	}
 
 	if (NewEntityButton) 
 	{
@@ -259,19 +272,29 @@ inline void UpdateGameplayScreen(void)
 
 }
 
+static int DrawGameplayScreen_runonce = 0;
 
 // Gameplay Screen Rendering
 inline void DrawGameplayScreen(void)
 {
+
+	if (DrawGameplayScreen_runonce == 0)
+	{
+		printf("DrawGameplayScreen\n");	
+	}
+
 	DrawFPS(GameGui.x - 200, 0);
 
 	//ClearBackground(WHITE);
 
-
 	for (size_t i = 0; i < objects_to_render.size(); i++)
 	{
 		objects_to_render[i] = 0;
-	
+	}
+
+	if (DrawGameplayScreen_runonce == 0)
+	{
+		printf("This happens 1\n");
 	}
 
 	RenderEntities(map_entity_list);
@@ -280,11 +303,22 @@ inline void DrawGameplayScreen(void)
 
 	RenderEntities(new_entity_list);
 
+	if (DrawGameplayScreen_runonce == 0)
+	{
+		printf("This happens 2\n");
+
+	}
+
 	RenderField(position_field);
 
 	RenderField(spawn_field);
 
 	RenderField(target_field);
+
+	if (DrawGameplayScreen_runonce == 0)
+	{
+		printf("This happens 3\n");
+	}
 
 	//RendedDebugInfo();
 
@@ -295,6 +329,11 @@ inline void DrawGameplayScreen(void)
 	DrawGui();
 
 	RenderSelectedSprite();
+
+	if (DrawGameplayScreen_runonce == 0)
+	{
+		printf("This happens 4\n");
+	}
 
 	if (ActionMenuUp == true)
 	{
@@ -307,19 +346,27 @@ inline void DrawGameplayScreen(void)
 		RenderNewEntity();
 	}
 
-	RenderEntityBoxes(gui_entity_list);
+	//RenderEntityBoxes(gui_entity_list);
 	RenderEntityBoxes(map_entity_list);
 
 	RenderEntityBoxes(new_entity_list);
 
 	//drawIsoTriangles(target);
 	
-	DebugLog("test 14: ", LogScrollCounter);
+	DebugLog("combatant_selected: ", combatant_selected);
 
+	RenderEntityInfo();
 
 	RenderLog();
 
 	RenderDebugLog();
+
+	if (DrawGameplayScreen_runonce == 0)
+	{
+		printf("This happens 5\n");
+	}
+
+	DrawGameplayScreen_runonce++;
 }
 
 

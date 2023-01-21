@@ -44,11 +44,11 @@ global_variable int gamescreen_offset_y = 32;
 
 global_variable enum { TITLE = 0, OPTIONS, GAMEPLAY, ENDING, GUI } GameScreen;
 
-global_variable enum Direction { UP = 0, DOWN, LEFT, RIGHT };
+global_variable enum Direction { UP = 0, DOWN, LEFT, RIGHT } Dir;
 
-global_variable enum  { SQUARE = 0, NON_ISO_SQUARE = 1, LINE = 2, CROSS = 3 , CHECKERED_SQURE = 4, TRIANGLE = 10, CONE = 20 };
+global_variable enum  { SQUARE = 0, NON_ISO_SQUARE = 1, LINE = 2, CROSS = 3 , CHECKERED_SQURE = 4, TRIANGLE = 10, CONE = 20 } Pat;
 
-global_variable enum { BLUE_TILE = 1, GREEN_TILE = 2, RED_TILE = 3,  YELLOW_TILE = 4 };
+global_variable enum { BLUE_TILE = 1, GREEN_TILE = 2, RED_TILE = 3,  YELLOW_TILE = 4 } Col;
 
 
 global_variable  int currentScreen = 0;
@@ -119,6 +119,8 @@ global_variable vector<tile>	spawn_tiles;
 
 global_variable vector<combatant>	combatant_list;
 
+global_variable vector<combatant>	enemy_list;
+
 global_variable vector<text>	text_list;
 
 global_variable vector<Direction>	move_list;
@@ -163,6 +165,9 @@ global_variable vector< Render_List > render_list;
 
 global_variable vector< RenderObject *> SortedRenderObject_list;
 
+
+global_variable int last_sorted_list[2000];
+
 //global_variable unsigned int objects_to_render = 0;
 
 global_variable vector<int> objects_to_render;
@@ -180,6 +185,8 @@ global_variable bool ActionMenuUp = false;
 global_variable int NumOfActionMenuButtons = 12;
 
 global_variable bool move_field_up = false;
+
+global_variable bool target_field_up = false;
 
 global_variable bool render_entity_boxes = false;
 
@@ -217,7 +224,7 @@ global_variable Sound fxCoin;
 
 global_variable float GUI_ACTION_BUTTON_HEIGHT = 20;
 
-global_variable float GUI_ACTION_BUTTON_WIDTH = 40;
+global_variable float GUI_ACTION_BUTTON_WIDTH = 48;
 
 global_variable int right_vel = 32;
 global_variable int left_vel = -32;
@@ -249,6 +256,33 @@ global_variable int cords[40][20];
 global_variable pos pos_cords[40][20];
 
 global_variable int row = 0;
+
+global_variable float entity_offset_y = 0;
+global_variable float entity_offset_x = 0;
+
+global_variable int GRID_SPRITE_ID = 29;
+
+
+/// PLAYER STATS 
+
+global_variable int player_max_hp = 200;
+
+global_variable int player_current_hp  = player_max_hp;
+
+global_variable float player_attack = 20;
+
+global_variable float player_defense = 20;
+
+
+/// ENEMY STATS
+
+global_variable int enemy_max_hp = 400;
+
+global_variable int enemy_current_hp = enemy_max_hp;
+
+global_variable float enemy_attack = 20;
+
+global_variable float enemy_defense = 20;
 
 
 #define GLOBALS_H

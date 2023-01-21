@@ -58,6 +58,7 @@ struct gui {
 struct sprite {
 
 	int ID;
+	int tex_ID;
 
 	std::string name;
 
@@ -77,16 +78,21 @@ struct sprite {
 struct entity {
 
 	int ID;
-	int x;
-	int y;
-	int w;
-	int h;
+	float x;
+	float y;
+	float w;
+	float h;
 
 	sprite * sprite;
 
-	Rectangle entity_tile = { (float)x,(float)y, 64, 32 };
+	Rectangle entity_tile = { x, y, 64, 32 };
+
+	Rectangle offset_rect;
 
 	bool render_this = true;
+
+	float offset_x;
+	float offset_y;
 
 };
 
@@ -219,6 +225,8 @@ struct RenderObject {
 	Color tint;
 	int layer = -1;
 	bool render_this = false;
+//	float offset_x;	
+//	float offset_y;
 
 };
 

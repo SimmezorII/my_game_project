@@ -66,7 +66,7 @@ inline texture& getTexture(string sprite_name)
 
 inline texture& getTexture(int sprite_ID)
 {
-
+	int ifound = -1;
 	string temp_img = "";
 
 	for (size_t i = 0; i < sprite_list.size(); i++)
@@ -76,6 +76,8 @@ inline texture& getTexture(int sprite_ID)
 			//cout << "Sprite found " << sprite_list[i].img << endl;
 
 			temp_img = sprite_list[i].img;
+			ifound = i;
+
 			break;
 		}
 	}
@@ -90,6 +92,8 @@ inline texture& getTexture(int sprite_ID)
 		if (found != std::string::npos)
 		{
 			//cout << "Texture found " << gui_texture_list[n].path << endl;
+
+			sprite_list[ifound].tex_ID = gui_texture_list[n].tex.id;
 
 			return gui_texture_list[n];
 			break;

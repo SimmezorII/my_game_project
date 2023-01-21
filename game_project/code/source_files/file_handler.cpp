@@ -751,44 +751,29 @@ inline void setGuiEntities()
 {
 	entity temp;
 
-	for (size_t k = 0; k < sprite_list.size(); k++)
+
+	for (size_t k = 0; k < entity_list.size(); k++)
 	{
-		if (sprite_list[k].ID == 29) // Background
-		{
-			cout << "ID == 29 found, background set, setGuiEntities" << endl;
-			
-			temp.ID = 999;
-			temp.x = 0;
-			temp.y = 0;
-			temp.w = sprite_list[k].w;
-			temp.h = sprite_list[k].h;
-			//temp.entity_tile = entity_list[k].entity_tile;
-			temp.sprite = &sprite_list[k];
+		//if (sprite_list[k].ID == 999) // Background
+		//{
+		//	cout << "ID == 29 found, background set, setGuiEntities" << endl;
+		//	
+		//	temp.ID = 999;
+		//	temp.x = 0;
+		//	temp.y = 0;
+		//	temp.w = sprite_list[k].w;
+		//	temp.h = sprite_list[k].h;
+		//	//temp.entity_tile = entity_list[k].entity_tile;
+		//	temp.sprite = &sprite_list[k];
 
-			gui_entity_list.push_back(temp);
-		}
-
-		if (entity_list[k].ID == 2) // Grid
-		{
-			cout << "ID == 2 found, Grid set, setGuiEntities" << endl;
-
-			temp.ID = entity_list[k].ID;
-			temp.x = 0;
-			temp.y = 0;
-			temp.w = entity_list[k].w;
-			temp.h = entity_list[k].h;
-			temp.entity_tile = entity_list[k].entity_tile;
-			temp.sprite = entity_list[k].sprite;
-
-			gui_entity_list.push_back(temp);
-		}
-
+		//	gui_entity_list.push_back(temp);
+		//}
 
 		if (entity_list[k].ID == 7) 
 		{
-			cout << "target found, setGuiEntities" << endl;
+		
 			temp.ID = entity_list[k].ID;
-			temp.x = 32;
+			temp.x = 64;
 			temp.y = 32;
 			temp.w = entity_list[k].w;
 			temp.h = entity_list[k].h;
@@ -796,15 +781,38 @@ inline void setGuiEntities()
 			temp.sprite = entity_list[k].sprite;
 
 			gui_entity_list.push_back(temp);
+
+			cout << "target found, setGuiEntities" << endl;
 		}
 
+		if (entity_list[k].ID == 2) // Grid
+		{
+
+			temp.ID = entity_list[k].ID;
+			temp.x = 0;
+			temp.y = 0;
+			temp.w = entity_list[k].w;
+			temp.h = entity_list[k].h;
+			temp.entity_tile = entity_list[k].entity_tile;
+			temp.sprite = entity_list[k].sprite;
+
+			gui_entity_list.push_back(temp);
+
+			cout << "ID == 2 found, Grid set, setGuiEntities" << endl;
+		}
+
+		cout << " " << k << " ";
 	}
+
+	cout << " " << endl;
 }
 
 
 inline void setPlayer()
 {
 	entity temp;
+
+	cout << "setPlayer start " << endl;
 
 	for (size_t k = 0; k < map_entity_list.size(); k++)
 	{
