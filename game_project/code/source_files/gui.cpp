@@ -39,6 +39,7 @@ static int GUItempy;
 inline void RenderEntityInfo() 
 {
 	string s;
+	string name;
 	Rectangle temp;
 
 	if (combatant_selected > -1) {
@@ -68,11 +69,13 @@ inline void RenderEntityInfo()
 				temp.width = 100; // Size of max string
 				temp.height = FONT_SIZE;
 
-				GuiLabel(temp, enemy_list[i].pEntity->sprite->name.c_str());
+				name = enemy_list[i].pEntity->sprite->name;
 
-				s = to_string(enemy_current_hp) + "/" + to_string(enemy_max_hp);
-				temp.x = temp.x + s.size() * 6;
-				
+				GuiLabel(temp, name.c_str());
+
+				s = to_string((int)enemy_list[i].pEntity->entity_stats.current_hp) + "/" + to_string((int)enemy_list[i].pEntity->entity_stats.max_hp);
+				temp.x = temp.x + ( name.size() * 6 ) + 6;
+				//temp.y = temp.y + FONT_SIZE;	
 				GuiLabel(temp, s.c_str());
 			}
 			else

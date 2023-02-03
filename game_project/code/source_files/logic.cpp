@@ -242,6 +242,12 @@ inline bool CheckColoredMoveTileCollission( Rectangle  &temptarget)
 	return collission;
 }
 
+
+//inline void PerformAttack()
+//{
+	
+//}
+
 inline void AttackLogic()
 {
 	if(combatant_selected >= 0 )
@@ -250,11 +256,17 @@ inline void AttackLogic()
 
 		if (colored_enemy_tiles.empty() != true)
 		{
-			Rectangle temp3 = { target->x, target->y, target->w, target->h };
+			Rectangle temp_target = { target->x, target->y, target->w, target->h };
 
-			if ( CheckColoredTileCollission(colored_enemy_tiles, temp3) )
+			if ( CheckColoredTileCollission(colored_enemy_tiles, temp_target) )
 			{
-				cout << "Attack collision" << endl;
+		
+				if (IsKeyPressed(KEY_X))
+				{
+					cout << "Attack collision and x pressed" << endl;
+					entity &entity_ref = getEntityByPosition(temp_target.x, temp_target.y, map_entity_list);
+					entity_ref.entity_stats.current_hp--;
+				}
 			}
 		}
 	}

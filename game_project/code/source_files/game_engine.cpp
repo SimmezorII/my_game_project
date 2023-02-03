@@ -28,14 +28,9 @@ using namespace std;
 #define local_persist static 
 #define global_variable static
 
-
-
 //Used by ColorFieldTileEntityList, reset with MovePressed
  static bool enemy_colored = false;
  static int entity_checked = 0;
-
-
-
 
 inline bool Init(int width, int height, char title[]) {
 
@@ -248,9 +243,67 @@ inline sprite& getSprite(int sprite_ID) {
 	return sprite_list[0];
 }
 
+// TODO: Checking against entity x/y, perhaps should use entity_tile instead
+inline entity* getEntityByPosition(int pos_x, int pos_y, vector<entity *> entities) {
+
+	cout << "This happens getEntityByPosition star" << endl; 
+
+	cout << "pos x" << pos_x; 
+	cout << "pos y" << pos_y; 
+
+	
+	for (size_t i = 0; i < entities.size(); i++)
+	{
+
+		if (entities[i]->entity_tile.x == pos_x && entities[i]->entity_tile.y == pos_y)
+		{
+			cout << "---------------------------------------------------------" << endl;
+			cout << "getEnityByPosition X entity found " << entities[i]->x << endl;
+			cout << "getEnityByPosition Y entity found " << entities[i]->y << endl;
+			cout << "getEnityByPosition tile X entity found " << entities[i]->entity_tile.x << endl;
+			cout << "getEnityByPosition tile Y entity found " << entities[i]->entity_tile.y << endl;
+				
+			return entities[i];
+		}
+
+	}
+
+	return entities[0];
+}
 
 
-inline entity& getEnityByID(int entity_ID, vector<entity> &entities) {
+// TODO: Checking against entity x/y, perhaps should use entity_tile instead
+inline entity& getEntityByPosition(int pos_x, int pos_y, vector<entity> &entities) {
+
+	cout << "This happens getEntityByPosition ref" << endl;
+	
+	for (size_t i = 0; i < entities.size(); i++)
+	{
+
+		if (entities[i].x == pos_x && entities[i].y == pos_y)
+		{
+			cout << "getEnityByPosition entity found " << endl;
+
+			cout << "getEnityByPosition X entity found " << entities[i].x << endl;
+			cout << "getEnityByPosition Y entity found " << entities[i].y << endl;
+			cout << "getEnityByPosition tile X entity found " << entities[i].entity_tile.x << endl;
+			cout << "getEnityByPosition tile Y entity found " << entities[i].entity_tile.y << endl;
+			
+			cout << "sprite name: " << entities[i].sprite->name << endl;
+						
+
+			return entities[i];
+		}
+
+	}
+
+	return entities[0];
+}
+
+
+
+
+inline entity& getEntityByID(int entity_ID, vector<entity> &entities) {
 
 	for (size_t i = 0; i < entities.size(); i++)
 	{
@@ -268,7 +321,7 @@ inline entity& getEnityByID(int entity_ID, vector<entity> &entities) {
 }
 
 
-inline entity& getEnityByID(string sprite_name, vector<entity>& entities) {
+inline entity& getEntityByID(string sprite_name, vector<entity>& entities) {
 
 	for (size_t i = 0; i < entities.size(); i++)
 	{
@@ -291,7 +344,7 @@ inline entity& getEnityByID(string sprite_name, vector<entity>& entities) {
 
 
 
-inline entity* getEnityByID(int entity_ID, vector<entity *> entities) {
+inline entity* getEntityByID(int entity_ID, vector<entity *> entities) {
 
 	for (size_t i = 0; i < entities.size(); i++)
 	{
@@ -325,7 +378,7 @@ inline entity* getEnityByID(int entity_ID, vector<entity *> entities) {
 }
 
 
-inline entity& getEnityByID(int entity_ID) {
+inline entity& getEntityByID(int entity_ID) {
 
 	for (size_t i = 0; i < entity_list.size(); i++)
 	{

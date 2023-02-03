@@ -75,6 +75,15 @@ struct sprite {
 	std::string img;
 };
 
+struct stats {
+
+	float max_hp;
+	float current_hp;
+	float defence;
+	float attack;
+
+};
+
 struct entity {
 
 	int ID;
@@ -93,6 +102,8 @@ struct entity {
 
 	float offset_x;
 	float offset_y;
+
+	stats entity_stats = { 200, 200, 20, 20 };
 
 };
 

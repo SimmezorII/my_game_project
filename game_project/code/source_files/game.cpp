@@ -116,7 +116,7 @@ inline void Init()
 
 	game_entity = &entity_list[0];
 	
-	target = &getEnityByID("target", gui_entity_list);
+	target = &getEntityByID("target", gui_entity_list);
 
 	target->render_this = false;
 
@@ -127,9 +127,9 @@ inline void Init()
 		cout << "entity in init " << game_entity_list[i]->ID << endl;
 	}
 
-	player.pEntity = getEnityByID(8, game_entity_list);
+	player.pEntity = getEntityByID(8, game_entity_list);
 
-	world_player.pEntity = getEnityByID(9, game_entity_list);
+	world_player.pEntity = getEntityByID(9, game_entity_list);
 
 	player.pEntity->sprite->offset_x = (-0 * (player.pEntity->w / 4) );
 	player.pEntity->sprite->offset_y = (-0 * player.pEntity->h / 2);
@@ -144,9 +144,9 @@ inline void Init()
 
 	combatant e2;
 
-	e1.pEntity = &getEnityByID(24, map_entity_list);
+	e1.pEntity = &getEntityByID(24, map_entity_list);
 
-	e2.pEntity = &getEnityByID(25, map_entity_list);
+	e2.pEntity = &getEntityByID(25, map_entity_list);
 
 	setField(target_field, entity_list[0].x, entity_list[0].y, SQUARE);
 
