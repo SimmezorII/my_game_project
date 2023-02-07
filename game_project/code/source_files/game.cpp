@@ -38,6 +38,7 @@ static int finishScreen;
 // Function Definitions
 //----------------------------------------------------------------------------------
 
+
 inline void Load()
 {
 	int sprite_count;
@@ -186,6 +187,9 @@ inline void Init()
 	Log("Init");
 
 	//render_entity_boxes = true;
+
+
+	rng.seed(time(0));
 }
 
 
@@ -207,68 +211,91 @@ inline void InitGameplayScreen(void)
 
 static int UpdateGameplayScreen_runonce = 0;
 
+static int animating = 0;
+
 // Game logic
 inline void UpdateGameplayScreen(void)
 {
-	CheckKeyboardInput();
-	//UpdateDebugText();
-	
-
-	//for (size_t i = 0; i < map_entity_list.size(); i++)
-	//{
-	//	if (map_entity_list[i].ID == 6)
-	//	{
-	//		if (CheckCollisionRecs({(float)world_player.pEntity->x, (float)world_player.pEntity->y,  (float)world_player.pEntity->w, (float)world_player.pEntity->h },
-	//			                   {(float)(map_entity_list[i].x),(float)(map_entity_list[i].y), (float)(map_entity_list[i].w) / 2, (float)(map_entity_list[i].h) / 2 }))
-	//		{
-	//			cout << "collision sedric" << endl;
-	//			combat = true;
-	//		}
-	//	}
-	//}
-
-	if (UpdateGameplayScreen_runonce == 0)
-	{
-		printf("UpdateGameplayScreen\n");
-
-		UpdateGameplayScreen_runonce++;
-	}
-
-	if (NewEntityButton) 
-	{
-		printf("NewEntityButton Clicked\n");
-		PLACING_ENTITY = true;
-		NewEntityButton = false;
-	}
-
-	if (setMouseEntity(map_entity_list)  == true) 
+	if (moving != true && enemy_moving != true)
 	{
 
-	}
+		CheckKeyboardInput();
+		//UpdateDebugText();
+		
 
-	CreateNewEntity();
+		//for (size_t i = 0; i < map_entity_list.size(); i++)
+		//{
+		//	if (map_entity_list[i].ID == 6)
+		//	{
+		//		if (CheckCollisionRecs({(float)world_player.pEntity->x, (float)world_player.pEntity->y,  (float)world_player.pEntity->w, (float)world_player.pEntity->h },
+		//			                   {(float)(map_entity_list[i].x),(float)(map_entity_list[i].y), (float)(map_entity_list[i].w) / 2, (float)(map_entity_list[i].h) / 2 }))
+		//		{
+		//			cout << "collision sedric" << endl;
+		//			combat = true;
+		//		}
+		//	}
+		//}
 
-	MouseLogic();
+		if (UpdateGameplayScreen_runonce == 0)
+		{
+			printf("UpdateGameplayScreen\n");
 
-	CombatLogic();
+			UpdateGameplayScreen_runonce++;
+		}
 
-	if (ActionMenuUp == true)
-	{
-		ActionGuiLogic();
+		if (NewEntityButton) 
+		{
+			printf("NewEntityButton Clicked\n");
+			PLACING_ENTITY = true;
+			NewEntityButton = false;
+		}
+
+		if (setMouseEntity(map_entity_list)  == true) 
+		{
+
+		}
+
+		CreateNewEntity();
+
+		MouseLogic();
+
+		CombatLogic();
+
+		if (ActionMenuUp == true)
+		{
+			ActionGuiLogic();
+		}
+		else
+		{
+			target->render_this = true;
+
+			TargetLogic();
+		}
+
+		//render_entity_boxes = ToggleEntityBoxes;
+
+
+
 	}
 	else
 	{
-		target->render_this = true;
 
-		TargetLogic();
+		if( moving == true )
+		{
+			if (combatant_selected > -1)
+			{
+				
+				MovementAnimated(combatant_list[combatant_selected].pEntity);
+				//moving = false;
+			}
+		}
+
+		if( enemy_moving == true )
+		{	
+			EnemyMovementAnimated();
+		}
 	}
 
-	//render_entity_boxes = ToggleEntityBoxes;
-
-	if (combatant_selected > -1)
-	{
-		MovementAnimated(combatant_list[combatant_selected].pEntity);
-	}
 
 }
 

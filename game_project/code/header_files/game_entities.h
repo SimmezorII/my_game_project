@@ -103,7 +103,7 @@ struct entity {
 	float offset_x;
 	float offset_y;
 
-	stats entity_stats = { 200, 200, 20, 20 };
+	stats entity_stats = {200,200,20,20};
 
 };
 
@@ -223,6 +223,19 @@ struct combatant {
 	int current_movecount = 1;
 
 	entity * pEntity;
+
+
+
+	std::vector<int> movelist;
+
+};
+
+
+struct enemy {
+
+	int max_hp;
+	int current_hp;
+
 
 };
 

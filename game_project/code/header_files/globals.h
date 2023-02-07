@@ -127,6 +127,8 @@ global_variable vector<Direction>	move_list;
 
 global_variable bool moving = false;
 
+global_variable bool enemy_moving = false;
+
 global_variable int index_count = 0;
 
 global_variable int temp_movecount[10] = { 1,1,1,1,1,1,1,1,1,1};
@@ -245,7 +247,7 @@ global_variable int logreset = 0;
 
 global_variable int game_turn = 0;
 
-global_variable bool PLAYER_TURN = false;
+global_variable bool PLAYER_TURN = true;
 
 global_variable int num_of_added = 1;
 
@@ -284,6 +286,10 @@ global_variable float enemy_attack = 20;
 
 global_variable float enemy_defense = 20;
 
+
+global_variable bool player_animation = true;
+
+global_variable	vector<Direction> enemy_movelist;
 
 #define GLOBALS_H
 #endif

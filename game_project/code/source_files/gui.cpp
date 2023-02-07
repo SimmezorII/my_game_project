@@ -496,14 +496,14 @@ inline void RenderLog()
 
 Rectangle DebugLogInfoRect = { 0 , 0 , 100, 16 };
 
-Rectangle DebugScrollBar = { 8 + 400, (float)GAMEWINDOW_HEIGHT - 200 - 16, 10, 16 * 11 };
+Rectangle DebugScrollBar = { 8 + 400, (float)gamescreen_offset_y+(float)GAMEWINDOW_HEIGHT - 200 - 16, 10, 16 * 11 };
 
 
 inline void RenderDebugLog()
 {
 	DebugLogInfoRect.x = 20 + 400;
 
-	DebugLogInfoRect.y = GAMEWINDOW_HEIGHT - 200;
+	DebugLogInfoRect.y = (float)gamescreen_offset_y+ GAMEWINDOW_HEIGHT - 200;
 
 	int rendernum = 0;
 
