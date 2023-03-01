@@ -145,6 +145,10 @@ inline void Init()
 
 	combatant e2;
 
+	e1.move_range = 4;
+
+	e2.move_range = 4;
+
 	e1.pEntity = &getEntityByID(24, map_entity_list);
 
 	e2.pEntity = &getEntityByID(25, map_entity_list);

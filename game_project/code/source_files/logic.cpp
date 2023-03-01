@@ -102,6 +102,335 @@ inline void ResetFieldVariables()
 	UpdateTargetFieldRange();
 }
 
+inline void EntityMoveLogic(combatant &pEnemy, combatant &pPlayer, bool towards)
+{
+	bool moved = false;
+
+	int random = (int)uint_dist20(rng);
+
+	Log("Random:", random);
+
+	float diff_x;
+	float diff_y;
+
+	bool LEFT_OF_PLAYER = false;
+	bool RIGHT_OF_PLAYER = false;
+	bool BELOW_OF_PLAYER = false;
+	bool ABOVE_OF_PLAYER = false;
+	bool YLINE_OF_PLAYER = false;
+	bool XLINE_OF_PLAYER = false;
+
+	float enemy_temp_x = pEnemy.pEntity->x;
+
+	float enemy_temp_y = pEnemy.pEntity->y;
+
+	int dir_moved;
+
+	int direction;
+
+	if (towards == true)
+	{
+		direction = 1;
+	}
+	else
+	{
+		direction = -1;
+	}
+
+	for (size_t i = 0; i < pEnemy.move_range; i++)
+	{
+
+		dir_moved = 0;
+		LEFT_OF_PLAYER = false;
+		RIGHT_OF_PLAYER = false;
+		BELOW_OF_PLAYER = false;
+		ABOVE_OF_PLAYER = false;
+		YLINE_OF_PLAYER = false;
+		XLINE_OF_PLAYER = false;
+
+		cout << "enemy_temp_y: " << enemy_temp_y << endl;
+
+		cout << "enemy_temp_x: " << enemy_temp_x << endl;
+
+		if (enemy_temp_x < pPlayer.pEntity->x)
+		{
+			Log("ENEMY LEFT OF PLAYER");
+
+			diff_x = (pPlayer.pEntity->x - enemy_temp_x) / 64;
+
+			Log("Diff in x: ", diff_x);
+
+			LEFT_OF_PLAYER = true;
+		}
+		else if (enemy_temp_x == pPlayer.pEntity->x)
+		{
+			Log("ENEMY in Y-LINE OF PLAYER");
+			YLINE_OF_PLAYER = true;
+		}
+		else
+		{
+			Log("ENEMY RIGHT OF PLAYER");
+
+			diff_x = (pPlayer.pEntity->x - enemy_temp_x) / 64;
+
+			Log("Diff in x: ", diff_x);
+
+			RIGHT_OF_PLAYER = true;
+		}
+
+		if (enemy_temp_y < pPlayer.pEntity->y)
+		{
+			Log("ENEMY ABOVE OF PLAYER");
+
+			diff_y = (pPlayer.pEntity->y - enemy_temp_y) / 32;
+
+			Log("Diff in y: ", diff_y);
+
+			ABOVE_OF_PLAYER = true;
+		}
+		else if (enemy_temp_y == pPlayer.pEntity->y)
+		{
+			Log("ENEMY X-LINE OF PLAYER");
+			XLINE_OF_PLAYER = true;
+		}
+		else
+		{
+			Log("ENEMY BELOW OF PLAYER");
+
+			diff_y = (pPlayer.pEntity->y - enemy_temp_y) / 32;
+
+			Log("Diff in y: ", diff_y);
+
+			BELOW_OF_PLAYER = true;
+		}
+
+		if (LEFT_OF_PLAYER && BELOW_OF_PLAYER)
+		{
+			if (diff_y + diff_x == 0)
+			{
+				pEnemy.movelist.push_back(RIGHT * direction);
+				dir_moved = RIGHT;
+			}
+			else if (diff_x + diff_y < 0)
+			{
+				if (random % 2 == 0)
+				{
+					pEnemy.movelist.push_back(RIGHT * direction);
+					dir_moved = RIGHT;
+				}
+				else
+				{
+					pEnemy.movelist.push_back(UP * direction);
+					dir_moved = UP;
+				}
+			}
+			else
+			{
+				if (random % 2 == 0)
+				{
+					pEnemy.movelist.push_back(RIGHT * direction);
+					dir_moved = RIGHT;
+				}
+				else
+				{
+					pEnemy.movelist.push_back(DOWN * direction);
+					dir_moved = DOWN;
+				}
+			}
+		}
+
+		if (LEFT_OF_PLAYER && ABOVE_OF_PLAYER)
+		{
+			if (diff_y == diff_x)
+			{
+				pEnemy.movelist.push_back(DOWN * direction);
+				dir_moved = DOWN;
+			}
+			else if (diff_x - diff_y < 0)
+			{
+				if (random % 2 == 0)
+				{
+					pEnemy.movelist.push_back(LEFT * direction);
+					dir_moved = LEFT;
+				}
+				else
+				{
+					pEnemy.movelist.push_back(DOWN * direction);
+					dir_moved = DOWN;
+				}
+			}
+			else
+			{
+				if (random % 2 == 0)
+				{
+					pEnemy.movelist.push_back(RIGHT * direction);
+					dir_moved = RIGHT;
+				}
+				else
+				{
+					pEnemy.movelist.push_back(DOWN * direction);
+					dir_moved = DOWN;
+				}
+			}
+		}
+
+		if (RIGHT_OF_PLAYER && ABOVE_OF_PLAYER)
+		{
+			if (diff_x + diff_y == 0)
+			{
+				pEnemy.movelist.push_back(LEFT * direction);
+				dir_moved = LEFT;
+			}
+			else if (diff_x + diff_y < 0)
+			{
+				if (random % 2 == 0)
+				{
+					pEnemy.movelist.push_back(LEFT * direction);
+					dir_moved = LEFT;
+				}
+				else
+				{
+					pEnemy.movelist.push_back(UP * direction);
+					dir_moved = UP;
+				}
+			}
+			else
+			{
+				if (random % 2 == 0)
+				{
+					pEnemy.movelist.push_back(LEFT * direction);
+					dir_moved = LEFT;
+				}
+				else
+				{
+					pEnemy.movelist.push_back(DOWN * direction);
+					dir_moved = DOWN;
+				}
+			}
+		}
+
+		if (RIGHT_OF_PLAYER && BELOW_OF_PLAYER)
+		{
+			if (diff_y == diff_x)
+			{
+				pEnemy.movelist.push_back(UP * direction);
+				dir_moved = UP;
+			}
+			else if (diff_x - diff_y < 0)
+			{
+				// Log("less than");
+				if (random % 2 == 0)
+				{
+					pEnemy.movelist.push_back(LEFT * direction);
+					dir_moved = LEFT;
+				}
+				else
+				{
+					pEnemy.movelist.push_back(UP * direction);
+					dir_moved = UP;
+				}
+			}
+			else
+			{
+				// Log("greater than");
+				if (random % 2 == 0)
+				{
+					pEnemy.movelist.push_back(RIGHT * direction);
+					dir_moved = RIGHT;
+				}
+				else
+				{
+					pEnemy.movelist.push_back(UP * direction);
+
+					dir_moved = UP;
+				}
+			}
+		}
+
+		if (YLINE_OF_PLAYER && BELOW_OF_PLAYER)
+		{
+			if (random % 2 == 0)
+			{
+				pEnemy.movelist.push_back(RIGHT * direction);
+				dir_moved = RIGHT;
+			}
+			else
+			{
+				pEnemy.movelist.push_back(UP * direction);
+				dir_moved = UP;
+			}
+		}
+
+		if (YLINE_OF_PLAYER && ABOVE_OF_PLAYER)
+		{
+			if (random % 2 == 0)
+			{
+				pEnemy.movelist.push_back(DOWN * direction);
+				dir_moved = DOWN;
+			}
+			else
+			{
+				pEnemy.movelist.push_back(LEFT * direction);
+				dir_moved = LEFT;
+			}
+		}
+
+		if (XLINE_OF_PLAYER && LEFT_OF_PLAYER)
+		{
+			if (random % 2 == 0)
+			{
+				pEnemy.movelist.push_back(DOWN * direction);
+				dir_moved = DOWN * direction;
+			}
+			else
+			{
+				pEnemy.movelist.push_back(RIGHT * direction);
+				dir_moved = RIGHT * direction;
+			}
+		}
+
+		if (XLINE_OF_PLAYER && RIGHT_OF_PLAYER)
+		{
+			if (random % 2 == 0)
+			{
+				pEnemy.movelist.push_back(UP * direction);
+				dir_moved = UP * direction;
+			}
+			else
+			{
+				pEnemy.movelist.push_back(LEFT * direction);
+				dir_moved = LEFT * direction;
+			}
+		}
+
+		if (dir_moved == LEFT)
+		{
+			printf("[LEFT]");
+			enemy_temp_x = enemy_temp_x + (left_vel / 1);
+			enemy_temp_y = enemy_temp_y + (down_vel / 1);
+		}
+		if (dir_moved == RIGHT)
+		{
+			printf("[RIGHT]");
+			enemy_temp_x = enemy_temp_x + (right_vel / 1);
+			enemy_temp_y = enemy_temp_y + (up_vel / 1);
+		}
+		if (dir_moved == UP)
+		{
+			printf("[UP]");
+			enemy_temp_x = enemy_temp_x + (left_vel / 1);
+			enemy_temp_y = enemy_temp_y + (up_vel / 1);
+		}
+		if (dir_moved == DOWN)
+		{
+			printf("[DOWN]");
+			enemy_temp_x = enemy_temp_x + (right_vel / 1);
+			enemy_temp_y = enemy_temp_y + (down_vel / 1);
+		}
+		printf("");
+	}
+}
+
 inline void EnemyLogic()
 {
 	Log("Enemy Passed, turn ended");
@@ -115,6 +444,8 @@ inline void EnemyLogic()
 			enemy_moving = true;
 		}
 	}
+	EntityMoveLogic(enemy_list[1], combatant_list[0], false);
+
 	PLAYER_TURN = true;
 	game_turn++;
 }
@@ -142,195 +473,6 @@ inline void CheckKeyboardInput()
 		// SetFieldTileColors(target_field, 2);
 
 		// printf("%d", GetRandomValue(0, 99));
-
-		bool moved = false;
-
-		int random = (int)uint_dist20(rng);
-
-		Log("Random:", random);
-
-		float diff_x;
-		float diff_y;
-
-		bool LEFT_OF_PLAYER = false;
-		bool RIGHT_OF_PLAYER = false;
-		bool BELOW_OF_PLAYER = false;
-		bool ABOVE_OF_PLAYER = false;
-
-		if (enemy_list[1].pEntity->x < combatant_list[0].pEntity->x)
-		{
-			Log("ENEMY LEFT OF PLAYER");
-
-			diff_x = (combatant_list[0].pEntity->x - enemy_list[1].pEntity->x) / 64;
-
-			Log("Diff in x: ", diff_x);
-
-			LEFT_OF_PLAYER = true;
-		}
-		else if (enemy_list[1].pEntity->x == combatant_list[0].pEntity->x)
-		{
-			Log("ENEMY in Y-LINE OF PLAYER");
-		}
-		else
-		{
-			Log("ENEMY RIGHT OF PLAYER");
-
-			diff_x = (combatant_list[0].pEntity->x - enemy_list[1].pEntity->x) / 64;
-
-			Log("Diff in x: ", diff_x);
-
-			RIGHT_OF_PLAYER = true;
-		}
-
-		if (enemy_list[1].pEntity->y < combatant_list[0].pEntity->y)
-		{
-			Log("ENEMY ABOVE OF PLAYER");
-
-			diff_y = (combatant_list[0].pEntity->y - enemy_list[1].pEntity->y) / 32;
-
-			Log("Diff in y: ", diff_y);
-
-			ABOVE_OF_PLAYER = true;
-		}
-		else if (enemy_list[1].pEntity->y == combatant_list[0].pEntity->y)
-		{
-			Log("ENEMY X-LINE OF PLAYER");
-		}
-		else
-		{
-			Log("ENEMY BELOW OF PLAYER");
-
-			diff_y = (combatant_list[0].pEntity->y - enemy_list[1].pEntity->y) / 32;
-
-			Log("Diff in y: ", diff_y);
-
-			BELOW_OF_PLAYER = true;
-		}
-
-		if (LEFT_OF_PLAYER && BELOW_OF_PLAYER)
-		{
-			if (diff_y + diff_x == 0)
-			{
-				enemy_list[1].movelist.push_back(RIGHT);
-			}
-			else if (diff_x + diff_y < 0)
-			{
-				if (random % 2 == 0)
-				{
-					enemy_list[1].movelist.push_back(RIGHT);
-				}
-				else
-				{
-					enemy_list[1].movelist.push_back(UP);
-				}
-			}
-			else
-			{
-				if (random % 2 == 0)
-				{
-					enemy_list[1].movelist.push_back(RIGHT);
-				}
-				else
-				{
-					enemy_list[1].movelist.push_back(DOWN);
-				}
-			}
-		}
-
-		if (LEFT_OF_PLAYER && ABOVE_OF_PLAYER)
-		{
-			if (diff_y == diff_x)
-			{
-				enemy_list[1].movelist.push_back(DOWN);
-			}
-			else if (diff_x - diff_y < 0)
-			{
-				if (random % 2 == 0)
-				{
-					enemy_list[1].movelist.push_back(LEFT);
-				}
-				else
-				{
-					enemy_list[1].movelist.push_back(DOWN);
-				}
-			}
-			else
-			{
-				if (random % 2 == 0)
-				{
-					enemy_list[1].movelist.push_back(RIGHT);
-				}
-				else
-				{
-					 enemy_list[1].movelist.push_back(DOWN);
-				}
-			}
-		}
-	
-	
-		if (RIGHT_OF_PLAYER && ABOVE_OF_PLAYER)
-		{
-			if ( diff_x + diff_y == 0 )
-			{
-				enemy_list[1].movelist.push_back(LEFT);
-			}
-			else if (diff_x + diff_y < 0)
-			{
-				if (random % 2 == 0)
-				{
-					enemy_list[1].movelist.push_back(LEFT);
-				}
-				else
-				{
-					enemy_list[1].movelist.push_back(UP);
-				}
-			}
-			else
-			{
-				if (random % 2 == 0)
-				{
-					enemy_list[1].movelist.push_back(LEFT);
-				}
-				else
-				{
-					enemy_list[1].movelist.push_back(DOWN);
-				}
-			}
-		}
-
-		if (RIGHT_OF_PLAYER && BELOW_OF_PLAYER)
-		{
-			if (diff_y == diff_x )
-			{
-				enemy_list[1].movelist.push_back(UP);
-			}
-			else if (diff_x - diff_y < 0)
-			{
-				//Log("less than");
-				if (random % 2 == 0)
-				{
-					enemy_list[1].movelist.push_back(LEFT);
-				}
-				else
-				{
-					enemy_list[1].movelist.push_back(UP);
-				}
-			}
-			else
-			{
-				//Log("greater than");
-				if (random % 2 == 0)
-				{
-					enemy_list[1].movelist.push_back(RIGHT);
-				}
-				else
-				{
-					enemy_list[1].movelist.push_back(UP);
-				}
-			}
-		}
-	
-	
 	}
 
 	if (IsKeyPressed(KEY_K))
@@ -1193,6 +1335,279 @@ inline void MoveLogic()
 		}
 		else
 		{
+		}
+	}
+}
+
+inline void EnemyMoveLogic()
+{
+	bool moved = false;
+
+	int random = (int)uint_dist20(rng);
+
+	Log("Random:", random);
+
+	float diff_x;
+	float diff_y;
+
+	bool LEFT_OF_PLAYER = false;
+	bool RIGHT_OF_PLAYER = false;
+	bool BELOW_OF_PLAYER = false;
+	bool ABOVE_OF_PLAYER = false;
+	bool YLINE_OF_PLAYER = false;
+	bool XLINE_OF_PLAYER = false;
+
+	int dir_moved;
+
+	if (enemy_list[1].pEntity->x < combatant_list[0].pEntity->x)
+	{
+		Log("ENEMY LEFT OF PLAYER");
+
+		diff_x = (combatant_list[0].pEntity->x - enemy_list[1].pEntity->x) / 64;
+
+		Log("Diff in x: ", diff_x);
+
+		LEFT_OF_PLAYER = true;
+	}
+	else if (enemy_list[1].pEntity->x == combatant_list[0].pEntity->x)
+	{
+		Log("ENEMY in Y-LINE OF PLAYER");
+		YLINE_OF_PLAYER = true;
+	}
+	else
+	{
+		Log("ENEMY RIGHT OF PLAYER");
+
+		diff_x = (combatant_list[0].pEntity->x - enemy_list[1].pEntity->x) / 64;
+
+		Log("Diff in x: ", diff_x);
+
+		RIGHT_OF_PLAYER = true;
+	}
+
+	if (enemy_list[1].pEntity->y < combatant_list[0].pEntity->y)
+	{
+		Log("ENEMY ABOVE OF PLAYER");
+
+		diff_y = (combatant_list[0].pEntity->y - enemy_list[1].pEntity->y) / 32;
+
+		Log("Diff in y: ", diff_y);
+
+		ABOVE_OF_PLAYER = true;
+	}
+	else if (enemy_list[1].pEntity->y == combatant_list[0].pEntity->y)
+	{
+		Log("ENEMY X-LINE OF PLAYER");
+		XLINE_OF_PLAYER = true;
+	}
+	else
+	{
+		Log("ENEMY BELOW OF PLAYER");
+
+		diff_y = (combatant_list[0].pEntity->y - enemy_list[1].pEntity->y) / 32;
+
+		Log("Diff in y: ", diff_y);
+
+		BELOW_OF_PLAYER = true;
+	}
+
+	if (LEFT_OF_PLAYER && BELOW_OF_PLAYER)
+	{
+		if (diff_y + diff_x == 0)
+		{
+			enemy_list[1].movelist.push_back(RIGHT);
+
+			dir_moved = RIGHT;
+		}
+		else if (diff_x + diff_y < 0)
+		{
+			if (random % 2 == 0)
+			{
+				enemy_list[1].movelist.push_back(RIGHT);
+
+				dir_moved = RIGHT;
+			}
+			else
+			{
+				enemy_list[1].movelist.push_back(UP);
+
+				dir_moved = UP;
+			}
+		}
+		else
+		{
+			if (random % 2 == 0)
+			{
+				enemy_list[1].movelist.push_back(RIGHT);
+
+				dir_moved = RIGHT;
+			}
+			else
+			{
+				enemy_list[1].movelist.push_back(DOWN);
+
+				dir_moved = DOWN;
+			}
+		}
+	}
+
+	if (LEFT_OF_PLAYER && ABOVE_OF_PLAYER)
+	{
+		if (diff_y == diff_x)
+		{
+			enemy_list[1].movelist.push_back(DOWN);
+
+			dir_moved = DOWN;
+		}
+		else if (diff_x - diff_y < 0)
+		{
+			if (random % 2 == 0)
+			{
+				enemy_list[1].movelist.push_back(LEFT);
+
+				dir_moved = LEFT;
+			}
+			else
+			{
+				enemy_list[1].movelist.push_back(DOWN);
+
+				dir_moved = DOWN;
+			}
+		}
+		else
+		{
+			if (random % 2 == 0)
+			{
+				enemy_list[1].movelist.push_back(RIGHT);
+
+				dir_moved = RIGHT;
+			}
+			else
+			{
+				enemy_list[1].movelist.push_back(DOWN);
+
+				dir_moved = DOWN;
+			}
+		}
+	}
+
+	if (RIGHT_OF_PLAYER && ABOVE_OF_PLAYER)
+	{
+		if (diff_x + diff_y == 0)
+		{
+			enemy_list[1].movelist.push_back(LEFT);
+
+			dir_moved = LEFT;
+		}
+		else if (diff_x + diff_y < 0)
+		{
+			if (random % 2 == 0)
+			{
+				enemy_list[1].movelist.push_back(LEFT);
+
+				dir_moved = LEFT;
+			}
+			else
+			{
+				enemy_list[1].movelist.push_back(UP);
+
+				dir_moved = UP;
+			}
+		}
+		else
+		{
+			if (random % 2 == 0)
+			{
+				enemy_list[1].movelist.push_back(LEFT);
+
+				dir_moved = LEFT;
+			}
+			else
+			{
+				enemy_list[1].movelist.push_back(DOWN);
+
+				dir_moved = DOWN;
+			}
+		}
+	}
+
+	if (RIGHT_OF_PLAYER && BELOW_OF_PLAYER)
+	{
+		if (diff_y == diff_x)
+		{
+			enemy_list[1].movelist.push_back(UP);
+		}
+		else if (diff_x - diff_y < 0)
+		{
+			// Log("less than");
+			if (random % 2 == 0)
+			{
+				enemy_list[1].movelist.push_back(LEFT);
+			}
+			else
+			{
+				enemy_list[1].movelist.push_back(UP);
+			}
+		}
+		else
+		{
+			// Log("greater than");
+			if (random % 2 == 0)
+			{
+				enemy_list[1].movelist.push_back(RIGHT);
+			}
+			else
+			{
+				enemy_list[1].movelist.push_back(UP);
+			}
+		}
+	}
+
+	if (YLINE_OF_PLAYER && BELOW_OF_PLAYER)
+	{
+		if (random % 2 == 0)
+		{
+			enemy_list[1].movelist.push_back(RIGHT);
+		}
+		else
+		{
+			enemy_list[1].movelist.push_back(UP);
+		}
+	}
+
+	if (YLINE_OF_PLAYER && ABOVE_OF_PLAYER)
+	{
+		if (random % 2 == 0)
+		{
+			enemy_list[1].movelist.push_back(DOWN);
+		}
+		else
+		{
+			enemy_list[1].movelist.push_back(LEFT);
+		}
+	}
+
+	if (XLINE_OF_PLAYER && LEFT_OF_PLAYER)
+	{
+		if (random % 2 == 0)
+		{
+			enemy_list[1].movelist.push_back(DOWN);
+		}
+		else
+		{
+			enemy_list[1].movelist.push_back(RIGHT);
+		}
+	}
+
+	if (XLINE_OF_PLAYER && RIGHT_OF_PLAYER)
+	{
+		if (random % 2 == 0)
+		{
+			enemy_list[1].movelist.push_back(UP);
+		}
+		else
+		{
+			enemy_list[1].movelist.push_back(DOWN);
 		}
 	}
 }

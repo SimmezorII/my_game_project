@@ -13,17 +13,15 @@ struct win32_window_dimension
 	int Height;
 };
 
-
-struct color {
-
+struct color
+{
 	int r;
 	int g;
 	int b;
-
 };
 
-
-struct texture{
+struct texture
+{
 	int w;
 	int h;
 
@@ -31,31 +29,31 @@ struct texture{
 
 	std::string path;
 
-	//SDL_Texture* sdl_texture;
+	// SDL_Texture* sdl_texture;
 };
 
-struct text {
+struct text
+{
 
 	int x;
 	int y;
 	int fontsize;
 
 	color txt_color;
-//	texture tex;
-//	std::string txt;
-
+	//	texture tex;
+	//	std::string txt;
 };
 
-
-struct gui {
+struct gui
+{
 
 	float x;
 	float y;
 	bool visable;
-
 };
 
-struct sprite {
+struct sprite
+{
 
 	int ID;
 	int tex_ID;
@@ -75,16 +73,17 @@ struct sprite {
 	std::string img;
 };
 
-struct stats {
+struct stats
+{
 
 	float max_hp;
 	float current_hp;
 	float defence;
 	float attack;
-
 };
 
-struct entity {
+struct entity
+{
 
 	int ID;
 	float x;
@@ -92,9 +91,9 @@ struct entity {
 	float w;
 	float h;
 
-	sprite * sprite;
+	sprite *sprite;
 
-	Rectangle entity_tile = { x, y, 64, 32 };
+	Rectangle entity_tile = {x, y, 64, 32};
 
 	Rectangle offset_rect;
 
@@ -103,12 +102,11 @@ struct entity {
 	float offset_x;
 	float offset_y;
 
-	stats entity_stats = {200,200,20,20};
-
+	stats entity_stats = {200, 200, 20, 20};
 };
 
-
-struct pos {
+struct pos
+{
 
 	float x; // index
 	float y; // index
@@ -117,17 +115,18 @@ struct pos {
 	int index;
 };
 
-struct tile {
+struct tile
+{
 
 	int x;
 	int y;
 	int w;
 	int h;
-	
-	sprite * sprite;
+
+	sprite *sprite;
 };
 
-struct tile_rect 
+struct tile_rect
 {
 	int line_1_p1_x;
 	int line_1_p1_y;
@@ -152,7 +151,6 @@ struct tile_rect
 
 	int line_4_p2_x;
 	int line_4_p2_y;
-
 };
 
 struct tile_triangles
@@ -192,12 +190,10 @@ struct tile_triangles
 
 	int tri_4_line_3_x;
 	int tri_4_line_3_y;
-
 };
 
-
-
-struct field {
+struct field
+{
 
 	int range;
 	int type;
@@ -214,7 +210,8 @@ struct field {
 	bool render_field = false;
 };
 
-struct combatant {
+struct combatant
+{
 
 	int move_range;
 
@@ -222,47 +219,40 @@ struct combatant {
 
 	int current_movecount = 1;
 
-	entity * pEntity;
-
-
+	entity *pEntity;
 
 	std::vector<int> movelist;
-
 };
 
-
-struct enemy {
+struct enemy
+{
 
 	int max_hp;
 	int current_hp;
-
-
 };
 
-struct RenderObject {
+struct RenderObject
+{
 
 	Texture2D texture;
-	Rectangle source; 
+	Rectangle source;
 	Rectangle dest;
-	Vector2 origin; 
+	Vector2 origin;
 	float rotation;
 	Color tint;
 	int layer = -1;
 	bool render_this = false;
-//	float offset_x;	
-//	float offset_y;
-
+	//	float offset_x;
+	//	float offset_y;
 };
 
+struct Render_List
+{
 
-struct Render_List {
+	std::vector<RenderObject *> List;
 
-	 std::vector < RenderObject *>  List;
-
-	 bool render_this = false;
+	bool render_this = false;
 };
-
-
 
 #define GAME_H
 #endif
