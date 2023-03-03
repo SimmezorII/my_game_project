@@ -208,6 +208,8 @@ struct field
 	int sum_of_field_tiles;
 
 	bool render_field = false;
+
+	float field_alpha = 1;
 };
 
 struct combatant

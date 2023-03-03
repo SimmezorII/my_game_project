@@ -59,7 +59,7 @@ typedef std::mt19937 MyRNG; // the Mersenne Twister with a popular choice of par
 static uint32_t seed_val;	// populate somehow
 
 std::uniform_int_distribution<uint32_t> uint_dist;			// by default range [0, MAX]
-std::uniform_int_distribution<uint32_t> uint_dist20(0, 20); // range [0,10]
+std::uniform_int_distribution<uint32_t> uint_dist20(1, 20); // range [1,20]
 
 static MyRNG rng;
 
@@ -469,6 +469,8 @@ inline void CheckKeyboardInput()
 	if (IsKeyPressed(KEY_L))
 	{
 		cout << "L PRESSED" << endl;
+
+		enemy_move_field.render_field = true;
 
 		// SetFieldTileColors(target_field, 2);
 
@@ -950,7 +952,7 @@ inline void MovePressed()
 
 	UpdateTargetFieldRange();
 
-	setField(target_field, combatant_list[combatant_selected].pEntity->x, combatant_list[combatant_selected].pEntity->y, SQUARE);
+	setField(target_field, combatant_list[combatant_selected].pEntity->x, combatant_list[combatant_selected].pEntity->y, SQUARE, (Col)GREEN_TILE);
 
 	target_field.render_field = true;
 
@@ -1005,7 +1007,7 @@ inline void AttackPressed()
 
 	target_field.range = world_player.attack_range;
 
-	setField(target_field, combatant_list[0].pEntity->x, combatant_list[0].pEntity->y, SQUARE);
+	setField(target_field, combatant_list[0].pEntity->x, combatant_list[0].pEntity->y, SQUARE, (Col)GREEN_TILE);
 
 	target_field.render_field = true;
 
@@ -1630,7 +1632,7 @@ inline void TargetLogic()
 				cout << "First Press X " << X_pressed_count << endl;
 
 				cout << "Collision" << endl;
-				setField(target_field, target->x, target->y, 0);
+				setField(target_field, target->x, target->y, 0,(Col)GREEN_TILE);
 
 				// field_up = true;
 

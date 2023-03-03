@@ -153,7 +153,7 @@ inline void Init()
 
 	e2.pEntity = &getEntityByID(25, map_entity_list);
 
-	setField(target_field, entity_list[0].x, entity_list[0].y, SQUARE);
+	setField(target_field, entity_list[0].x, entity_list[0].y, SQUARE, (Col)GREEN_TILE);
 
 	combatant_list.push_back(world_player);
 
@@ -192,7 +192,7 @@ inline void Init()
 
 	//render_entity_boxes = true;
 
-
+	// Init seed used for randomness
 	rng.seed(time(0));
 }
 
@@ -213,13 +213,15 @@ inline void InitGameplayScreen(void)
 
 }
 
-static int UpdateGameplayScreen_runonce = 0;
-
-static int animating = 0;
-
 // Game logic
 inline void UpdateGameplayScreen(void)
 {
+
+	static int UpdateGameplayScreen_runonce = 0;
+
+	static int animating = 0;
+
+
 	if (moving != true && enemy_moving != true)
 	{
 
@@ -303,11 +305,10 @@ inline void UpdateGameplayScreen(void)
 
 }
 
-static int DrawGameplayScreen_runonce = 0;
-
 // Gameplay Screen Rendering
 inline void DrawGameplayScreen(void)
 {
+	static int DrawGameplayScreen_runonce = 0;
 
 	if (DrawGameplayScreen_runonce == 0)
 	{
@@ -345,6 +346,8 @@ inline void DrawGameplayScreen(void)
 	RenderField(spawn_field);
 
 	RenderField(target_field);
+
+	RenderField(enemy_move_field);
 
 	if (DrawGameplayScreen_runonce == 0)
 	{

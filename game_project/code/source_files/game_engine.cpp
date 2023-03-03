@@ -1523,6 +1523,10 @@ inline void RenderField(field &fieldRef)
 
 	int list_next = 0;
 
+	//DebugLog("Test", fieldRef.sum_of_field_tiles);
+
+	cout << fieldRef.sum_of_field_tiles << endl;
+
 	for (size_t i = 0; i < fieldRef.sum_of_field_tiles; i++)
 	{
 		recEntity = {(float)(fieldRef.tiles[i].x), (float)(fieldRef.tiles[i].y), (float)tile_width, (float)tile_height};
@@ -1535,7 +1539,7 @@ inline void RenderField(field &fieldRef)
 
 		// cout << objects_to_render[list_next] << endl;
 
-		AllRenderObjects[i + objects_to_render[list_next]] = {getTexture(fieldRef.tiles[i].sprite->ID).tex, recSprite, recEntity, vec, 0, WHITE, -60, fieldRef.render_field};
+		AllRenderObjects[i + objects_to_render[list_next]] = {getTexture(fieldRef.tiles[i].sprite->ID).tex, recSprite, recEntity, vec, 0, Fade(WHITE, fieldRef.field_alpha), -60, fieldRef.render_field};
 
 		if (render_list[list_next].List.size() < fieldRef.sum_of_field_tiles + objects_to_render[list_next])
 		{

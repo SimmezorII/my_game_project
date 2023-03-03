@@ -17,9 +17,12 @@ static field position_field;
 
 static field spawn_field;
 
+static field enemy_move_field;
+
+
 /////----------------------------------------------------------------------------------------------------
 
-inline void setSquareField(field &fieldRef, int nx, int ny)
+inline void setSquareField(field &fieldRef, int nx, int ny, enum Col tile_color)
 {
 	int targetRange = fieldRef.range;
 
@@ -45,6 +48,13 @@ inline void setSquareField(field &fieldRef, int nx, int ny)
 
 	int fieldx = 0;
 	int fieldy = 0;
+
+	
+	for (int i = 0; i < 124; i++) {
+	
+		//fieldRef.tiles[i].sprite = NULL;
+	}
+
 
 
 	fieldRef.sum_of_field_tiles = sum1 + sum2;
@@ -93,7 +103,7 @@ inline void setSquareField(field &fieldRef, int nx, int ny)
 		//	cout << "fieldtile y: "<<fieldRef.tiles[i].y << endl;
 		//	cout << "fieldtile x: " << fieldRef.tiles[i].x << endl;
 
-		fieldRef.tiles[i].sprite = &getSprite(GREEN_TILE);
+		fieldRef.tiles[i].sprite = &getSprite(tile_color);
 
 		tilecount += 1;
 		numRect += 1;
@@ -136,7 +146,7 @@ inline void setSquareField(field &fieldRef, int nx, int ny)
 		}
 
 
-		fieldRef.tiles[start].sprite = &getSprite(GREEN_TILE);
+		fieldRef.tiles[start].sprite = &getSprite(tile_color);
 
 		tilecount += 1;
 		numRect += 1;
@@ -1091,12 +1101,12 @@ inline void setConeField(field &fieldRef, int nx, int ny, Direction dir)
 
 }
 
-inline void setField(field &fieldRef, int nx, int ny, int field_type)
+inline void setField(field &fieldRef, int nx, int ny, int field_type, enum Col tile_color)
 {
 
 	if (field_type == SQUARE)
 	{
-		setSquareField(fieldRef, nx, ny);
+		setSquareField(fieldRef, nx, ny, tile_color);
 	}
 
 	if (field_type == NON_ISO_SQUARE)
@@ -1160,9 +1170,17 @@ inline void initCombat()
 
 	//setField(position_field, 512, 512, TRIANGLE + UP);
 
+	enemy_move_field.field_alpha = 0.5;
+
+	enemy_move_field.range = 4;
+
+	setField(enemy_move_field, 224, 224, SQUARE, (Col)RED_TILE);
+
+
 	position_field.range = 5;
 
-	setField(position_field, 512, 512, NON_ISO_SQUARE);
+	setField(position_field, 512, 512, NON_ISO_SQUARE, (Col)GREEN_TILE);
+
 }
 
 inline void SelectStartingTile()
