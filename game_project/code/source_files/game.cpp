@@ -135,11 +135,11 @@ inline void Init()
 	player.pEntity->sprite->offset_x = (-0 * (player.pEntity->w / 4) );
 	player.pEntity->sprite->offset_y = (-0 * player.pEntity->h / 2);
 
-	world_player.move_range = 5;
+	world_player.move_range = 8;
 
 	world_player.attack_range = 2;
 
-	target_field.range = 5;
+	target_field.range = 8;
 
 	combatant e1;
 
@@ -194,6 +194,9 @@ inline void Init()
 
 	// Init seed used for randomness
 	rng.seed(time(0));
+
+
+	
 }
 
 
@@ -317,8 +320,6 @@ inline void DrawGameplayScreen(void)
 
 	DrawFPS(GameGui.x - 200, 0);
 
-	//ClearBackground(WHITE);
-
 	for (size_t i = 0; i < objects_to_render.size(); i++)
 	{
 		objects_to_render[i] = 0;
@@ -345,9 +346,12 @@ inline void DrawGameplayScreen(void)
 
 	RenderField(spawn_field);
 
+	RenderField(enemy_move_field);
+
 	RenderField(target_field);
 
-	RenderField(enemy_move_field);
+
+	//RenderField(enemy_move_field_two);
 
 	if (DrawGameplayScreen_runonce == 0)
 	{
@@ -401,6 +405,9 @@ inline void DrawGameplayScreen(void)
 	}
 
 	DrawGameplayScreen_runonce++;
+
+
+
 }
 
 

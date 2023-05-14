@@ -59,7 +59,7 @@ typedef std::mt19937 MyRNG; // the Mersenne Twister with a popular choice of par
 static uint32_t seed_val;	// populate somehow
 
 std::uniform_int_distribution<uint32_t> uint_dist;			// by default range [0, MAX]
-std::uniform_int_distribution<uint32_t> uint_dist20(1, 20); // range [1,20]
+std::uniform_int_distribution<uint32_t> uint_dist20(0, 20); // range [1,20]
 
 static MyRNG rng;
 
@@ -69,7 +69,6 @@ inline void UpdateTargetFieldRange()
 {
 	if (target_field.range >= 1 && combatant_list[combatant_selected].current_movecount != 0)
 	{
-
 		target_field.range = combatant_list[combatant_selected].move_range - (combatant_list[combatant_selected].current_movecount - 1);
 
 		if (target_field.range <= 0)
@@ -99,7 +98,7 @@ inline void ResetFieldVariables()
 
 	target_field.render_field = false;
 
-	UpdateTargetFieldRange();
+	//UpdateTargetFieldRange();
 }
 
 inline void EntityMoveLogic(combatant &pEnemy, combatant &pPlayer, bool towards)
@@ -433,6 +432,7 @@ inline void EntityMoveLogic(combatant &pEnemy, combatant &pPlayer, bool towards)
 
 inline void EnemyLogic()
 {
+
 	Log("Enemy Passed, turn ended");
 
 	enemy_list[0].movelist.push_back(1);
@@ -448,6 +448,8 @@ inline void EnemyLogic()
 
 	PLAYER_TURN = true;
 	game_turn++;
+
+	
 }
 
 inline void CheckKeyboardInput()
@@ -472,6 +474,8 @@ inline void CheckKeyboardInput()
 
 		enemy_move_field.render_field = true;
 
+				enemy_move_field_two.render_field = true;
+
 		// SetFieldTileColors(target_field, 2);
 
 		// printf("%d", GetRandomValue(0, 99));
@@ -491,29 +495,35 @@ inline void CheckKeyboardInput()
 		//	cout << "entity ID: " << entity_list[i].ID << endl;
 		// }
 
-		cout << "objects_to_render[0]: " << objects_to_render[0] << endl;
+		// cout << "objects_to_render[0]: " << objects_to_render[0] << endl;
 
-		cout << "objects_to_render[1]: " << objects_to_render[1] << endl;
-		// cout << "SortedRenderObject_list: " << SortedRenderObject_list.size() << endl;
+		// cout << "objects_to_render[1]: " << objects_to_render[1] << endl;
+		// // cout << "SortedRenderObject_list: " << SortedRenderObject_list.size() << endl;
 
-		randomSpawnTile(position_field, spawn_field);
+		// randomSpawnTile(position_field, spawn_field);
 
-		cout << "objects_to_render: " << objects_to_render[0] << endl;
-		cout << "gui_entity_list: " << gui_entity_list.size() << endl;
-		cout << "map_entity_list: " << map_entity_list.size() << endl;
+		// cout << "objects_to_render: " << objects_to_render[0] << endl;
+		// cout << "gui_entity_list: " << gui_entity_list.size() << endl;
+		// cout << "map_entity_list: " << map_entity_list.size() << endl;
 
-		cout << "target_field.sum_of_field_tiles " << target_field.sum_of_field_tiles << endl;
+		// cout << "target_field.sum_of_field_tiles " << target_field.sum_of_field_tiles << endl;
 
-		cout << "render_list[0].List.size(): " << render_list[0].List.size() << endl;
-		cout << "render_list[1].List.size(): " << render_list[1].List.size() << endl;
+		// cout << "render_list[0].List.size(): " << render_list[0].List.size() << endl;
+		// cout << "render_list[1].List.size(): " << render_list[1].List.size() << endl;
 
-		cout << "SortedRenderObject_list.size(): " << SortedRenderObject_list.size() << endl;
+		// cout << "SortedRenderObject_list.size(): " << SortedRenderObject_list.size() << endl;
 
-		for (size_t i = 0; i < 100; i++)
-		{
-			cout << AllRenderObjects->texture.id << " ";
-		}
-		cout << endl;
+		// for (size_t i = 0; i < 100; i++)
+		// {
+		// 	cout << AllRenderObjects->texture.id << " ";
+		// }
+		// cout << endl;
+
+		enemy_move_field.render_field = false;
+
+				enemy_move_field_two.render_field = false;
+
+
 	}
 
 	if (IsKeyPressed(KEY_F5))
@@ -619,7 +629,7 @@ inline void AttackLogic()
 
 					cout << collision << endl;
 
-					Log("(Z_pressed_count == 1 ... attcking");
+					//Log("(Z_pressed_count == 1 ... attcking");
 
 					ResetFieldVariables();
 
@@ -669,7 +679,7 @@ inline void AttackLogic()
 
 			cout << collision << endl;
 
-			Log("(Z_pressed_count == 1 ... attcking");
+			//Log("(Z_pressed_count == 1 ... attcking");
 
 			ResetFieldVariables();
 
@@ -872,7 +882,7 @@ inline void AttackLogic()
 
 				cout << collision << endl;
 
-				Log("(Z_pressed_count == 1 && ...attacking");
+				//Log("(Z_pressed_count == 1 && ...attacking");
 
 				ResetFieldVariables();
 
@@ -903,7 +913,7 @@ inline void AttackLogic()
 
 				Z_pressed_count = 0;
 
-				Log("(Z_pressed_count == 1 && collision == false)");
+				//Log("(Z_pressed_count == 1 && collision == false)");
 
 				// Log("Z_pressed_count == 1 && moved_target == true");
 
@@ -947,12 +957,22 @@ inline void MovePressed()
 
 	ActionMenuUp = false;
 
-	DebugLog("target_field.range action: ", target_field.range);
-	DebugLog("current_movecount action: ", combatant_list[combatant_selected].current_movecount);
+	static int ren = target_field.sum_of_field_tiles;
+
+	static int last = ren;
+
+	//DebugLog("target_field.range action: ", target_field.range);
+	//DebugLog("current_movecount action: ", combatant_list[combatant_selected].current_movecount);
+
+	// cout << fieldRef.sum_of_field_tiles << " ";
+
+	target_field.render_field = false;
 
 	UpdateTargetFieldRange();
 
 	setField(target_field, combatant_list[combatant_selected].pEntity->x, combatant_list[combatant_selected].pEntity->y, SQUARE, (Col)GREEN_TILE);
+
+	cout << "target_field " << target_field.sum_of_field_tiles << endl;
 
 	target_field.render_field = true;
 
@@ -962,6 +982,23 @@ inline void MovePressed()
 
 	enemy_colored = false;
 	entity_checked = 0;
+
+	if(ren != target_field.sum_of_field_tiles)
+	{
+		last = ren;
+		ren  = target_field.sum_of_field_tiles;
+	}
+	
+	if(ren > last)
+	{
+		last = ren;
+	}
+
+	for (size_t i = 0; i < last - ren; i++)
+	{
+		render_list[0].List.pop_back();
+	}
+	
 }
 
 inline void ReadyPressed()
@@ -1002,6 +1039,8 @@ inline void EndPressed()
 
 inline void AttackPressed()
 {
+
+	Log("ATTACK!");
 	enemy_colored = false;
 	entity_checked = 0;
 
@@ -1292,7 +1331,7 @@ inline void MoveLogic()
 
 				cout << collision << endl;
 
-				Log("(Z_pressed_count == 1 && (moved_target == false) && collision == false) moving");
+				//Log("(Z_pressed_count == 1 && (moved_target == false) && collision == false) moving");
 
 				ResetFieldVariables();
 
@@ -1867,6 +1906,8 @@ inline void CombatLogic()
 
 		if (PLAYER_TURN == true)
 		{
+
+			setField(enemy_move_field_two, enemy_list[0].pEntity->x, enemy_list[0].pEntity->y, SQUARE, (Col)BLUE_TILE);
 		}
 		else
 		{

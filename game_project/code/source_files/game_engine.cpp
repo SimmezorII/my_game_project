@@ -1060,7 +1060,7 @@ inline void MovementAnimated(entity *en)
 
 inline void EnemyMovementAnimated()
 {
-	
+
 	static int movecount = 0;
 
 	static int steps = 0;
@@ -1520,12 +1520,10 @@ Vector2 vec = {0, 0};
 
 inline void RenderField(field &fieldRef)
 {
-
 	int list_next = 0;
 
-	//DebugLog("Test", fieldRef.sum_of_field_tiles);
 
-	cout << fieldRef.sum_of_field_tiles << endl;
+
 
 	for (size_t i = 0; i < fieldRef.sum_of_field_tiles; i++)
 	{
@@ -1537,19 +1535,19 @@ inline void RenderField(field &fieldRef)
 
 		//
 
-		// cout << objects_to_render[list_next] << endl;
+
 
 		AllRenderObjects[i + objects_to_render[list_next]] = {getTexture(fieldRef.tiles[i].sprite->ID).tex, recSprite, recEntity, vec, 0, Fade(WHITE, fieldRef.field_alpha), -60, fieldRef.render_field};
 
 		if (render_list[list_next].List.size() < fieldRef.sum_of_field_tiles + objects_to_render[list_next])
 		{
-
 			// cout << "index to render: " << (i  + objects_to_render[1]) << endl;
 			render_list[list_next].List.push_back(&AllRenderObjects[i + objects_to_render[list_next]]);
 		}
 		else
 		{
 			render_list[list_next].List[i + objects_to_render[list_next]] = &AllRenderObjects[i + objects_to_render[list_next]];
+
 		}
 		if (move_field_up == true)
 		{
@@ -1564,9 +1562,14 @@ inline void RenderField(field &fieldRef)
 
 	if (objects_to_render[list_next] < objects_to_render[list_next] + fieldRef.sum_of_field_tiles)
 	{
-
 		objects_to_render[list_next] = objects_to_render[list_next] + fieldRef.sum_of_field_tiles;
 	}
+	    
+
+
+
+
+
 }
 
 inline void swap(RenderObject xp, RenderObject yp)
@@ -1599,7 +1602,6 @@ inline void SortLayerRenderObjectList()
 	{
 		for (list_index = 0; list_index < render_list[num_of_lists].List.size(); list_index++)
 		{
-
 			newlist_size++;
 		}
 	}
@@ -1608,6 +1610,8 @@ inline void SortLayerRenderObjectList()
 
 	for (num_of_lists = 0; num_of_lists < render_list.size(); num_of_lists++)
 	{
+		//cout << render_list[num_of_lists].List.size() << " ";
+
 		for (list_index = 0; list_index < render_list[num_of_lists].List.size(); list_index++)
 		{
 			if (SortedRenderObject_list.size() < newlist_size)
@@ -1708,12 +1712,17 @@ inline void RenderAllLayers()
 
 	float dest_y = 0;
 
+	int render_count = 0;
+
+	DebugLog("SortedRenderObject_list: ", (int)SortedRenderObject_list.size());
+
 	for (size_t i = 0; i < SortedRenderObject_list.size(); i++)
 	{
 		if (SortedRenderObject_list[i] != NULL)
 		{
 			if (SortedRenderObject_list[i]->render_this == true)
 			{
+				render_count++;
 				if (SortedRenderObject_list[i]->dest.width < 500)
 				{
 					offset_x = (SortedRenderObject_list[i]->dest.width - tile_width) / 2;
@@ -1741,6 +1750,8 @@ inline void RenderAllLayers()
 			}
 		}
 	}
+
+	DebugLog("render_count: ", render_count);
 }
 
 /////----------------------------------------------------------------------------------------------------

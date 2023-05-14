@@ -19,6 +19,8 @@ static field spawn_field;
 
 static field enemy_move_field;
 
+static field enemy_move_field_two;
+
 
 /////----------------------------------------------------------------------------------------------------
 
@@ -48,14 +50,6 @@ inline void setSquareField(field &fieldRef, int nx, int ny, enum Col tile_color)
 
 	int fieldx = 0;
 	int fieldy = 0;
-
-	
-	for (int i = 0; i < 124; i++) {
-	
-		//fieldRef.tiles[i].sprite = NULL;
-	}
-
-
 
 	fieldRef.sum_of_field_tiles = sum1 + sum2;
 
@@ -1162,6 +1156,8 @@ inline void initCombat()
 {
 	//Log("InitCombat");
 
+	
+
 	gui_entity_list[0].render_this = true;
 
 	world_player.pEntity->render_this = false;
@@ -1175,6 +1171,14 @@ inline void initCombat()
 	enemy_move_field.range = 4;
 
 	setField(enemy_move_field, 224, 224, SQUARE, (Col)RED_TILE);
+
+
+	enemy_move_field_two.field_alpha = 0.5;
+
+	enemy_move_field_two.range = 4;
+
+
+
 
 
 	position_field.range = 5;
