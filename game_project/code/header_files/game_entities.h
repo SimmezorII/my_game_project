@@ -124,6 +124,8 @@ struct tile
 	int h;
 
 	sprite *sprite;
+
+	bool render = false;
 };
 
 struct tile_rect

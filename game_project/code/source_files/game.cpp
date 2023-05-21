@@ -25,14 +25,14 @@ static int finishScreen;
 //  Variables Definition 
 //----------------------------------------------------------------------------------
 
- Rectangle panelRec2 = { 20, 40, 200, 150 };
- Rectangle panelContentRec2 = { 0, 0, 340, 340 };
- Vector2 panelScroll2 = { 99, -20 };
+Rectangle panelRec2 = { 20, 40, 200, 150 };
+Rectangle panelContentRec2 = { 0, 0, 340, 340 };
+Vector2 panelScroll2 = { 99, -20 };
 
- Rectangle ctrlvalue = { 0, 0, 0, 0 };
+Rectangle ctrlvalue = { 0, 0, 0, 0 };
 
- float offset_x = 0;
- float offset_y = 0;
+float offset_x = 0;
+float offset_y = 0;
 
 //----------------------------------------------------------------------------------
 // Function Definitions
@@ -57,12 +57,12 @@ inline void Load()
 
 	sprite_count = ReadSpriteData(MAPS_PATH + "game_sprite_data.txt");
 
-	if (sprite_count > 0) 
+	if (sprite_count > 0)
 	{
 		printf("LoadSpriteData(sprite_count), sprite_count was %d\n", sprite_count);
 		LoadSpriteData(sprite_count);
 	}
-	else 
+	else
 	{
 		printf("LoadSpriteData(sprite_count), sprite_count was %d\n", sprite_count);
 	}
@@ -81,7 +81,7 @@ inline void Load()
 
 	SetSpriteTextures();
 
-	if (ReadMapData(MAPS_PATH + "map2.txt")) 
+	if (ReadMapData(MAPS_PATH + "map2.txt"))
 	{
 		setMapCords();
 	}
@@ -101,7 +101,7 @@ inline void Load()
 
 	setPlayer();
 
-	printf("Sprite string:%s\n", sprite_png_list.c_str()); 
+	printf("Sprite string:%s\n", sprite_png_list.c_str());
 
 	printf("Load done\n");
 
@@ -116,12 +116,12 @@ inline void Init()
 	InitDebugLog();
 
 	game_entity = &entity_list[0];
-	
+
 	target = &getEntityByID("target", gui_entity_list);
 
 	target->render_this = false;
 
-	player.move_range = 7;
+	player.move_range = 0;
 
 	for (size_t i = 0; i < game_entity_list.size(); i++)
 	{
@@ -132,14 +132,14 @@ inline void Init()
 
 	world_player.pEntity = getEntityByID(9, game_entity_list);
 
-	player.pEntity->sprite->offset_x = (-0 * (player.pEntity->w / 4) );
+	player.pEntity->sprite->offset_x = (-0 * (player.pEntity->w / 4));
 	player.pEntity->sprite->offset_y = (-0 * player.pEntity->h / 2);
 
-	world_player.move_range = 8;
+	world_player.move_range = 4;
 
 	world_player.attack_range = 2;
 
-	target_field.range = 8;
+	target_field.range = 4;  
 
 	combatant e1;
 
@@ -154,6 +154,8 @@ inline void Init()
 	e2.pEntity = &getEntityByID(25, map_entity_list);
 
 	setField(target_field, entity_list[0].x, entity_list[0].y, SQUARE, (Col)GREEN_TILE);
+
+	fields.push_back(&target_field);
 
 	combatant_list.push_back(world_player);
 
@@ -195,8 +197,7 @@ inline void Init()
 	// Init seed used for randomness
 	rng.seed(time(0));
 
-
-	
+	fields.push_back(&enemy_move_field);
 }
 
 
@@ -230,7 +231,7 @@ inline void UpdateGameplayScreen(void)
 
 		CheckKeyboardInput();
 		//UpdateDebugText();
-		
+
 
 		//for (size_t i = 0; i < map_entity_list.size(); i++)
 		//{
@@ -252,14 +253,14 @@ inline void UpdateGameplayScreen(void)
 			UpdateGameplayScreen_runonce++;
 		}
 
-		if (NewEntityButton) 
+		if (NewEntityButton)
 		{
 			printf("NewEntityButton Clicked\n");
 			PLACING_ENTITY = true;
 			NewEntityButton = false;
 		}
 
-		if (setMouseEntity(map_entity_list)  == true) 
+		if (setMouseEntity(map_entity_list) == true)
 		{
 
 		}
@@ -289,18 +290,18 @@ inline void UpdateGameplayScreen(void)
 	else
 	{
 
-		if( moving == true )
+		if (moving == true)
 		{
 			if (combatant_selected > -1)
 			{
-				
+
 				MovementAnimated(combatant_list[combatant_selected].pEntity);
 				//moving = false;
 			}
 		}
 
-		if( enemy_moving == true )
-		{	
+		if (enemy_moving == true)
+		{
 			EnemyMovementAnimated();
 		}
 	}
@@ -315,7 +316,7 @@ inline void DrawGameplayScreen(void)
 
 	if (DrawGameplayScreen_runonce == 0)
 	{
-		printf("DrawGameplayScreen\n");	
+		printf("DrawGameplayScreen\n");
 	}
 
 	DrawFPS(GameGui.x - 200, 0);
@@ -342,16 +343,7 @@ inline void DrawGameplayScreen(void)
 
 	}
 
-	RenderField(position_field);
-
-	RenderField(spawn_field);
-
-	RenderField(enemy_move_field);
-
-	RenderField(target_field);
-
-
-	//RenderField(enemy_move_field_two);
+	RenderAllFields();
 
 	if (DrawGameplayScreen_runonce == 0)
 	{
@@ -390,7 +382,7 @@ inline void DrawGameplayScreen(void)
 	RenderEntityBoxes(new_entity_list);
 
 	//drawIsoTriangles(target);
-	
+
 	DebugLog("combatant_selected: ", combatant_selected);
 
 	RenderEntityInfo();

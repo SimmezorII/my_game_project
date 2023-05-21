@@ -87,9 +87,9 @@ int main(void)
 	{
 
 	case GAMEPLAY: UnloadGameplayScreen(); break;
-	//case GUI: UnloadGuiScreen(); break;
+		//case GUI: UnloadGuiScreen(); break;
 	default: break;
-	
+
 	}
 
 	// Unload all global loaded data (i.e. fonts) here!
@@ -116,7 +116,7 @@ static void ChangeToScreen(int screen)
 	switch (currentScreen)
 	{
 	case GAMEPLAY: UnloadGameplayScreen(); break;
-	//case GUI: UnloadGuiScreen(); break;
+		//case GUI: UnloadGuiScreen(); break;
 	default: break;
 	}
 
@@ -124,7 +124,7 @@ static void ChangeToScreen(int screen)
 	switch (screen)
 	{
 	case GAMEPLAY: InitGameplayScreen(); break;
-	//case GUI: InitGuiScreen(); break;
+		//case GUI: InitGuiScreen(); break;
 	default: break;
 	}
 
@@ -239,7 +239,7 @@ static void UpdateDrawFrame(void)
 	switch (currentScreen)
 	{
 	case GAMEPLAY: DrawGameplayScreen(); break;
-	//case GUI: DrawGuiScreen(); break;
+		//case GUI: DrawGuiScreen(); break;
 
 	default: break;
 	}

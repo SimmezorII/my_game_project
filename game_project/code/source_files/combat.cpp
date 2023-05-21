@@ -24,7 +24,7 @@ static field enemy_move_field_two;
 
 /////----------------------------------------------------------------------------------------------------
 
-inline void setSquareField(field &fieldRef, int nx, int ny, enum Col tile_color)
+inline void setSquareField(field& fieldRef, int nx, int ny, enum Col tile_color)
 {
 	int targetRange = fieldRef.range;
 
@@ -46,7 +46,7 @@ inline void setSquareField(field &fieldRef, int nx, int ny, enum Col tile_color)
 	int start = 0;
 
 	int sum1 = (targetRange - 1) * (targetRange - 1);
-	int sum2 = (targetRange*targetRange);
+	int sum2 = (targetRange * targetRange);
 
 	int fieldx = 0;
 	int fieldy = 0;
@@ -57,7 +57,7 @@ inline void setSquareField(field &fieldRef, int nx, int ny, enum Col tile_color)
 
 		//cout << "i:" << i << endl;
 
-		if (numRect == (n*n))
+		if (numRect == (n * n))
 		{
 			n += 1;
 			row += 1;
@@ -98,6 +98,7 @@ inline void setSquareField(field &fieldRef, int nx, int ny, enum Col tile_color)
 		//	cout << "fieldtile x: " << fieldRef.tiles[i].x << endl;
 
 		fieldRef.tiles[i].sprite = &getSprite(tile_color);
+		fieldRef.tiles[i].render = true;
 
 		tilecount += 1;
 		numRect += 1;
@@ -110,7 +111,7 @@ inline void setSquareField(field &fieldRef, int nx, int ny, enum Col tile_color)
 
 	while (start < (sum1 + sum2))
 	{
-		if (numRect == (m*m))
+		if (numRect == (m * m))
 		{
 			m += 1;
 			line += 1;
@@ -141,6 +142,7 @@ inline void setSquareField(field &fieldRef, int nx, int ny, enum Col tile_color)
 
 
 		fieldRef.tiles[start].sprite = &getSprite(tile_color);
+		fieldRef.tiles[start].render = true;
 
 		tilecount += 1;
 		numRect += 1;
@@ -154,7 +156,7 @@ inline void setSquareField(field &fieldRef, int nx, int ny, enum Col tile_color)
 
 }
 
-inline void setInverseSquareField(field &fieldRef, int nx, int ny)
+inline void setInverseSquareField(field& fieldRef, int nx, int ny)
 {
 	int targetRange = fieldRef.range;
 
@@ -175,9 +177,9 @@ inline void setInverseSquareField(field &fieldRef, int nx, int ny)
 
 	int start = 0;
 
-	int sum1 = (targetRange*targetRange);
+	int sum1 = (targetRange * targetRange);
 
-	int sum2 = ((targetRange-1) *(targetRange - 1));
+	int sum2 = ((targetRange - 1) * (targetRange - 1));
 
 	int fieldx = 0;
 	int fieldy = 0;
@@ -185,14 +187,14 @@ inline void setInverseSquareField(field &fieldRef, int nx, int ny)
 	fieldRef.sum_of_field_tiles = sum1;
 
 	int count = 0;
-	
+
 	for (size_t i = 0; i < targetRange; i++)
 	{
-	
+
 
 		for (size_t j = 0; j < targetRange; j++)
 		{
-			fieldRef.tiles[count].x = ((right_vel * 1) * i) + fx +(left_vel * j);
+			fieldRef.tiles[count].x = ((right_vel * 1) * i) + fx + (left_vel * j);
 			fieldRef.tiles[count].y = ((down_vel * 1) * i) + fy + ((down_vel * 1) * j);
 
 			count++;
@@ -204,7 +206,7 @@ inline void setInverseSquareField(field &fieldRef, int nx, int ny)
 	for (size_t i = 0; i < fieldRef.sum_of_field_tiles; i++)
 	{
 		fieldRef.tiles[i].sprite = &getSprite(GREEN_TILE);
-
+		fieldRef.tiles[i].render = true;
 		fieldRef.tiles[i].w = tile_width;
 		fieldRef.tiles[i].h = tile_height;
 
@@ -213,12 +215,12 @@ inline void setInverseSquareField(field &fieldRef, int nx, int ny)
 
 }
 
-inline void setTriangleField(field &fieldRef, int nx, int ny, Direction dir)
+inline void setTriangleField(field& fieldRef, int nx, int ny, Direction dir)
 {
 	int targetRange = fieldRef.range;
 
 	int	fx = 0;
-    int fy = 0;
+	int fy = 0;
 
 	int	row = 0;
 	int	line = 0;
@@ -248,7 +250,7 @@ inline void setTriangleField(field &fieldRef, int nx, int ny, Direction dir)
 
 
 		//int sum1 = (targetRange - 1) * (targetRange - 1);
-		sum2 = (targetRange*targetRange);
+		sum2 = (targetRange * targetRange);
 
 		fieldRef.sum_of_field_tiles = sum1 + sum2;
 
@@ -256,7 +258,7 @@ inline void setTriangleField(field &fieldRef, int nx, int ny, Direction dir)
 
 			//cout << "i:" << i << endl;
 
-			if (numRect == (n*n))
+			if (numRect == (n * n))
 			{
 				n += 1;
 				row += 1;
@@ -290,7 +292,7 @@ inline void setTriangleField(field &fieldRef, int nx, int ny, Direction dir)
 			}
 
 			fieldRef.tiles[i].sprite = &getSprite(GREEN_TILE);
-
+			fieldRef.tiles[i].render = true;
 			tilecount += 1;
 			numRect += 1;
 
@@ -302,7 +304,7 @@ inline void setTriangleField(field &fieldRef, int nx, int ny, Direction dir)
 
 		while (start < (sum1 + sum2))
 		{
-			if (numRect == (m*m))
+			if (numRect == (m * m))
 			{
 				m += 1;
 				line += 1;
@@ -349,7 +351,7 @@ inline void setTriangleField(field &fieldRef, int nx, int ny, Direction dir)
 
 
 		//int sum1 = (targetRange - 1) * (targetRange - 1);
-		sum2 = (targetRange*targetRange);
+		sum2 = (targetRange * targetRange);
 
 		fieldRef.sum_of_field_tiles = sum1 + sum2;
 
@@ -357,7 +359,7 @@ inline void setTriangleField(field &fieldRef, int nx, int ny, Direction dir)
 
 			//cout << "i:" << i << endl;
 
-			if (numRect == (n*n))
+			if (numRect == (n * n))
 			{
 				n += 1;
 				row += 1;
@@ -391,7 +393,7 @@ inline void setTriangleField(field &fieldRef, int nx, int ny, Direction dir)
 			}
 
 			fieldRef.tiles[i].sprite = &getSprite(GREEN_TILE);
-
+			fieldRef.tiles[i].render = true;
 			tilecount += 1;
 			numRect += 1;
 
@@ -403,7 +405,7 @@ inline void setTriangleField(field &fieldRef, int nx, int ny, Direction dir)
 
 		while (start < (sum1 + sum2))
 		{
-			if (numRect == (m*m))
+			if (numRect == (m * m))
 			{
 				m += 1;
 				line += 1;
@@ -442,19 +444,19 @@ inline void setTriangleField(field &fieldRef, int nx, int ny, Direction dir)
 
 	}
 
-	if (dir == RIGHT) 
+	if (dir == RIGHT)
 	{
 		fx = nx - (tile_width / 2);
 		fy = ny + (tile_height / 2);
 
-		 sum2 = (targetRange*targetRange);
+		sum2 = (targetRange * targetRange);
 
 		fieldRef.sum_of_field_tiles = sum1 + sum2;
 
 		for (int i = 0; i < sum1; i++) {
 
 
-			if (numRect == (n*n))
+			if (numRect == (n * n))
 			{
 				n += 1;
 				row += 1;
@@ -494,7 +496,7 @@ inline void setTriangleField(field &fieldRef, int nx, int ny, Direction dir)
 
 
 			fieldRef.tiles[i].sprite = &getSprite(GREEN_TILE);
-
+			fieldRef.tiles[i].render = true;
 
 			tilecount += 1;
 			numRect += 1;
@@ -508,7 +510,7 @@ inline void setTriangleField(field &fieldRef, int nx, int ny, Direction dir)
 
 		while (start < (sum1 + sum2))
 		{
-			if (numRect == (m*m))
+			if (numRect == (m * m))
 			{
 				m += 1;
 				line += 1;
@@ -550,7 +552,7 @@ inline void setTriangleField(field &fieldRef, int nx, int ny, Direction dir)
 		fieldRef.w = (64 * (targetRange - 1));
 		fieldRef.h = (32 * (targetRange - 1));
 
-	
+
 	}
 
 	if (dir == LEFT)
@@ -568,7 +570,7 @@ inline void setTriangleField(field &fieldRef, int nx, int ny, Direction dir)
 
 			//cout << "i:" << i << endl;
 
-			if (numRect == (n*n))
+			if (numRect == (n * n))
 			{
 				n += 1;
 				row += 1;
@@ -602,7 +604,7 @@ inline void setTriangleField(field &fieldRef, int nx, int ny, Direction dir)
 			}
 
 			fieldRef.tiles[i].sprite = &getSprite(GREEN_TILE);
-
+			fieldRef.tiles[i].render = true;
 			tilecount += 1;
 			numRect += 1;
 
@@ -614,7 +616,7 @@ inline void setTriangleField(field &fieldRef, int nx, int ny, Direction dir)
 
 		while (start < (sum1 + sum2))
 		{
-			if (numRect == (m*m))
+			if (numRect == (m * m))
 			{
 				m += 1;
 				line += 1;
@@ -655,7 +657,7 @@ inline void setTriangleField(field &fieldRef, int nx, int ny, Direction dir)
 
 }
 
-inline void setConeField(field &fieldRef, int nx, int ny, Direction dir)
+inline void setConeField(field& fieldRef, int nx, int ny, Direction dir)
 {
 	int targetRange = fieldRef.range;
 
@@ -687,7 +689,7 @@ inline void setConeField(field &fieldRef, int nx, int ny, Direction dir)
 	start = 0;
 
 
-	if( dir == LEFT)
+	if (dir == LEFT)
 	{
 
 		fx = nx - (tile_width / 2) + (left_vel * (targetRange - 1));
@@ -695,7 +697,7 @@ inline void setConeField(field &fieldRef, int nx, int ny, Direction dir)
 
 
 		//int sum1 = (targetRange - 1) * (targetRange - 1);
-		sum2 = (targetRange*targetRange);
+		sum2 = (targetRange * targetRange);
 
 		fieldRef.sum_of_field_tiles = sum1 + sum2;
 
@@ -703,7 +705,7 @@ inline void setConeField(field &fieldRef, int nx, int ny, Direction dir)
 
 			//cout << "i:" << i << endl;
 
-			if (numRect == (n*n))
+			if (numRect == (n * n))
 			{
 				n += 1;
 				row += 1;
@@ -737,7 +739,7 @@ inline void setConeField(field &fieldRef, int nx, int ny, Direction dir)
 			}
 
 			fieldRef.tiles[i].sprite = &getSprite(GREEN_TILE);
-
+			fieldRef.tiles[i].render = true;
 			tilecount += 1;
 			numRect += 1;
 
@@ -749,7 +751,7 @@ inline void setConeField(field &fieldRef, int nx, int ny, Direction dir)
 
 		while (start < (sum1 + sum2))
 		{
-			if (numRect == (m*m))
+			if (numRect == (m * m))
 			{
 				m += 1;
 				line += 1;
@@ -794,7 +796,7 @@ inline void setConeField(field &fieldRef, int nx, int ny, Direction dir)
 		fx = nx - (tile_width / 2) + (right_vel * (targetRange - 1));
 		fy = ny + (tile_height / 2) + (up_vel * (targetRange - 1));
 
-	    sum1 = (targetRange ) * (targetRange );
+		sum1 = (targetRange) * (targetRange);
 		//sum2 = (targetRange*targetRange);
 
 		fieldRef.sum_of_field_tiles = sum1 + sum2;
@@ -803,7 +805,7 @@ inline void setConeField(field &fieldRef, int nx, int ny, Direction dir)
 
 			//cout << "i:" << i << endl;
 
-			if (numRect == (n*n))
+			if (numRect == (n * n))
 			{
 				n += 1;
 				row += 1;
@@ -837,7 +839,7 @@ inline void setConeField(field &fieldRef, int nx, int ny, Direction dir)
 			}
 
 			fieldRef.tiles[i].sprite = &getSprite(GREEN_TILE);
-
+			fieldRef.tiles[i].render = true;
 			tilecount += 1;
 			numRect += 1;
 
@@ -849,7 +851,7 @@ inline void setConeField(field &fieldRef, int nx, int ny, Direction dir)
 
 		while (start < (sum1 + sum2))
 		{
-			if (numRect == (m*m))
+			if (numRect == (m * m))
 			{
 				m += 1;
 				line += 1;
@@ -896,7 +898,7 @@ inline void setConeField(field &fieldRef, int nx, int ny, Direction dir)
 
 
 		//int sum1 = (targetRange - 1) * (targetRange - 1);
-		sum2 = (targetRange*targetRange);
+		sum2 = (targetRange * targetRange);
 
 		fieldRef.sum_of_field_tiles = sum1 + sum2;
 
@@ -904,7 +906,7 @@ inline void setConeField(field &fieldRef, int nx, int ny, Direction dir)
 
 			//cout << "i:" << i << endl;
 
-			if (numRect == (n*n))
+			if (numRect == (n * n))
 			{
 				n += 1;
 				row += 1;
@@ -938,7 +940,7 @@ inline void setConeField(field &fieldRef, int nx, int ny, Direction dir)
 			}
 
 			fieldRef.tiles[i].sprite = &getSprite(GREEN_TILE);
-
+			fieldRef.tiles[i].render = true;
 			tilecount += 1;
 			numRect += 1;
 
@@ -950,13 +952,13 @@ inline void setConeField(field &fieldRef, int nx, int ny, Direction dir)
 
 		while (start < (sum1 + sum2))
 		{
-			if (numRect == (m*m))
+			if (numRect == (m * m))
 			{
 				m += 1;
 				line += 1;
 			}
 
-			x = fx + 1 * (( (tile_width / 2) * (start - sum1)) - line * ((tile_width / 2) * line) - (line * tile_width) + (targetRange * (tile_width / 2)));
+			x = fx + 1 * (((tile_width / 2) * (start - sum1)) - line * ((tile_width / 2) * line) - (line * tile_width) + (targetRange * (tile_width / 2)));
 			y = fy + -1 * (((tile_height / 2) * (start - sum1)) - line * ((tile_height / 2) * line) - (targetRange * (tile_height / 2)));
 
 			fieldRef.tiles[start].w = tile_width;
@@ -992,12 +994,12 @@ inline void setConeField(field &fieldRef, int nx, int ny, Direction dir)
 	if (dir == DOWN)
 	{
 
-		fx = nx + right_vel+ (right_vel * (targetRange - 1));
-		fy = ny + down_vel+ (down_vel * (targetRange - 1));
+		fx = nx + right_vel + (right_vel * (targetRange - 1));
+		fy = ny + down_vel + (down_vel * (targetRange - 1));
 
 
 		//int sum1 = (targetRange - 1) * (targetRange - 1);
-		sum2 = (targetRange*targetRange);
+		sum2 = (targetRange * targetRange);
 
 		fieldRef.sum_of_field_tiles = sum1 + sum2;
 
@@ -1005,7 +1007,7 @@ inline void setConeField(field &fieldRef, int nx, int ny, Direction dir)
 
 			//cout << "i:" << i << endl;
 
-			if (numRect == (n*n))
+			if (numRect == (n * n))
 			{
 				n += 1;
 				row += 1;
@@ -1039,7 +1041,7 @@ inline void setConeField(field &fieldRef, int nx, int ny, Direction dir)
 			}
 
 			fieldRef.tiles[i].sprite = &getSprite(GREEN_TILE);
-
+			fieldRef.tiles[i].render = true;
 			tilecount += 1;
 			numRect += 1;
 
@@ -1051,7 +1053,7 @@ inline void setConeField(field &fieldRef, int nx, int ny, Direction dir)
 
 		while (start < (sum1 + sum2))
 		{
-			if (numRect == (m*m))
+			if (numRect == (m * m))
 			{
 				m += 1;
 				line += 1;
@@ -1095,8 +1097,9 @@ inline void setConeField(field &fieldRef, int nx, int ny, Direction dir)
 
 }
 
-inline void setField(field &fieldRef, int nx, int ny, int field_type, enum Col tile_color)
+inline void setField(field& fieldRef, int nx, int ny, int field_type, enum Col tile_color)
 {
+	SetRenderField(&fieldRef, false);
 
 	if (field_type == SQUARE)
 	{
@@ -1156,8 +1159,6 @@ inline void initCombat()
 {
 	//Log("InitCombat");
 
-	
-
 	gui_entity_list[0].render_this = true;
 
 	world_player.pEntity->render_this = false;
@@ -1168,18 +1169,13 @@ inline void initCombat()
 
 	enemy_move_field.field_alpha = 0.5;
 
-	enemy_move_field.range = 4;
+	enemy_move_field.range = 8;
 
 	setField(enemy_move_field, 224, 224, SQUARE, (Col)RED_TILE);
-
 
 	enemy_move_field_two.field_alpha = 0.5;
 
 	enemy_move_field_two.range = 4;
-
-
-
-
 
 	position_field.range = 5;
 

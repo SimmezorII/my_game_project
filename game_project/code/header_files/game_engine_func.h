@@ -238,6 +238,55 @@ inline void DebugLog(string text, int value)
 }
 
 
+inline void DebugLog(string text, bool bValue)
+{
+	bool stringfound = false;
+	int tempindex = -1;
+
+	int value = -1;	
+	if(bValue)
+	{
+		value = 1;
+	}else 
+	{
+		value = 0;
+	}
+
+	if (currentline_debuglog != 0)
+	{
+		for (size_t i = 0; i < currentline_debuglog; i++)
+		{
+			if (debuglog_lines[i].find(text) == 0)
+			{
+				stringfound = true;
+				tempindex = i;
+				break;
+			}
+
+		}
+
+		if (stringfound == true)
+		{
+			debuglog_lines[tempindex] = text;
+			debuglog_lines[tempindex].append(to_string(value));
+		}
+		else
+		{
+			debuglog_lines[currentline_debuglog] = text;
+			debuglog_lines[currentline_debuglog].append(to_string(value));
+			currentline_debuglog++;
+		}
+
+	}
+	else
+	{
+		debuglog_lines[currentline_debuglog] = text;
+		debuglog_lines[currentline_debuglog].append(to_string(value));
+		currentline_debuglog++;
+	}
+
+
+}
 
 
 #define GAME_ENGINE_FUNC

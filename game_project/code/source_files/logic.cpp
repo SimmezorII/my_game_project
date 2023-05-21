@@ -94,14 +94,14 @@ inline void ResetFieldVariables()
 
 	Z_pressed_count = 0;
 
-	last_tile = {-100, -100, 0, 0};
+	last_tile = { -100, -100, 0, 0 };
 
 	target_field.render_field = false;
-
-	//UpdateTargetFieldRange();
+	SetRenderField(&target_field, false);
+	UpdateTargetFieldRange();
 }
 
-inline void EntityMoveLogic(combatant &pEnemy, combatant &pPlayer, bool towards)
+inline void EntityMoveLogic(combatant& pEnemy, combatant& pPlayer, bool towards)
 {
 	bool moved = false;
 
@@ -449,7 +449,7 @@ inline void EnemyLogic()
 	PLAYER_TURN = true;
 	game_turn++;
 
-	
+
 }
 
 inline void CheckKeyboardInput()
@@ -474,7 +474,7 @@ inline void CheckKeyboardInput()
 
 		enemy_move_field.render_field = true;
 
-				enemy_move_field_two.render_field = true;
+		//enemy_move_field_two.render_field = true;
 
 		// SetFieldTileColors(target_field, 2);
 
@@ -520,9 +520,9 @@ inline void CheckKeyboardInput()
 		// cout << endl;
 
 		enemy_move_field.render_field = false;
-
-				enemy_move_field_two.render_field = false;
-
+		SetRenderField(&position_field, false);
+		enemy_move_field_two.render_field = false;
+		SetRenderField(&enemy_move_field_two, false);
 
 	}
 
@@ -533,7 +533,7 @@ inline void CheckKeyboardInput()
 	}
 }
 
-inline bool CheckColoredTileCollission(vector<tile> &colored_tiles, Rectangle &temptarget)
+inline bool CheckColoredTileCollission(vector<tile>& colored_tiles, Rectangle& temptarget)
 {
 	bool col = false;
 
@@ -543,8 +543,8 @@ inline bool CheckColoredTileCollission(vector<tile> &colored_tiles, Rectangle &t
 		{
 			// Check if any tile has already been crossed
 			if (CheckCollisionRecs(
-					{(float)(temptarget.x - 1 + (tile_width / 2)), (float)(temptarget.y - 1 + (tile_height / 2)), 2, 2},
-					{(float)(colored_tiles[i].x - 1 + (tile_width / 2)), (float)(colored_tiles[i].y - 1 + (tile_height / 2)), 2, 2}))
+				{ (float)(temptarget.x - 1 + (tile_width / 2)), (float)(temptarget.y - 1 + (tile_height / 2)), 2, 2 },
+				{ (float)(colored_tiles[i].x - 1 + (tile_width / 2)), (float)(colored_tiles[i].y - 1 + (tile_height / 2)), 2, 2 }))
 			{
 				// if (last_tile.x != temptarget.x || last_tile.y != temptarget.y)
 
@@ -566,7 +566,7 @@ inline bool CheckColoredTileCollission(vector<tile> &colored_tiles, Rectangle &t
 	return col;
 }
 
-inline bool CheckColoredMoveTileCollission(Rectangle &temptarget)
+inline bool CheckColoredMoveTileCollission(Rectangle& temptarget)
 {
 	bool collission = false;
 
@@ -578,8 +578,8 @@ inline bool CheckColoredMoveTileCollission(Rectangle &temptarget)
 		{
 			// Check if any tile has already been crossed
 			if (CheckCollisionRecs(
-					{(float)(temptarget.x - 1 + (tile_width / 2)), (float)(temptarget.y - 1 + (tile_height / 2)), 2, 2},
-					{(float)(colored_moved_tiles[i].x - 1 + (tile_width / 2)), (float)(colored_moved_tiles[i].y - 1 + (tile_height / 2)), 2, 2}))
+				{ (float)(temptarget.x - 1 + (tile_width / 2)), (float)(temptarget.y - 1 + (tile_height / 2)), 2, 2 },
+				{ (float)(colored_moved_tiles[i].x - 1 + (tile_width / 2)), (float)(colored_moved_tiles[i].y - 1 + (tile_height / 2)), 2, 2 }))
 			{
 				// if (last_tile.x != temptarget.x || last_tile.y != temptarget.y)
 
@@ -614,7 +614,7 @@ inline void AttackLogic()
 
 		if (colored_enemy_tiles.empty() != true)
 		{
-			Rectangle temp_target = {target->x, target->y, target->w, target->h};
+			Rectangle temp_target = { target->x, target->y, target->w, target->h };
 
 			if (CheckColoredTileCollission(colored_enemy_tiles, temp_target))
 			{
@@ -622,7 +622,7 @@ inline void AttackLogic()
 				if (IsKeyPressed(KEY_X))
 				{
 					cout << "Attack collision and x pressed" << endl;
-					entity &entity_ref = getEntityByPosition(temp_target.x, temp_target.y, map_entity_list);
+					entity& entity_ref = getEntityByPosition(temp_target.x, temp_target.y, map_entity_list);
 					entity_ref.entity_stats.current_hp--;
 
 					moved_target = false;
@@ -721,7 +721,7 @@ inline void AttackLogic()
 
 	if (target_field_up == true)
 	{
-		temptarget = {(float)target->x, (float)target->y, (float)target->w, (float)target->h};
+		temptarget = { (float)target->x, (float)target->y, (float)target->w, (float)target->h };
 
 		// ColorFieldTileEntityList(colored_enemy_tiles, &target_field, map_entity_list);
 
@@ -783,8 +783,8 @@ inline void AttackLogic()
 		for (size_t i = 0; i < target_field.sum_of_field_tiles; i++)
 		{
 			if (CheckCollisionRecs(
-					{(float)temptarget.x, (float)temptarget.y, (float)temptarget.width, (float)temptarget.height},
-					{(float)target_field.x, (float)target_field.y, (float)target_field.w, (float)target_field.h}))
+				{ (float)temptarget.x, (float)temptarget.y, (float)temptarget.width, (float)temptarget.height },
+				{ (float)target_field.x, (float)target_field.y, (float)target_field.w, (float)target_field.h }))
 			{
 
 				DebugLog("Field Collision", 0);
@@ -974,8 +974,6 @@ inline void MovePressed()
 
 	cout << "target_field " << target_field.sum_of_field_tiles << endl;
 
-	target_field.render_field = true;
-
 	colored_enemy_tiles.clear();
 
 	colored_moved_tiles.clear();
@@ -983,22 +981,8 @@ inline void MovePressed()
 	enemy_colored = false;
 	entity_checked = 0;
 
-	if(ren != target_field.sum_of_field_tiles)
-	{
-		last = ren;
-		ren  = target_field.sum_of_field_tiles;
-	}
-	
-	if(ren > last)
-	{
-		last = ren;
-	}
+	target_field.render_field = true;
 
-	for (size_t i = 0; i < last - ren; i++)
-	{
-		render_list[0].List.pop_back();
-	}
-	
 }
 
 inline void ReadyPressed()
@@ -1012,6 +996,8 @@ inline void ReadyPressed()
 	target->y = combatant_list[combatant_selected].pEntity->y;
 
 	position_field.render_field = false;
+	SetRenderField(&position_field, false);
+
 
 	ActionMenuUp = false;
 
@@ -1025,6 +1011,8 @@ inline void EndPressed()
 	Z_pressed_count = 0;
 
 	position_field.render_field = false;
+	SetRenderField(&position_field, false);
+
 
 	ActionMenuUp = false;
 
@@ -1035,6 +1023,7 @@ inline void EndPressed()
 	combatant_list[combatant_selected].current_movecount = 1;
 
 	temp_movecount[combatant_selected] = combatant_list[combatant_selected].current_movecount;
+
 }
 
 inline void AttackPressed()
@@ -1047,8 +1036,6 @@ inline void AttackPressed()
 	target_field.range = world_player.attack_range;
 
 	setField(target_field, combatant_list[0].pEntity->x, combatant_list[0].pEntity->y, SQUARE, (Col)GREEN_TILE);
-
-	target_field.render_field = true;
 
 	ActionMenuUp = false;
 
@@ -1162,7 +1149,7 @@ inline void MoveLogic()
 
 	if (move_field_up == true)
 	{
-		temptarget = {(float)target->x, (float)target->y, (float)target->w, (float)target->h};
+		temptarget = { (float)target->x, (float)target->y, (float)target->w, (float)target->h };
 
 		ColorFieldTileEntityList(colored_enemy_tiles, &target_field, map_entity_list);
 
@@ -1225,8 +1212,8 @@ inline void MoveLogic()
 		for (size_t i = 0; i < target_field.sum_of_field_tiles; i++)
 		{
 			if (CheckCollisionRecs(
-					{(float)temptarget.x, (float)temptarget.y, (float)temptarget.width, (float)temptarget.height},
-					{(float)target_field.x, (float)target_field.y, (float)target_field.w, (float)target_field.h}))
+				{ (float)temptarget.x, (float)temptarget.y, (float)temptarget.width, (float)temptarget.height },
+				{ (float)target_field.x, (float)target_field.y, (float)target_field.w, (float)target_field.h }))
 			{
 
 				DebugLog("Field Collision", 0);
@@ -1656,7 +1643,7 @@ inline void EnemyMoveLogic()
 inline void TargetLogic()
 {
 
-	temptarget = {0, 0, 0, 0};
+	temptarget = { 0, 0, 0, 0 };
 
 	for (size_t i = 0; i < combatant_list.size(); i++)
 	{
@@ -1671,7 +1658,7 @@ inline void TargetLogic()
 				cout << "First Press X " << X_pressed_count << endl;
 
 				cout << "Collision" << endl;
-				setField(target_field, target->x, target->y, 0,(Col)GREEN_TILE);
+				setField(target_field, target->x, target->y, 0, (Col)GREEN_TILE);
 
 				// field_up = true;
 
@@ -1730,7 +1717,7 @@ inline void TargetLogic()
 
 			// colored_tiles.clear();
 
-			last_tile = {-100, -100, 0, 0};
+			last_tile = { -100, -100, 0, 0 };
 		}
 	}
 }
@@ -1771,14 +1758,14 @@ inline void MoveUnit()
 
 static bool startset = false;
 
-inline bool HoverSelect(field &fieldRef, entity *e)
+inline bool HoverSelect(field& fieldRef, entity* e)
 {
 	bool ret = false;
 
 	float mouseX = GetMouseX();
 	float mouseY = GetMouseY();
 
-	Rectangle mouseRect = {mouseX, mouseY, 1, 1};
+	Rectangle mouseRect = { mouseX, mouseY, 1, 1 };
 	//	Rectangle tempEntityRect;
 
 	// Rectangle tempEntityRect = { 0,0,0,0 };
@@ -1789,7 +1776,7 @@ inline bool HoverSelect(field &fieldRef, entity *e)
 
 	if (startset == false)
 	{
-		tempEntityRect = {(float)fieldRef.tiles[0].x, (float)fieldRef.tiles[0].y, (float)fieldRef.tiles[0].w, (float)fieldRef.tiles[0].h};
+		tempEntityRect = { (float)fieldRef.tiles[0].x, (float)fieldRef.tiles[0].y, (float)fieldRef.tiles[0].w, (float)fieldRef.tiles[0].h };
 
 		combatant_list[combatant_selected].pEntity->x = tempEntityRect.x;
 
@@ -1806,7 +1793,7 @@ inline bool HoverSelect(field &fieldRef, entity *e)
 
 	for (size_t i = 0; i < fieldRef.sum_of_field_tiles; i++)
 	{
-		tempEntityRect = {(float)fieldRef.tiles[i].x, (float)fieldRef.tiles[i].y, (float)fieldRef.tiles[i].w, (float)fieldRef.tiles[i].h};
+		tempEntityRect = { (float)fieldRef.tiles[i].x, (float)fieldRef.tiles[i].y, (float)fieldRef.tiles[i].w, (float)fieldRef.tiles[i].h };
 
 		if (CollisionIsoTrianglesMouse(tempEntityRect) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
 		{
@@ -1890,8 +1877,6 @@ inline void CombatLogic()
 			precombat = true;
 
 			combatant_selected = 0;
-
-			position_field.render_field = true;
 
 			ActionMenuUp = true;
 		}

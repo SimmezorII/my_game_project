@@ -179,6 +179,8 @@ global_variable vector<Render_List> render_list;
 
 global_variable vector<RenderObject *> SortedRenderObject_list;
 
+global_variable vector<field *> fields;
+
 global_variable int last_sorted_list[2000];
 
 // global_variable unsigned int objects_to_render = 0;

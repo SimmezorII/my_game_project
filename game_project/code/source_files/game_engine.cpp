@@ -40,9 +40,9 @@ inline bool Init(int width, int height, char title[])
 
 inline texture myLoadTexture(std::string path)
 {
-	Texture2D temp = {0};
+	Texture2D temp = { 0 };
 
-	texture myTemp = {0, 0, 0, 0};
+	texture myTemp = { 0, 0, 0, 0 };
 
 	temp = LoadTexture(path.c_str());
 	if (temp.id != 0)
@@ -170,7 +170,7 @@ inline void SetSpriteTextures()
 	}
 }
 
-inline void setSprite(entity &e, string sprite_name)
+inline void setSprite(entity& e, string sprite_name)
 {
 
 	for (size_t i = 0; i < sprite_list.size(); i++)
@@ -183,7 +183,7 @@ inline void setSprite(entity &e, string sprite_name)
 		}
 	}
 }
-inline void setSprite(entity &e, int sprite_ID)
+inline void setSprite(entity& e, int sprite_ID)
 {
 
 	for (size_t i = 0; i < sprite_list.size(); i++)
@@ -198,7 +198,7 @@ inline void setSprite(entity &e, int sprite_ID)
 	}
 }
 
-inline sprite &getSprite(string sprite_name)
+inline sprite& getSprite(string sprite_name)
 {
 
 	for (size_t i = 0; i < sprite_list.size(); i++)
@@ -217,7 +217,7 @@ inline sprite &getSprite(string sprite_name)
 	return sprite_list[0];
 }
 
-inline sprite &getSprite(int sprite_ID)
+inline sprite& getSprite(int sprite_ID)
 {
 
 	for (size_t i = 0; i < sprite_list.size(); i++)
@@ -235,7 +235,7 @@ inline sprite &getSprite(int sprite_ID)
 }
 
 // TODO: Checking against entity x/y, perhaps should use entity_tile instead
-inline entity *getEntityByPosition(int pos_x, int pos_y, vector<entity *> entities)
+inline entity* getEntityByPosition(int pos_x, int pos_y, vector<entity*> entities)
 {
 
 	cout << "This happens getEntityByPosition star" << endl;
@@ -262,7 +262,7 @@ inline entity *getEntityByPosition(int pos_x, int pos_y, vector<entity *> entiti
 }
 
 // TODO: Checking against entity x/y, perhaps should use entity_tile instead
-inline entity &getEntityByPosition(int pos_x, int pos_y, vector<entity> &entities)
+inline entity& getEntityByPosition(int pos_x, int pos_y, vector<entity>& entities)
 {
 
 	cout << "This happens getEntityByPosition ref" << endl;
@@ -288,7 +288,7 @@ inline entity &getEntityByPosition(int pos_x, int pos_y, vector<entity> &entitie
 	return entities[0];
 }
 
-inline entity &getEntityByID(int entity_ID, vector<entity> &entities)
+inline entity& getEntityByID(int entity_ID, vector<entity>& entities)
 {
 
 	for (size_t i = 0; i < entities.size(); i++)
@@ -305,7 +305,7 @@ inline entity &getEntityByID(int entity_ID, vector<entity> &entities)
 	return entities[0];
 }
 
-inline entity &getEntityByID(string sprite_name, vector<entity> &entities)
+inline entity& getEntityByID(string sprite_name, vector<entity>& entities)
 {
 
 	for (size_t i = 0; i < entities.size(); i++)
@@ -324,7 +324,7 @@ inline entity &getEntityByID(string sprite_name, vector<entity> &entities)
 	return entities[0];
 }
 
-inline entity *getEntityByID(int entity_ID, vector<entity *> entities)
+inline entity* getEntityByID(int entity_ID, vector<entity*> entities)
 {
 
 	for (size_t i = 0; i < entities.size(); i++)
@@ -346,17 +346,17 @@ inline entity *getEntityByID(int entity_ID, vector<entity *> entities)
 	return entities[0];
 }
 
-Rectangle tempcheckrect = {0, 0, 0, 0};
+Rectangle tempcheckrect = { 0, 0, 0, 0 };
 
-Rectangle &getEntityRect(entity &e)
+Rectangle& getEntityRect(entity& e)
 {
 
-	tempcheckrect = {(float)(e.x + e.sprite->offset_x), (float)(e.y + e.sprite->offset_y), (float)e.w, (float)e.h};
+	tempcheckrect = { (float)(e.x + e.sprite->offset_x), (float)(e.y + e.sprite->offset_y), (float)e.w, (float)e.h };
 
 	return tempcheckrect;
 }
 
-inline entity &getEntityByID(int entity_ID)
+inline entity& getEntityByID(int entity_ID)
 {
 
 	for (size_t i = 0; i < entity_list.size(); i++)
@@ -393,11 +393,11 @@ inline int getCurrentToRender()
 	return 0;
 }
 
-pos temp = {0, 0};
+pos temp = { 0, 0 };
 
 static int index_counter = 0;
 
-inline void calcDrawLayer(int layer, vector<pos> &poslayer)
+inline void calcDrawLayer(int layer, vector<pos>& poslayer)
 {
 	int counter = 0;
 
@@ -423,7 +423,7 @@ inline void calcDrawLayer(int layer, vector<pos> &poslayer)
 	}
 
 	// cout << poslayer.size() << endl;
-	temp = {0, 0};
+	temp = { 0, 0 };
 }
 
 inline void RenderGuiEntities()
@@ -454,11 +454,11 @@ inline void RenderGuiEntities()
 	for (size_t i = 0; i < gui_entity_list.size(); i++)
 	{
 
-		Vector2 vec = {0, 0};
+		Vector2 vec = { 0, 0 };
 
-		recSprite2 = {(float)gui_entity_list[i].sprite->x, (float)gui_entity_list[i].sprite->y, (float)gui_entity_list[i].sprite->w, (float)gui_entity_list[i].sprite->h};
+		recSprite2 = { (float)gui_entity_list[i].sprite->x, (float)gui_entity_list[i].sprite->y, (float)gui_entity_list[i].sprite->w, (float)gui_entity_list[i].sprite->h };
 
-		recEntity2 = {(float)gui_entity_list[i].x + gui_entity_list[i].sprite->offset_x, (float)gui_entity_list[i].y + gui_entity_list[i].sprite->offset_y, (float)gui_entity_list[i].w, (float)gui_entity_list[i].h};
+		recEntity2 = { (float)gui_entity_list[i].x + gui_entity_list[i].sprite->offset_x, (float)gui_entity_list[i].y + gui_entity_list[i].sprite->offset_y, (float)gui_entity_list[i].w, (float)gui_entity_list[i].h };
 
 		gui_entity_list[i].entity_tile.x = gui_entity_list[i].x;
 
@@ -481,7 +481,7 @@ inline void RenderGuiEntities()
 
 		templayer = gui_entity_list[i].y - lowerlayer;
 
-		AllRenderObjects[i] = {getTexture(gui_entity_list[i].sprite->ID).tex, recSprite2, recEntity2, vec, 0, WHITE, templayer, true};
+		AllRenderObjects[i] = { getTexture(gui_entity_list[i].sprite->ID).tex, recSprite2, recEntity2, vec, 0, WHITE, templayer, true };
 
 		if (render_list[0].List.size() < gui_entity_list.size())
 		{
@@ -530,11 +530,11 @@ inline void RenderMapEntities()
 	for (size_t i = 0; i < map_entity_list.size(); i++)
 	{
 
-		Vector2 vec = {0, 0};
+		Vector2 vec = { 0, 0 };
 
-		recSprite2 = {(float)map_entity_list[i].sprite->x, (float)map_entity_list[i].sprite->y, (float)map_entity_list[i].sprite->w, (float)map_entity_list[i].sprite->h};
+		recSprite2 = { (float)map_entity_list[i].sprite->x, (float)map_entity_list[i].sprite->y, (float)map_entity_list[i].sprite->w, (float)map_entity_list[i].sprite->h };
 
-		recEntity2 = {(float)map_entity_list[i].x + map_entity_list[i].sprite->offset_x, (float)map_entity_list[i].y + map_entity_list[i].sprite->offset_y, (float)map_entity_list[i].w, (float)map_entity_list[i].h};
+		recEntity2 = { (float)map_entity_list[i].x + map_entity_list[i].sprite->offset_x, (float)map_entity_list[i].y + map_entity_list[i].sprite->offset_y, (float)map_entity_list[i].w, (float)map_entity_list[i].h };
 
 		map_entity_list[i].entity_tile.x = map_entity_list[i].x;
 
@@ -557,7 +557,7 @@ inline void RenderMapEntities()
 
 		templayer = map_entity_list[i].y - lowerlayer;
 
-		AllRenderObjects[i + objects_to_render[0]] = {getTexture(map_entity_list[i].sprite->ID).tex, recSprite2, recEntity2, vec, 0, WHITE, templayer, true};
+		AllRenderObjects[i + objects_to_render[0]] = { getTexture(map_entity_list[i].sprite->ID).tex, recSprite2, recEntity2, vec, 0, WHITE, templayer, true };
 
 		if (render_list[0].List.size() < map_entity_list.size() + objects_to_render[0])
 		{
@@ -578,7 +578,7 @@ inline void RenderMapEntities()
 
 static int added_once = 0;
 
-inline void RenderEntities(vector<entity> &entities)
+inline void RenderEntities(vector<entity>& entities)
 {
 
 	int templayer = 0;
@@ -590,9 +590,9 @@ inline void RenderEntities(vector<entity> &entities)
 	for (size_t i = 0; i < entities.size(); i++)
 	{
 
-		recSprite2 = {(float)entities[i].sprite->x, (float)entities[i].sprite->y, (float)entities[i].sprite->w, (float)entities[i].sprite->h};
+		recSprite2 = { (float)entities[i].sprite->x, (float)entities[i].sprite->y, (float)entities[i].sprite->w, (float)entities[i].sprite->h };
 
-		recEntity2 = {(float)entities[i].x + entities[i].sprite->offset_x, (float)entities[i].y + entities[i].sprite->offset_y, (float)entities[i].w, (float)entities[i].h};
+		recEntity2 = { (float)entities[i].x + entities[i].sprite->offset_x, (float)entities[i].y + entities[i].sprite->offset_y, (float)entities[i].w, (float)entities[i].h };
 
 		entities[i].entity_tile.x = entities[i].x;
 
@@ -620,7 +620,7 @@ inline void RenderEntities(vector<entity> &entities)
 			// templayer = -1000;
 		}
 
-		AllRenderObjects[i + objects_to_render[0] + objects_to_render[1]] = {getTexture(entities[i].sprite->ID).tex, recSprite2, recEntity2, {0, 0}, 0, WHITE, templayer, entities[i].render_this};
+		AllRenderObjects[i + objects_to_render[0] + objects_to_render[1]] = { getTexture(entities[i].sprite->ID).tex, recSprite2, recEntity2, {0, 0}, 0, WHITE, templayer, entities[i].render_this };
 
 		if (render_list[0].List.size() < entities.size() + objects_to_render[0])
 		{
@@ -649,7 +649,7 @@ inline void RenderEntities(vector<entity> &entities)
 	}
 }
 
-inline void RenderEntityBoxes(vector<entity> &entities)
+inline void RenderEntityBoxes(vector<entity>& entities)
 {
 
 	int templayer = 0;
@@ -662,9 +662,9 @@ inline void RenderEntityBoxes(vector<entity> &entities)
 	for (size_t i = 0; i < entities.size(); i++)
 	{
 
-		recSprite2 = {(float)entities[i].sprite->x, (float)entities[i].sprite->y, (float)entities[i].sprite->w, (float)entities[i].sprite->h};
+		recSprite2 = { (float)entities[i].sprite->x, (float)entities[i].sprite->y, (float)entities[i].sprite->w, (float)entities[i].sprite->h };
 
-		recEntity2 = {(float)entities[i].x + entities[i].sprite->offset_x, (float)entities[i].y + entities[i].sprite->offset_y, (float)entities[i].w, (float)entities[i].h};
+		recEntity2 = { (float)entities[i].x + entities[i].sprite->offset_x, (float)entities[i].y + entities[i].sprite->offset_y, (float)entities[i].w, (float)entities[i].h };
 
 		entities[i].entity_tile.x = entities[i].x;
 
@@ -680,7 +680,7 @@ inline void RenderEntityBoxes(vector<entity> &entities)
 			offset_y = entities[i].h - (tile_height);
 		}
 
-		entities[i].offset_rect = {gamescreen_offset_x + entities[i].x - offset_x, gamescreen_offset_y + entities[i].y - offset_y, entities[i].w, entities[i].h};
+		entities[i].offset_rect = { gamescreen_offset_x + entities[i].x - offset_x, gamescreen_offset_y + entities[i].y - offset_y, entities[i].w, entities[i].h };
 
 		if (ToggleEntityBoxes == true)
 		{
@@ -694,17 +694,17 @@ inline void RenderEntityBoxes(vector<entity> &entities)
 	}
 }
 
-inline void RenderWholeEntity(texture *Texture)
+inline void RenderWholeEntity(texture* Texture)
 {
 }
 
-inline void RenderTextTexture(texture *Texture, int x, int y)
+inline void RenderTextTexture(texture* Texture, int x, int y)
 {
 }
 
 static int current_frame = 0;
 
-inline void AnimateMovement(entity *en, Direction d)
+inline void AnimateMovement(entity* en, Direction d)
 {
 
 	switch (d)
@@ -812,7 +812,7 @@ inline void PrintMoveList()
 	printf("\n");
 }
 
-inline void Animate(entity *en)
+inline void Animate(entity* en)
 {
 	timer += GetFrameTime();
 
@@ -848,7 +848,7 @@ inline void Animate(entity *en)
 	}
 }
 
-inline void MovementAnimated(entity *en)
+inline void MovementAnimated(entity* en)
 {
 	static int movecount = 0;
 
@@ -1067,7 +1067,7 @@ inline void EnemyMovementAnimated()
 
 	static int enemy_checked = 0;
 
-	combatant &en = enemy_list[enemy_checked];
+	combatant& en = enemy_list[enemy_checked];
 
 	if (!en.movelist.empty())
 	{
@@ -1281,7 +1281,7 @@ inline void RenderTextList()
 	}
 }
 
-Rectangle infoRect = {(GameGui.x - 200), GameGui.y, 100, 16};
+Rectangle infoRect = { (GameGui.x - 200), GameGui.y, 100, 16 };
 
 // inline void RendedDebugInfo()
 //{
@@ -1372,12 +1372,12 @@ inline bool CheckCollisionMouseEntity()
 	float mouseX = GetMouseX(); // Returns mouse position X
 	float mouseY = GetMouseY();
 
-	Rectangle mouseRect = {mouseX, mouseY, 1, 1};
+	Rectangle mouseRect = { mouseX, mouseY, 1, 1 };
 	//	Rectangle tempEntityRect;
 
 	for (size_t i = 0; i < entity_list.size(); i++)
 	{
-		Rectangle tempEntityRect = {entity_list[i].x, entity_list[i].y, entity_list[i].w, entity_list[i].h};
+		Rectangle tempEntityRect = { entity_list[i].x, entity_list[i].y, entity_list[i].w, entity_list[i].h };
 
 		if (CheckCollisionRects(mouseRect, tempEntityRect))
 		{
@@ -1397,27 +1397,27 @@ inline void initActionMenu()
 
 	Rectangle temp;
 
-	temp = {0, 0, (float)((GUI_ACTION_BUTTON_WIDTH)*1.5), ((GUI_ACTION_BUTTON_HEIGHT) + offset / 2) * NumOfActionMenuButtons};
+	temp = { 0, 0, (float)((GUI_ACTION_BUTTON_WIDTH) * 1.5), ((GUI_ACTION_BUTTON_HEIGHT)+offset / 2) * NumOfActionMenuButtons };
 
 	ActionMenuRects.push_back(temp);
 
-	temp = {0, 0, GUI_ACTION_BUTTON_WIDTH, GUI_ACTION_BUTTON_HEIGHT};
+	temp = { 0, 0, GUI_ACTION_BUTTON_WIDTH, GUI_ACTION_BUTTON_HEIGHT };
 
 	ActionMenuRects.push_back(temp);
 
-	temp = {0, 0, GUI_ACTION_BUTTON_WIDTH, GUI_ACTION_BUTTON_HEIGHT};
+	temp = { 0, 0, GUI_ACTION_BUTTON_WIDTH, GUI_ACTION_BUTTON_HEIGHT };
 
 	ActionMenuRects.push_back(temp);
 
-	temp = {0, 0, GUI_ACTION_BUTTON_WIDTH, GUI_ACTION_BUTTON_HEIGHT};
+	temp = { 0, 0, GUI_ACTION_BUTTON_WIDTH, GUI_ACTION_BUTTON_HEIGHT };
 
 	ActionMenuRects.push_back(temp);
 
-	temp = {0, 0, GUI_ACTION_BUTTON_WIDTH, GUI_ACTION_BUTTON_HEIGHT};
+	temp = { 0, 0, GUI_ACTION_BUTTON_WIDTH, GUI_ACTION_BUTTON_HEIGHT };
 
 	ActionMenuRects.push_back(temp);
 
-	temp = {0, 0, GUI_ACTION_BUTTON_WIDTH, GUI_ACTION_BUTTON_HEIGHT};
+	temp = { 0, 0, GUI_ACTION_BUTTON_WIDTH, GUI_ACTION_BUTTON_HEIGHT };
 
 	ActionMenuRects.push_back(temp);
 }
@@ -1463,7 +1463,7 @@ inline bool setMouseEntity()
 	float mouseX = GetMouseX();
 	float mouseY = GetMouseY();
 
-	Rectangle mouseRect = {mouseX, mouseY, 1, 1};
+	Rectangle mouseRect = { mouseX, mouseY, 1, 1 };
 	//	Rectangle tempEntityRect;
 
 	for (size_t i = 0; i < entity_list.size(); i++)
@@ -1482,7 +1482,7 @@ inline bool setMouseEntity()
 	return ret;
 }
 
-inline bool setMouseEntity(vector<entity> &entities)
+inline bool setMouseEntity(vector<entity>& entities)
 {
 
 	bool ret = false;
@@ -1490,12 +1490,12 @@ inline bool setMouseEntity(vector<entity> &entities)
 	float mouseX = GetMouseX() - gamescreen_offset_x;
 	float mouseY = GetMouseY() - gamescreen_offset_y;
 
-	Rectangle mouseRect = {mouseX, mouseY, 1, 1};
+	Rectangle mouseRect = { mouseX, mouseY, 1, 1 };
 	//	Rectangle tempEntityRect;
 
 	for (size_t i = 0; i < entities.size(); i++)
 	{
-		Rectangle tempEntityRect = {(float)entities[i].x + entities[i].sprite->offset_x, (float)entities[i].y + entities[i].sprite->offset_y, entities[i].w, entities[i].h};
+		Rectangle tempEntityRect = { (float)entities[i].x + entities[i].sprite->offset_x, (float)entities[i].y + entities[i].sprite->offset_y, entities[i].w, entities[i].h };
 
 		if (CheckCollisionRects(mouseRect, tempEntityRect) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
 		{
@@ -1512,32 +1512,36 @@ inline bool setMouseEntity(vector<entity> &entities)
 
 /////-------------------------------------------------  RenderField -------------------------------------------
 
-Rectangle recSprite = {64, 0, 64, 32};
+Rectangle recSprite = { 64, 0, 64, 32 };
 
-Rectangle recEntity = {0, 0, 0, 0};
+Rectangle recEntity = { 0, 0, 0, 0 };
 
-Vector2 vec = {0, 0};
+Vector2 vec = { 0, 0 };
 
-inline void RenderField(field &fieldRef)
+bool render = false;
+
+inline void RenderField(field& fieldRef)
 {
 	int list_next = 0;
 
-
-
-
 	for (size_t i = 0; i < fieldRef.sum_of_field_tiles; i++)
 	{
-		recEntity = {(float)(fieldRef.tiles[i].x), (float)(fieldRef.tiles[i].y), (float)tile_width, (float)tile_height};
+		recEntity = { (float)(fieldRef.tiles[i].x), (float)(fieldRef.tiles[i].y), (float)tile_width, (float)tile_height };
 
-		recSprite = {(float)(fieldRef.tiles[i].sprite->x), (float)(fieldRef.tiles[i].sprite->y), (float)fieldRef.tiles[i].sprite->w, (float)fieldRef.tiles[i].sprite->h};
+		recSprite = { (float)(fieldRef.tiles[i].sprite->x), (float)(fieldRef.tiles[i].sprite->y), (float)fieldRef.tiles[i].sprite->w, (float)fieldRef.tiles[i].sprite->h };
 
 		// DrawTexturePro( getTexture("BlueTile").tex , recSprite, recEntity, vec, 0, WHITE);
 
-		//
+		if ((fieldRef.tiles[i].render == true) && (fieldRef.render_field == true))
+		{
+			render = true;
+		}
+		else
+		{
+			render = false;
+		}
 
-
-
-		AllRenderObjects[i + objects_to_render[list_next]] = {getTexture(fieldRef.tiles[i].sprite->ID).tex, recSprite, recEntity, vec, 0, Fade(WHITE, fieldRef.field_alpha), -60, fieldRef.render_field};
+		AllRenderObjects[i + objects_to_render[list_next]] = { getTexture(fieldRef.tiles[i].sprite->ID).tex, recSprite, recEntity, vec, 0, Fade(WHITE, fieldRef.field_alpha), -60,render };
 
 		if (render_list[list_next].List.size() < fieldRef.sum_of_field_tiles + objects_to_render[list_next])
 		{
@@ -1551,26 +1555,81 @@ inline void RenderField(field &fieldRef)
 		}
 		if (move_field_up == true)
 		{
-			DrawRectangleLines(recEntity.x - 1 + (tile_width / 2), recEntity.y - 1 + (tile_height / 2), 2, 2, BLACK);
+			//DrawRectangleLines(recEntity.x - 1 + (tile_width / 2), recEntity.y - 1 + (tile_height / 2), 2, 2, BLACK);
 		}
 	}
 
 	if (move_field_up == true)
 	{
-		DrawRectangleLines(target_field.x, target_field.y, target_field.w, target_field.h, RED);
+		//DrawRectangleLines(target_field.x, target_field.y, target_field.w, target_field.h, RED);
 	}
 
 	if (objects_to_render[list_next] < objects_to_render[list_next] + fieldRef.sum_of_field_tiles)
 	{
 		objects_to_render[list_next] = objects_to_render[list_next] + fieldRef.sum_of_field_tiles;
 	}
-	    
-
-
-
 
 
 }
+
+inline void SetRenderField(field* fieldRef, bool render)
+{
+	int tiles = *(&fieldRef->tiles + 1) - fieldRef->tiles;
+	for (size_t i = 0; i < tiles; i++)
+	{
+		fieldRef->tiles[i].render = render;
+	}
+}
+
+
+inline void RenderAllFields()
+{
+	int list_next = 0;
+	int diff = 0;
+
+	for (size_t n = 0; n < fields.size(); n++)
+	{
+		for (size_t i = 0; i < fields[n]->sum_of_field_tiles; i++)
+		{
+			recEntity = { (float)(fields[n]->tiles[i].x), (float)(fields[n]->tiles[i].y), (float)tile_width, (float)tile_height };
+
+			recSprite = { (float)(fields[n]->tiles[i].sprite->x), (float)(fields[n]->tiles[i].sprite->y), (float)fields[n]->tiles[i].sprite->w, (float)fields[n]->tiles[i].sprite->h };
+
+			if ((fields[n]->tiles[i].render == true) && (fields[n]->render_field == true))
+			{
+				render = true;
+			}
+			else
+			{
+				render = false;
+			}
+
+			AllRenderObjects[i + objects_to_render[list_next]] = { getTexture(fields[n]->tiles[i].sprite->ID).tex, recSprite, recEntity, vec, 0, Fade(WHITE, fields[n]->field_alpha), -60,render };
+
+			if (render_list[list_next].List.size() < fields[n]->sum_of_field_tiles + objects_to_render[list_next])
+			{
+				render_list[list_next].List.push_back(&AllRenderObjects[i + objects_to_render[list_next]]);
+			}
+			else
+			{
+				render_list[list_next].List[i + objects_to_render[list_next]] = &AllRenderObjects[i + objects_to_render[list_next]];
+				diff = (int)render_list[list_next].List.size() - (fields[n]->sum_of_field_tiles + objects_to_render[list_next]);
+			}
+		}
+
+		if (objects_to_render[list_next] < objects_to_render[list_next] + fields[n]->sum_of_field_tiles)
+		{
+			objects_to_render[list_next] = objects_to_render[list_next] + fields[n]->sum_of_field_tiles;
+		}
+	}
+
+	for (size_t j = 0; j < diff; j++)
+	{
+		render_list[list_next].List[((render_list[list_next].List.size()) - diff) + j]->render_this = false;
+	}
+}
+
+
 
 inline void swap(RenderObject xp, RenderObject yp)
 {
@@ -1703,6 +1762,8 @@ inline void SortLayerRenderObjectList()
 	}
 }
 
+
+
 inline void RenderAllLayers()
 {
 	float offset_x = 0;
@@ -1745,8 +1806,8 @@ inline void RenderAllLayers()
 				dest_y = SortedRenderObject_list[i]->dest.y + gamescreen_offset_y - offset_y;
 
 				DrawTexturePro(SortedRenderObject_list[i]->texture, SortedRenderObject_list[i]->source,
-							   {dest_x, dest_y, SortedRenderObject_list[i]->dest.width, SortedRenderObject_list[i]->dest.height},
-							   SortedRenderObject_list[i]->origin, SortedRenderObject_list[i]->rotation, SortedRenderObject_list[i]->tint);
+					{ dest_x, dest_y, SortedRenderObject_list[i]->dest.width, SortedRenderObject_list[i]->dest.height },
+					SortedRenderObject_list[i]->origin, SortedRenderObject_list[i]->rotation, SortedRenderObject_list[i]->tint);
 			}
 		}
 	}
@@ -1758,11 +1819,11 @@ inline void RenderAllLayers()
 
 /////-------------------------------------------------  ColorFieldTile -------------------------------------------
 
-Rectangle temp1 = {-100, -100, 0, 0};
+Rectangle temp1 = { -100, -100, 0, 0 };
 
-Rectangle temp2 = {-100, -100, 0, 0};
+Rectangle temp2 = { -100, -100, 0, 0 };
 
-inline void SetFieldTileColors(field &fieldRef, int Sprite_ID)
+inline void SetFieldTileColors(field& fieldRef, int Sprite_ID)
 {
 	for (size_t i = 0; i < fieldRef.sum_of_field_tiles; i++)
 	{
@@ -1770,7 +1831,7 @@ inline void SetFieldTileColors(field &fieldRef, int Sprite_ID)
 	}
 }
 
-inline bool ColorFieldTileEntityList(vector<tile> &colored_tiles, field *fieldRef, vector<combatant> &list, int iTileColor)
+inline bool ColorFieldTileEntityList(vector<tile>& colored_tiles, field* fieldRef, vector<combatant>& list, int iTileColor)
 {
 	bool colored_tile = false;
 
@@ -1779,7 +1840,7 @@ inline bool ColorFieldTileEntityList(vector<tile> &colored_tiles, field *fieldRe
 
 	for (size_t i = 0; i < list.size(); i++)
 	{
-		temp2 = {list[i].pEntity->x, list[i].pEntity->y, list[i].pEntity->w, list[i].pEntity->h};
+		temp2 = { list[i].pEntity->x, list[i].pEntity->y, list[i].pEntity->w, list[i].pEntity->h };
 		if (list[i].pEntity->x == combatant_list[combatant_selected].pEntity->x && list[i].pEntity->y == combatant_list[combatant_selected].pEntity->y)
 		{
 			// cout << "Player X Y" << endl;
@@ -1790,12 +1851,12 @@ inline bool ColorFieldTileEntityList(vector<tile> &colored_tiles, field *fieldRe
 			{
 				for (size_t j = 0; j < fieldRef->sum_of_field_tiles; j++)
 				{
-					temp1 = {(float)(fieldRef->tiles[j].x), (float)(fieldRef->tiles[j].y), (float)tile_width, (float)tile_height};
+					temp1 = { (float)(fieldRef->tiles[j].x), (float)(fieldRef->tiles[j].y), (float)tile_width, (float)tile_height };
 
 					if (
 						CheckCollisionRecs(
-							{(float)(temp2.x - 1 + (tile_width / 2)), (float)(temp2.y - 1 + (tile_height / 2)), 2, 2},
-							{(float)(temp1.x - 1 + (tile_width / 2)), (float)(temp1.y - 1 + (tile_height / 2)), 2, 2}))
+							{ (float)(temp2.x - 1 + (tile_width / 2)), (float)(temp2.y - 1 + (tile_height / 2)), 2, 2 },
+							{ (float)(temp1.x - 1 + (tile_width / 2)), (float)(temp1.y - 1 + (tile_height / 2)), 2, 2 }))
 					{
 
 						if (last_tile.x != temp2.x || last_tile.y != temp2.y)
@@ -1804,7 +1865,7 @@ inline bool ColorFieldTileEntityList(vector<tile> &colored_tiles, field *fieldRe
 
 							colored_enemy_tiles.push_back(fieldRef->tiles[j]);
 
-							last_tile = {temp2.x, temp2.y, 0, 0};
+							last_tile = { temp2.x, temp2.y, 0, 0 };
 
 							colored_tile = true;
 						}
@@ -1832,7 +1893,7 @@ inline bool ColorFieldTileEntityList(vector<tile> &colored_tiles, field *fieldRe
 	return colored_tile;
 }
 
-inline bool ColorFieldTileEntityList(vector<tile> &colored_tiles, field *fieldRef, vector<entity> &entity_list, int iTileColor)
+inline bool ColorFieldTileEntityList(vector<tile>& colored_tiles, field* fieldRef, vector<entity>& entity_list, int iTileColor)
 {
 	bool colored_tile = false;
 
@@ -1841,7 +1902,7 @@ inline bool ColorFieldTileEntityList(vector<tile> &colored_tiles, field *fieldRe
 
 	for (size_t i = 0; i < entity_list.size(); i++)
 	{
-		temp2 = {(float)entity_list[i].x, (float)entity_list[i].y, (float)entity_list[i].w, (float)entity_list[i].h};
+		temp2 = { (float)entity_list[i].x, (float)entity_list[i].y, (float)entity_list[i].w, (float)entity_list[i].h };
 		if (entity_list[i].x == combatant_list[combatant_selected].pEntity->x && entity_list[i].y == combatant_list[combatant_selected].pEntity->y)
 		{
 			// cout << "Player X Y" << endl;
@@ -1852,12 +1913,12 @@ inline bool ColorFieldTileEntityList(vector<tile> &colored_tiles, field *fieldRe
 			{
 				for (size_t j = 0; j < fieldRef->sum_of_field_tiles; j++)
 				{
-					temp1 = {(float)(fieldRef->tiles[j].x), (float)(fieldRef->tiles[j].y), (float)tile_width, (float)tile_height};
+					temp1 = { (float)(fieldRef->tiles[j].x), (float)(fieldRef->tiles[j].y), (float)tile_width, (float)tile_height };
 
 					if (
 						CheckCollisionRecs(
-							{(float)(temp2.x - 1 + (tile_width / 2)), (float)(temp2.y - 1 + (tile_height / 2)), 2, 2},
-							{(float)(temp1.x - 1 + (tile_width / 2)), (float)(temp1.y - 1 + (tile_height / 2)), 2, 2}))
+							{ (float)(temp2.x - 1 + (tile_width / 2)), (float)(temp2.y - 1 + (tile_height / 2)), 2, 2 },
+							{ (float)(temp1.x - 1 + (tile_width / 2)), (float)(temp1.y - 1 + (tile_height / 2)), 2, 2 }))
 					{
 
 						if (last_tile.x != temp2.x || last_tile.y != temp2.y)
@@ -1866,7 +1927,7 @@ inline bool ColorFieldTileEntityList(vector<tile> &colored_tiles, field *fieldRe
 
 							colored_enemy_tiles.push_back(fieldRef->tiles[j]);
 
-							last_tile = {temp2.x, temp2.y, 0, 0};
+							last_tile = { temp2.x, temp2.y, 0, 0 };
 
 							colored_tile = true;
 						}
@@ -1894,7 +1955,7 @@ inline bool ColorFieldTileEntityList(vector<tile> &colored_tiles, field *fieldRe
 	return colored_tile;
 }
 
-inline bool ColorFieldTileEntityList(vector<tile> &colored_tiles, field *fieldRef, vector<entity> &entity_list)
+inline bool ColorFieldTileEntityList(vector<tile>& colored_tiles, field* fieldRef, vector<entity>& entity_list)
 {
 	bool colored_tile = false;
 
@@ -1903,7 +1964,7 @@ inline bool ColorFieldTileEntityList(vector<tile> &colored_tiles, field *fieldRe
 
 	for (size_t i = 0; i < entity_list.size(); i++)
 	{
-		temp2 = {(float)entity_list[i].x, (float)entity_list[i].y, (float)entity_list[i].w, (float)entity_list[i].h};
+		temp2 = { (float)entity_list[i].x, (float)entity_list[i].y, (float)entity_list[i].w, (float)entity_list[i].h };
 		if (entity_list[i].x == combatant_list[combatant_selected].pEntity->x && entity_list[i].y == combatant_list[combatant_selected].pEntity->y)
 		{
 			// cout << "Player X Y" << endl;
@@ -1914,12 +1975,12 @@ inline bool ColorFieldTileEntityList(vector<tile> &colored_tiles, field *fieldRe
 			{
 				for (size_t j = 0; j < fieldRef->sum_of_field_tiles; j++)
 				{
-					temp1 = {(float)(fieldRef->tiles[j].x), (float)(fieldRef->tiles[j].y), (float)tile_width, (float)tile_height};
+					temp1 = { (float)(fieldRef->tiles[j].x), (float)(fieldRef->tiles[j].y), (float)tile_width, (float)tile_height };
 
 					if (
 						CheckCollisionRecs(
-							{(float)(temp2.x - 1 + (tile_width / 2)), (float)(temp2.y - 1 + (tile_height / 2)), 2, 2},
-							{(float)(temp1.x - 1 + (tile_width / 2)), (float)(temp1.y - 1 + (tile_height / 2)), 2, 2}))
+							{ (float)(temp2.x - 1 + (tile_width / 2)), (float)(temp2.y - 1 + (tile_height / 2)), 2, 2 },
+							{ (float)(temp1.x - 1 + (tile_width / 2)), (float)(temp1.y - 1 + (tile_height / 2)), 2, 2 }))
 					{
 
 						if (last_tile.x != temp2.x || last_tile.y != temp2.y)
@@ -1928,7 +1989,7 @@ inline bool ColorFieldTileEntityList(vector<tile> &colored_tiles, field *fieldRe
 
 							colored_enemy_tiles.push_back(fieldRef->tiles[j]);
 
-							last_tile = {temp2.x, temp2.y, 0, 0};
+							last_tile = { temp2.x, temp2.y, 0, 0 };
 
 							colored_tile = true;
 						}
@@ -1956,28 +2017,30 @@ inline bool ColorFieldTileEntityList(vector<tile> &colored_tiles, field *fieldRe
 	return colored_tile;
 }
 
-inline bool ColorFieldTile(field &fieldRef, entity *target)
+
+
+inline bool ColorFieldTile(field& fieldRef, entity* target)
 {
 	bool colored_tile = false;
 
-	temp2 = {(float)target->x, (float)target->y, (float)target->w, (float)target->h};
+	temp2 = { (float)target->x, (float)target->y, (float)target->w, (float)target->h };
 
 	for (size_t i = 0; i < fieldRef.sum_of_field_tiles; i++)
 	{
-		temp1 = {(float)(fieldRef.tiles[i].x), (float)(fieldRef.tiles[i].y), (float)tile_width, (float)tile_height};
+		temp1 = { (float)(fieldRef.tiles[i].x), (float)(fieldRef.tiles[i].y), (float)tile_width, (float)tile_height };
 
 		if (
 			CheckCollisionRecs(
-				{(float)(temp2.x - 1 + (tile_width / 2)), (float)(temp2.y - 1 + (tile_height / 2)), 2, 2},
-				{(float)(temp1.x - 1 + (tile_width / 2)), (float)(temp1.y - 1 + (tile_height / 2)), 2, 2}))
+				{ (float)(temp2.x - 1 + (tile_width / 2)), (float)(temp2.y - 1 + (tile_height / 2)), 2, 2 },
+				{ (float)(temp1.x - 1 + (tile_width / 2)), (float)(temp1.y - 1 + (tile_height / 2)), 2, 2 }))
 		{
 			if (last_tile.x != temp2.x || last_tile.y != temp2.y)
 			{
 				fieldRef.tiles[i].sprite = &getSprite(YELLOW_TILE); // red tile
-
+				fieldRef.tiles[i].render = true;
 				colored_moved_tiles.push_back(fieldRef.tiles[i]);
 
-				last_tile = {temp2.x, temp2.y, 0, 0};
+				last_tile = { temp2.x, temp2.y, 0, 0 };
 
 				colored_tile = true;
 
@@ -1997,7 +2060,7 @@ inline bool ColorFieldTile(field &fieldRef, entity *target)
 	return colored_tile;
 }
 
-inline void ResetMovedTilesColor(field &fieldRef, int Sprite_ID)
+inline void ResetMovedTilesColor(field& fieldRef, int Sprite_ID)
 {
 	for (size_t i = 0; i < fieldRef.sum_of_field_tiles; i++)
 	{
@@ -2010,12 +2073,13 @@ inline void ResetMovedTilesColor(field &fieldRef, int Sprite_ID)
 			{
 				// cout << "same3" << endl;
 				fieldRef.tiles[i].sprite = &getSprite(Sprite_ID);
+				fieldRef.tiles[i].render = true;
 			}
 		}
 	}
 }
 
-inline bool IsInArray(int *Array, int Size, int number)
+inline bool IsInArray(int* Array, int Size, int number)
 {
 	bool result = false;
 	// int arraySize = sizeof(Array) / sizeof(Array[0]);
@@ -2032,7 +2096,7 @@ inline bool IsInArray(int *Array, int Size, int number)
 	return result;
 }
 
-inline void randomSpawnTile(field &fieldRef, field &spawn_field)
+inline void randomSpawnTile(field& fieldRef, field& spawn_field)
 {
 	int numOfTiles = 10;
 	int randomTilesIndex[124];
@@ -2106,7 +2170,7 @@ inline void randomSpawnTile(field &fieldRef, field &spawn_field)
 	}
 }
 
-inline void drawIsoTriangles(entity *e)
+inline void drawIsoTriangles(entity* e)
 {
 
 	// temp3 = getTileRect(e->entity_tile);
@@ -2167,7 +2231,7 @@ inline void drawIsoTriangles(entity *e)
 	DrawTriangle(p1, p2, p3, ORANGE);
 }
 
-inline void drawInnerIsoRect(entity *e)
+inline void drawInnerIsoRect(entity* e)
 {
 
 	// temp3 = getTileInnerRect(e->entity_tile);
