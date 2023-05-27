@@ -196,7 +196,6 @@ struct tile_triangles
 
 struct field
 {
-
 	int range;
 	int type;
 	int x;
@@ -216,7 +215,6 @@ struct field
 
 struct combatant
 {
-
 	int move_range;
 
 	int attack_range;
@@ -226,18 +224,18 @@ struct combatant
 	entity *pEntity;
 
 	std::vector<int> movelist;
+
+	field move_field;
 };
 
 struct enemy
 {
-
 	int max_hp;
 	int current_hp;
 };
 
 struct RenderObject
 {
-
 	Texture2D texture;
 	Rectangle source;
 	Rectangle dest;

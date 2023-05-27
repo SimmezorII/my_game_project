@@ -145,9 +145,13 @@ inline void Init()
 
 	combatant e2;
 
-	e1.move_range = 4;
+	e1.move_range = 2;
 
-	e2.move_range = 4;
+	e2.move_range = 2;
+
+	e1.move_field.range = 2;
+
+	e2.move_field.range = 2;
 
 	e1.pEntity = &getEntityByID(24, map_entity_list);
 
@@ -181,7 +185,7 @@ inline void Init()
 
 	printf("before init combat\n");
 
-	initCombat();
+	InitCombat();
 
 	Log("test 1");
 
@@ -197,9 +201,14 @@ inline void Init()
 	// Init seed used for randomness
 	rng.seed(time(0));
 
-	fields.push_back(&enemy_move_field);
-}
+	setField(enemy_list[0].move_field, enemy_list[0].pEntity->x, enemy_list[0].pEntity->y, SQUARE, (Col)RED_TILE);
 
+	cout << "target tiles:" << target_field.sum_of_field_tiles << endl;
+
+	cout << "e1 tiles:" << enemy_list[0].move_field.sum_of_field_tiles << endl;
+
+	fields.push_back(&enemy_list[0].move_field);
+}
 
 // Gameplay Screen Initialization logic
 inline void InitGameplayScreen(void)

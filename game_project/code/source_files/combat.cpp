@@ -1155,7 +1155,7 @@ inline void setField(field& fieldRef, int nx, int ny, int field_type, enum Col t
 
 }
 
-inline void initCombat()
+inline void InitCombat()
 {
 	//Log("InitCombat");
 
@@ -1167,11 +1167,13 @@ inline void initCombat()
 
 	//setField(position_field, 512, 512, TRIANGLE + UP);
 
-	enemy_move_field.field_alpha = 0.5;
+	//enemy_list[0].move_field.field_alpha = 0.5;
 
-	enemy_move_field.range = 8;
+	//enemy_list[0].move_field.range = 4;
 
-	setField(enemy_move_field, 224, 224, SQUARE, (Col)RED_TILE);
+	//setField(enemy_list[0].move_field, enemy_list[0].pEntity->x, enemy_list[0].pEntity->y, SQUARE, (Col)RED_TILE);
+
+	setField(enemy_list[0].move_field, enemy_list[0].pEntity->x, enemy_list[0].pEntity->y, SQUARE, (Col)RED_TILE);
 
 	enemy_move_field_two.field_alpha = 0.5;
 

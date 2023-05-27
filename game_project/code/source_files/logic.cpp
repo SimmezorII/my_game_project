@@ -446,10 +446,12 @@ inline void EnemyLogic()
 	}
 	EntityMoveLogic(enemy_list[1], combatant_list[0], false);
 
+
 	PLAYER_TURN = true;
 	game_turn++;
 
-
+	setField(enemy_list[0].move_field, enemy_list[0].pEntity->x, enemy_list[0].pEntity->y, SQUARE, (Col)RED_TILE);
+	
 }
 
 inline void CheckKeyboardInput()
@@ -472,7 +474,7 @@ inline void CheckKeyboardInput()
 	{
 		cout << "L PRESSED" << endl;
 
-		enemy_move_field.render_field = true;
+		enemy_list[0].move_field.render_field = true;
 
 		//enemy_move_field_two.render_field = true;
 
@@ -1013,7 +1015,6 @@ inline void EndPressed()
 	position_field.render_field = false;
 	SetRenderField(&position_field, false);
 
-
 	ActionMenuUp = false;
 
 	PLAYER_TURN = false;
@@ -1023,6 +1024,8 @@ inline void EndPressed()
 	combatant_list[combatant_selected].current_movecount = 1;
 
 	temp_movecount[combatant_selected] = combatant_list[combatant_selected].current_movecount;
+
+	enemy_list[0].move_field.render_field = false;
 
 }
 
@@ -1640,6 +1643,28 @@ inline void EnemyMoveLogic()
 	}
 }
 
+inline void CheckEnemy()
+{
+	for (size_t i = 0; i < enemy_list.size(); i++)
+	{
+			// Check if target is on enemy entity position and X pressed, not on movefield, not moveing
+			if ((IsKeyPressed(KEY_X) && !IsKeyPressed(KEY_Z)) && (target->x == enemy_list[i].pEntity->x) && (target->y == enemy_list[i].pEntity->y) && move_field_up == false && ActionMenuUp != true && !moving)
+			{
+				cout << "Enemy checked" << endl;
+				enemy_list[i].move_field.render_field = true;
+				
+			}
+
+			// Check if target is on enemy entity position and X pressed, not on movefield, not moveing
+			if ((!IsKeyPressed(KEY_X) && IsKeyPressed(KEY_Z)) && (target->x == enemy_list[i].pEntity->x) && (target->y == enemy_list[i].pEntity->y) && move_field_up == false && ActionMenuUp != true && !moving)
+			{
+				cout << "Enemy checked" << endl;
+				enemy_list[i].move_field.render_field = false;
+			}
+
+	}
+}
+
 inline void TargetLogic()
 {
 
@@ -1679,6 +1704,8 @@ inline void TargetLogic()
 			}
 		}
 	}
+
+	CheckEnemy();
 
 	if (move_field_up == true)
 	{
@@ -1870,7 +1897,7 @@ inline void CombatLogic()
 
 		if (run_init == false)
 		{
-			initCombat();
+			InitCombat();
 
 			run_init = true;
 
