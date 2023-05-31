@@ -435,6 +435,8 @@ inline void EnemyLogic()
 
 	Log("Enemy Passed, turn ended");
 
+	SetRenderEnemyFields(false);
+
 	enemy_list[0].movelist.push_back(1);
 
 	for (size_t i = 0; i < enemy_list.size(); i++)
@@ -444,14 +446,11 @@ inline void EnemyLogic()
 			enemy_moving = true;
 		}
 	}
-	EntityMoveLogic(enemy_list[1], combatant_list[0], false);
 
+	EntityMoveLogic(enemy_list[1], combatant_list[0], false);
 
 	PLAYER_TURN = true;
 	game_turn++;
-
-	setField(enemy_list[0].move_field, enemy_list[0].pEntity->x, enemy_list[0].pEntity->y, SQUARE, (Col)RED_TILE);
-	
 }
 
 inline void CheckKeyboardInput()
@@ -474,13 +473,6 @@ inline void CheckKeyboardInput()
 	{
 		cout << "L PRESSED" << endl;
 
-		enemy_list[0].move_field.render_field = true;
-
-		//enemy_move_field_two.render_field = true;
-
-		// SetFieldTileColors(target_field, 2);
-
-		// printf("%d", GetRandomValue(0, 99));
 	}
 
 	if (IsKeyPressed(KEY_K))
@@ -521,12 +513,25 @@ inline void CheckKeyboardInput()
 		// }
 		// cout << endl;
 
-		enemy_move_field.render_field = false;
-		SetRenderField(&position_field, false);
-		enemy_move_field_two.render_field = false;
-		SetRenderField(&enemy_move_field_two, false);
-
 	}
+
+	if (IsKeyPressed(KEY_TAB))
+	{
+		cout << "TAB PRESSED" << endl;
+		if (toggle_enemy_movefields == true)
+		{
+			toggle_enemy_movefields = false;
+			cout << "toggle_enemy_movefields  false" << endl;
+
+			SetRenderEnemyFields(false);
+		}
+		else
+		{
+			toggle_enemy_movefields = true;
+			cout << "toggle_enemy_movefields  true" << endl;
+		}
+	}
+
 
 	if (IsKeyPressed(KEY_F5))
 	{
@@ -1024,8 +1029,6 @@ inline void EndPressed()
 	combatant_list[combatant_selected].current_movecount = 1;
 
 	temp_movecount[combatant_selected] = combatant_list[combatant_selected].current_movecount;
-
-	enemy_list[0].move_field.render_field = false;
 
 }
 
@@ -1647,20 +1650,20 @@ inline void CheckEnemy()
 {
 	for (size_t i = 0; i < enemy_list.size(); i++)
 	{
-			// Check if target is on enemy entity position and X pressed, not on movefield, not moveing
-			if ((IsKeyPressed(KEY_X) && !IsKeyPressed(KEY_Z)) && (target->x == enemy_list[i].pEntity->x) && (target->y == enemy_list[i].pEntity->y) && move_field_up == false && ActionMenuUp != true && !moving)
-			{
-				cout << "Enemy checked" << endl;
-				enemy_list[i].move_field.render_field = true;
-				
-			}
+		// Check if target is on enemy entity position and X pressed, not on movefield, not moveing
+		if ((IsKeyPressed(KEY_X) && !IsKeyPressed(KEY_Z)) && (target->x == enemy_list[i].pEntity->x) && (target->y == enemy_list[i].pEntity->y) && move_field_up == false && ActionMenuUp != true && !moving)
+		{
+			cout << "Enemy checked" << endl;
+			enemy_list[i].move_field.render_field = true;
 
-			// Check if target is on enemy entity position and X pressed, not on movefield, not moveing
-			if ((!IsKeyPressed(KEY_X) && IsKeyPressed(KEY_Z)) && (target->x == enemy_list[i].pEntity->x) && (target->y == enemy_list[i].pEntity->y) && move_field_up == false && ActionMenuUp != true && !moving)
-			{
-				cout << "Enemy checked" << endl;
-				enemy_list[i].move_field.render_field = false;
-			}
+		}
+
+		// Check if target is on enemy entity position and X pressed, not on movefield, not moveing
+		if ((!IsKeyPressed(KEY_X) && IsKeyPressed(KEY_Z)) && (target->x == enemy_list[i].pEntity->x) && (target->y == enemy_list[i].pEntity->y) && move_field_up == false && ActionMenuUp != true && !moving)
+		{
+			cout << "Enemy checked" << endl;
+			enemy_list[i].move_field.render_field = false;
+		}
 
 	}
 }
@@ -1918,8 +1921,12 @@ inline void CombatLogic()
 
 		if (PLAYER_TURN == true)
 		{
+			SetEnemyFields();
 
-			setField(enemy_move_field_two, enemy_list[0].pEntity->x, enemy_list[0].pEntity->y, SQUARE, (Col)BLUE_TILE);
+			if (toggle_enemy_movefields == true)
+			{
+				SetRenderEnemyFields(true);
+			}
 		}
 		else
 		{
@@ -1931,10 +1938,11 @@ inline void CombatLogic()
 		// Overworld Logic
 		gui_entity_list[0].render_this = true;
 		world_player.pEntity->render_this = true;
-
-		player.pEntity->render_this = true;
 		MoveUnit();
 	}
 }
+
+
+
 
 #endif

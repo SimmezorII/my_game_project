@@ -213,6 +213,8 @@ global_variable bool draw_fields = false;
 
 global_variable bool attacking = false;
 
+global_variable bool toggle_enemy_movefields = false;
+
 global_variable float input_delay = 0.1;
 
 global_variable entity *game_entity;

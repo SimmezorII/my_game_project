@@ -41,12 +41,6 @@ entity h : [32]
 entity sprite ID : [59]
 ------
 ------
-entity ID : [8] "sedric"
-entity w : [128]
-entity h : [64]
-entity sprite ID : [62]
-------
-------
 entity ID : [9]
 entity w : [80]
 entity h : [60]

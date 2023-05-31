@@ -818,7 +818,7 @@ inline void setPlayer()
 	{
 		cout << "setPlayer: " << map_entity_list[k].ID << endl;
 
-		if (map_entity_list[k].ID == player_entity_ID || map_entity_list[k].ID == 8)
+		if (map_entity_list[k].ID == player_entity_ID )
 		{
 			//temp.ID = map_entity_list[k].ID;
 			//temp.x = 0;

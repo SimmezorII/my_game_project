@@ -97,8 +97,6 @@ inline void Load()
 	// Loads entities seperate from game entities that need to be present on a map
 	setGuiEntities();
 
-	player_entity_ID = 9;
-
 	setPlayer();
 
 	printf("Sprite string:%s\n", sprite_png_list.c_str());
@@ -110,68 +108,16 @@ inline void Load()
 
 inline void Init()
 {
+
+	player_entity_ID = 9;
+
 	Load();
 
 	InitLog();
 	InitDebugLog();
 
-	game_entity = &entity_list[0];
-
-	target = &getEntityByID("target", gui_entity_list);
-
-	target->render_this = false;
-
-	player.move_range = 0;
-
-	for (size_t i = 0; i < game_entity_list.size(); i++)
-	{
-		cout << "entity in init " << game_entity_list[i]->ID << endl;
-	}
-
-	player.pEntity = getEntityByID(8, game_entity_list);
-
-	world_player.pEntity = getEntityByID(9, game_entity_list);
-
-	player.pEntity->sprite->offset_x = (-0 * (player.pEntity->w / 4));
-	player.pEntity->sprite->offset_y = (-0 * player.pEntity->h / 2);
-
-	world_player.move_range = 4;
-
-	world_player.attack_range = 2;
-
-	target_field.range = 4;  
-
-	combatant e1;
-
-	combatant e2;
-
-	e1.move_range = 2;
-
-	e2.move_range = 2;
-
-	e1.move_field.range = 2;
-
-	e2.move_field.range = 2;
-
-	e1.pEntity = &getEntityByID(24, map_entity_list);
-
-	e2.pEntity = &getEntityByID(25, map_entity_list);
-
-	setField(target_field, entity_list[0].x, entity_list[0].y, SQUARE, (Col)GREEN_TILE);
-
-	fields.push_back(&target_field);
-
-	combatant_list.push_back(world_player);
-
-	combatant_list.push_back(player);
-
-	enemy_list.push_back(e1);
-
-	enemy_list.push_back(e2);
-
-	action_target = &action_target_rect;
-
-	//AddDebugText();
+	// Init seed used for randomness
+	rng.seed(time(0));
 
 	Render_List temp1;
 	Render_List temp2;
@@ -183,9 +129,60 @@ inline void Init()
 	objects_to_render.push_back(0);
 	objects_to_render.push_back(0);
 
-	printf("before init combat\n");
 
-	InitCombat();
+
+////////////////////   TARGET //////////////////////////////////
+
+	game_entity = &entity_list[0];
+
+	target = &getEntityByID("target", gui_entity_list);
+
+	target->render_this = false;
+
+	target_field.range = 4; 
+
+	setField(target_field, entity_list[0].x, entity_list[0].y, SQUARE, (Col)GREEN_TILE);
+
+	fields.push_back(&target_field);
+
+
+////////////////////   PLAYER(Julius) //////////////////////////////////
+
+	world_player.pEntity = getEntityByID(player_entity_ID, game_entity_list);
+
+	world_player.move_range = 4;
+
+	world_player.attack_range = 2;
+
+	combatant_list.push_back(world_player);
+
+////////////////////   ENEMIES  //////////////////////////////////
+
+	combatant e1;
+
+	combatant e2;
+
+	e1.move_range = 2;
+
+	e2.move_range = 2;
+
+	e1.move_field.range = 3;
+
+	e2.move_field.range = 3;
+
+	e1.pEntity = &getEntityByID(24, map_entity_list);
+
+	e2.pEntity = &getEntityByID(25, map_entity_list);
+
+	enemy_list.push_back(e1);
+
+	enemy_list.push_back(e2);
+
+	InitEnemyFields();
+	
+	////////////////////   LOG  //////////////////////////////////
+
+	Log("Init");
 
 	Log("test 1");
 
@@ -194,20 +191,6 @@ inline void Init()
 		Log("Log");
 	}
 
-	Log("Init");
-
-	//render_entity_boxes = true;
-
-	// Init seed used for randomness
-	rng.seed(time(0));
-
-	setField(enemy_list[0].move_field, enemy_list[0].pEntity->x, enemy_list[0].pEntity->y, SQUARE, (Col)RED_TILE);
-
-	cout << "target tiles:" << target_field.sum_of_field_tiles << endl;
-
-	cout << "e1 tiles:" << enemy_list[0].move_field.sum_of_field_tiles << endl;
-
-	fields.push_back(&enemy_list[0].move_field);
 }
 
 // Gameplay Screen Initialization logic
@@ -220,9 +203,7 @@ inline void InitGameplayScreen(void)
 
 	InitGui();
 
-	initActionMenu();
-
-	//render_list[0].render_this = true;
+	InitActionMenu();
 
 }
 

@@ -1392,7 +1392,7 @@ inline bool CheckCollisionMouseEntity()
 
 float offset = 4;
 
-inline void initActionMenu()
+inline void InitActionMenu()
 {
 
 	Rectangle temp;
@@ -1420,6 +1420,8 @@ inline void initActionMenu()
 	temp = { 0, 0, GUI_ACTION_BUTTON_WIDTH, GUI_ACTION_BUTTON_HEIGHT };
 
 	ActionMenuRects.push_back(temp);
+
+	action_target = &action_target_rect;
 }
 
 inline void setActionMenu()

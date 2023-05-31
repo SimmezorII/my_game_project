@@ -8,7 +8,7 @@
 #include "../header_files/raylib.h"
 #include "../header_files/globals.h"
 #include "game_engine.cpp"
-
+#include "logic.cpp"
 
 
 using namespace std;
@@ -23,6 +23,9 @@ static field enemy_move_field_two;
 
 
 /////----------------------------------------------------------------------------------------------------
+
+
+
 
 inline void setSquareField(field& fieldRef, int nx, int ny, enum Col tile_color)
 {
@@ -1092,9 +1095,6 @@ inline void setConeField(field& fieldRef, int nx, int ny, Direction dir)
 
 	}
 
-
-
-
 }
 
 inline void setField(field& fieldRef, int nx, int ny, int field_type, enum Col tile_color)
@@ -1155,29 +1155,43 @@ inline void setField(field& fieldRef, int nx, int ny, int field_type, enum Col t
 
 }
 
+inline void InitEnemyFields()
+{
+	for (size_t i = 0; i < enemy_list.size(); i++)
+	{
+		enemy_list[i].move_field.field_alpha = 0.5;
+
+		setField(enemy_list[i].move_field, enemy_list[i].pEntity->x, enemy_list[i].pEntity->y, SQUARE, (Col)RED_TILE);
+
+		fields.push_back(&enemy_list[i].move_field);
+	}
+}
+
+inline void SetEnemyFields()
+{
+	for (size_t i = 0; i < enemy_list.size(); i++)
+	{
+		setField(enemy_list[i].move_field, enemy_list[i].pEntity->x, enemy_list[i].pEntity->y, SQUARE, (Col)RED_TILE);
+
+	}
+}
+
+inline void SetRenderEnemyFields(bool render)
+{
+	for (size_t i = 0; i < enemy_list.size(); i++)
+	{
+		enemy_list[i].move_field.render_field = render;
+
+	}
+}
+
 inline void InitCombat()
 {
-	//Log("InitCombat");
+	Log("InitCombat");
 
 	gui_entity_list[0].render_this = true;
 
-	world_player.pEntity->render_this = false;
-
-	//target->render_this = true;
-
-	//setField(position_field, 512, 512, TRIANGLE + UP);
-
-	//enemy_list[0].move_field.field_alpha = 0.5;
-
-	//enemy_list[0].move_field.range = 4;
-
-	//setField(enemy_list[0].move_field, enemy_list[0].pEntity->x, enemy_list[0].pEntity->y, SQUARE, (Col)RED_TILE);
-
-	setField(enemy_list[0].move_field, enemy_list[0].pEntity->x, enemy_list[0].pEntity->y, SQUARE, (Col)RED_TILE);
-
-	enemy_move_field_two.field_alpha = 0.5;
-
-	enemy_move_field_two.range = 4;
+	SetEnemyFields();
 
 	position_field.range = 5;
 

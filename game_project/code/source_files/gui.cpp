@@ -422,8 +422,6 @@ inline void DrawActionGui()
 
 inline void AddDebugText()
 {
-	debug_info_lines.push_back("player.move_range = 7");
-	debug_info_lines.push_back("target_field.range = 5");
 	debug_info_lines.push_back("temp1");
 	debug_info_lines.push_back("temp2");
 	debug_info_lines.push_back("temp3");
