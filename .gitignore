@@ -3,6 +3,8 @@ $ cat .gitignore
     
 game_project/obj/
 
+game_project/code/shell.bat
+
 bin/
 
 .vs/
