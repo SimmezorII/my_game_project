@@ -1193,6 +1193,8 @@ inline void InitCombat()
 
 	SetEnemyFields();
 
+	//enemy_moving = true;
+
 	position_field.range = 5;
 
 	setField(position_field, 512, 512, NON_ISO_SQUARE, (Col)GREEN_TILE);
