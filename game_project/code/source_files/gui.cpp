@@ -322,7 +322,7 @@ inline void AddNewEntity(int x, int y, int screen_x, int screen_y)
 	new_e.w = temp_w;
 	new_e.h = temp_h;
 
-	cords[x][y] = new_e.ID;
+	cords[x][y][CURRENT_LAYER] = new_e.ID;
 
 	new_e.x = screen_x;
 	new_e.y = screen_y;
@@ -332,6 +332,8 @@ inline void AddNewEntity(int x, int y, int screen_x, int screen_y)
 	WriteUpdatedMap(MAPS_PATH + "map2.txt");
 
 	num_of_added++;
+
+	cout << "this happens" << endl;
 
 	new_entity_list.push_back(new_e);
 }
@@ -356,7 +358,12 @@ inline void CreateNewEntity()
 
 			if (p.x != -1 && p.y != -1)
 			{
-				AddNewEntity( p.x, p.y, p.screen_x, p.screen_y );
+				
+				//CURRENT_LAYER = 1;
+
+				cout << "This happens clicked" << endl;
+
+				AddNewEntity( p.x, p.y, p.screen_x, p.screen_y -(CURRENT_LAYER*(GAME_TILE_HEIGHT/2)));
 
 				PLACING_ENTITY = false;
 			}

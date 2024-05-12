@@ -37,8 +37,14 @@ global_variable bool ToggleSpriteY = false;
 global_variable bool dropDown001EditMode = false;
 global_variable bool ToggleEntityBoxes = false;
 
-global_variable int gamescreen_offset_x = 64;
-global_variable int gamescreen_offset_y = 32;
+global_variable int GAME_TILE_WIDTH = 64;
+global_variable int GAME_TILE_HEIGHT = 32;
+
+global_variable int X_TILES = 20;
+global_variable int Y_TILES = 40;
+
+global_variable int gamescreen_offset_x = GAME_TILE_WIDTH;
+global_variable int gamescreen_offset_y = GAME_TILE_HEIGHT;
 
 global_variable enum { TITLE = 0,
                        OPTIONS,
@@ -89,6 +95,9 @@ global_variable string GUI_ASSET_PATH = "resources\\assets\\gui\\";
 
 global_variable string MAPS_PATH = "resources\\assets\\textfiles\\";
 
+global_variable string TILED_MAPS_PATH = "resources\\assets\\game\\tsx\\";
+
+
 // global_variable TTF_Font *GAME_FONT = NULL;
 
 global_variable int FONT_SIZE = 10;
@@ -108,6 +117,10 @@ global_variable win32_window_dimension window;
 global_variable vector<texture> entity_texture_list;
 
 global_variable vector<texture> gui_texture_list;
+
+global_variable vector<Image> game_image_list;
+
+global_variable vector<Image> game_imagecopy_list;
 
 global_variable vector<texture> text_texture_list;
 
@@ -151,9 +164,9 @@ global_variable int Z_pressed_count = 0;
 
 // global_variable int sum_of_field_tiles;
 
-global_variable int tile_width = 64;
+global_variable int tile_width = GAME_TILE_WIDTH;
 
-global_variable int tile_height = 32;
+global_variable int tile_height = GAME_TILE_HEIGHT;
 
 global_variable int player_entity_ID = -1;
 
@@ -169,6 +182,8 @@ global_variable vector<string> entity_lines;
 
 global_variable vector<string> map_lines;
 
+global_variable vector<string> map_tiled_lines;
+
 global_variable vector<string> debug_info_lines;
 
 global_variable vector<string> log_lines;
@@ -179,9 +194,11 @@ global_variable vector<Render_List> render_list;
 
 global_variable vector<RenderObject *> SortedRenderObject_list;
 
+global_variable vector<RenderObject *> SortedRenderObject_list_2;
+
 global_variable vector<field *> fields;
 
-global_variable int last_sorted_list[2000];
+global_variable int last_sorted_list[4000];
 
 // global_variable unsigned int objects_to_render = 0;
 
@@ -195,7 +212,7 @@ global_variable gui GameGui = {0, 0, false};
 
 global_variable vector<Rectangle> ActionMenuRects;
 
-global_variable bool ActionMenuUp = false;
+global_variable bool action_menu_up = false;
 
 global_variable int NumOfActionMenuButtons = 12;
 
@@ -227,13 +244,16 @@ global_variable Rectangle *action_target;
 
 global_variable field target_field;
 
+global_variable field attack_target_field;
+global_variable field attack_field;
+
 global_variable Rectangle action_target_rect;
 
 global_variable int top_button_index = 1;
 
 global_variable int currentbutton_index = 1;
 
-global_variable RenderObject AllRenderObjects[1024];
+global_variable RenderObject AllRenderObjects[2048][4];
 
 global_variable Font font;
 global_variable Music music;
@@ -243,12 +263,10 @@ global_variable float GUI_ACTION_BUTTON_HEIGHT = 20;
 
 global_variable float GUI_ACTION_BUTTON_WIDTH = 48;
 
-global_variable int right_vel = 32;
-global_variable int left_vel = -32;
-global_variable int up_vel = -16;
-global_variable int down_vel = 16;
-
-global_variable vector<pos> Layers[80];
+global_variable int right_vel = (GAME_TILE_WIDTH/2);
+global_variable int left_vel = -(GAME_TILE_WIDTH/2);
+global_variable int up_vel = -(GAME_TILE_HEIGHT/2);
+global_variable int down_vel =(GAME_TILE_HEIGHT/2);
 
 global_variable int LogScrollCounter = 99;
 
@@ -268,16 +286,20 @@ global_variable int num_of_added = 1;
 
 global_variable string string_cords[40][20];
 
-global_variable int cords[40][20];
+global_variable int cords[40][20][10];
 
 global_variable pos pos_cords[40][20];
 
-global_variable int row = 0;
+	global_variable int row = 0;
 
 global_variable float entity_offset_y = 0;
 global_variable float entity_offset_x = 0;
 
 global_variable int GRID_SPRITE_ID = 29;
+
+global_variable int RENDER_INDEX = 0;
+
+global_variable int CURRENT_LAYER = 0;
 
 /// PLAYER STATS
 
@@ -302,6 +324,8 @@ global_variable float enemy_defense = 20;
 global_variable bool player_animation = true;
 
 global_variable vector<Direction> enemy_movelist;
+
+global_variable Shader shader;
 
 #define GLOBALS_H
 #endif

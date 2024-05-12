@@ -28,13 +28,13 @@ struct texture
 	Texture2D tex;
 
 	std::string path;
+	int img_array_index;
 
 	// SDL_Texture* sdl_texture;
 };
 
 struct text
 {
-
 	int x;
 	int y;
 	int fontsize;
@@ -46,7 +46,6 @@ struct text
 
 struct gui
 {
-
 	float x;
 	float y;
 	bool visable;
@@ -54,7 +53,6 @@ struct gui
 
 struct sprite
 {
-
 	int ID;
 	int tex_ID;
 
@@ -75,7 +73,6 @@ struct sprite
 
 struct stats
 {
-
 	float max_hp;
 	float current_hp;
 	float defence;
@@ -84,7 +81,6 @@ struct stats
 
 struct entity
 {
-
 	int ID;
 	float x;
 	float y;
@@ -93,14 +89,17 @@ struct entity
 
 	sprite *sprite;
 
-	Rectangle entity_tile = {x, y, 64, 32};
+	Rectangle entity_tile = {x, y, w, h};
 
 	Rectangle offset_rect;
 
 	bool render_this = true;
+	bool use_shader = false;
 
 	float offset_x;
 	float offset_y;
+
+	int layer = 0;
 
 	stats entity_stats = {200, 200, 20, 20};
 };
@@ -244,6 +243,7 @@ struct RenderObject
 	Color tint;
 	int layer = -1;
 	bool render_this = false;
+	bool use_shader = false;
 	//	float offset_x;
 	//	float offset_y;
 };

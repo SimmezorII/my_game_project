@@ -60,6 +60,40 @@ inline texture myLoadTexture(std::string path)
 	return myTemp;
 }
 
+inline texture myLoadTextureFromImage(std::string path)
+{
+	texture myTemp = { 0, 0, 0, 0 };
+
+	Image imOrigin = LoadImage(path.c_str());   // Loaded in CPU memory (RAM)
+
+    ImageFormat(&imOrigin, PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);         // Format image to RGBA 32bit (required for texture update) <-- ISSUE
+
+    Texture2D temp = LoadTextureFromImage(imOrigin);    // Image converted to texture, GPU memory (VRAM)
+
+    Image imCopy = ImageCopy(imOrigin);
+
+	game_image_list.push_back(imOrigin);
+	game_imagecopy_list.push_back(imCopy);
+
+	temp = LoadTextureFromImage(imOrigin);
+	if (temp.id != 0)
+	{
+		myTemp.tex = temp;
+		myTemp.w = temp.width;
+		myTemp.h = temp.height;
+		myTemp.path = path;
+		myTemp.img_array_index = game_image_list.size()-1;
+	}
+	else
+	{
+		printf("Unable to create texture from %s\n", path.c_str());
+	}
+
+	return myTemp;
+}
+
+
+
 inline void CreateTextTexture_No_GlobalFont(Font font, std::string TextureText, Color TextColor)
 {
 	// texture temp;
@@ -149,6 +183,25 @@ inline bool GAME_CreateTextures()
 
 	return success;
 }
+
+inline bool GAME_CreateTexturesFromImage()
+{
+	// Loading success flag
+	bool success = true;
+
+	for (size_t i = 0; i < png_list.size(); i++)
+	{
+		texture temp = myLoadTextureFromImage(GAME_ASSET_PATH + png_list[i]);
+
+		gui_texture_list.push_back(temp);
+	}
+	cout << "entity texture list: " << gui_texture_list.size() << endl;
+
+	return success;
+}
+
+
+
 
 inline void SetSpriteTextures()
 {
@@ -326,6 +379,7 @@ inline entity& getEntityByID(string sprite_name, vector<entity>& entities)
 
 inline entity* getEntityByID(int entity_ID, vector<entity*> entities)
 {
+	cout << "Trying to find ID: " << entity_ID << endl;
 
 	for (size_t i = 0; i < entities.size(); i++)
 	{
@@ -336,6 +390,9 @@ inline entity* getEntityByID(int entity_ID, vector<entity*> entities)
 			cout << "getEnityByID entity found " << entities[i]->ID << endl;
 
 			return entities[i];
+		}else
+		{
+			cout << "getEnityByID else entity found " << entities[i]->ID << endl;
 		}
 	}
 
@@ -385,7 +442,7 @@ inline int getCurrentToRender()
 
 	for (size_t i = 0; i < 1024; i++)
 	{
-		if (AllRenderObjects[i].layer != -1)
+		if (AllRenderObjects[i][0].layer != -1)
 		{
 			objects_to_render[1]++;
 		}
@@ -426,173 +483,23 @@ inline void calcDrawLayer(int layer, vector<pos>& poslayer)
 	temp = { 0, 0 };
 }
 
-inline void RenderGuiEntities()
-{
-
-	//// Rectangle type
-	// typedef struct Rectangle {
-	//	float x;
-	//	float y;
-	//	float width;
-	//	float height;
-	// } Rectangle;
-
-	//// N-Patch layout info
-	// typedef struct NPatchInfo {
-	//	Rectangle source;       // Texture source rectangle
-	//	int left;               // Left border offset
-	//	int top;                // Top border offset
-	//	int right;              // Right border offset
-	//	int bottom;             // Bottom border offset
-	//	int layout;             // Layout of the n-patch: 3x3, 1x3 or 3x1
-	// } NPatchInfo;
-
-	int templayer = 0;
-
-	int lowerlayer = 0;
-
-	for (size_t i = 0; i < gui_entity_list.size(); i++)
-	{
-
-		Vector2 vec = { 0, 0 };
-
-		recSprite2 = { (float)gui_entity_list[i].sprite->x, (float)gui_entity_list[i].sprite->y, (float)gui_entity_list[i].sprite->w, (float)gui_entity_list[i].sprite->h };
-
-		recEntity2 = { (float)gui_entity_list[i].x + gui_entity_list[i].sprite->offset_x, (float)gui_entity_list[i].y + gui_entity_list[i].sprite->offset_y, (float)gui_entity_list[i].w, (float)gui_entity_list[i].h };
-
-		gui_entity_list[i].entity_tile.x = gui_entity_list[i].x;
-
-		gui_entity_list[i].entity_tile.y = gui_entity_list[i].y;
-
-		DrawRectangleLines(gui_entity_list[i].entity_tile.x, gui_entity_list[i].entity_tile.y, tile_width, tile_height, BLUE);
-
-		DrawRectangleLines(gui_entity_list[i].x, gui_entity_list[i].y, gui_entity_list[i].w, gui_entity_list[i].h, RED);
-
-		// DrawRectangleLines((float)gui_entity_list[i].x + gui_entity_list[i].sprite->offset_x, (float)gui_entity_list[i].y + gui_entity_list[i].sprite->offset_y, gui_entity_list[i].w, gui_entity_list[i].h, GREEN);
-
-		if (gui_entity_list[i].ID == target->ID)
-		{
-			lowerlayer = 1;
-		}
-		else
-		{
-			lowerlayer = 0;
-		}
-
-		templayer = gui_entity_list[i].y - lowerlayer;
-
-		AllRenderObjects[i] = { getTexture(gui_entity_list[i].sprite->ID).tex, recSprite2, recEntity2, vec, 0, WHITE, templayer, true };
-
-		if (render_list[0].List.size() < gui_entity_list.size())
-		{
-
-			render_list[0].List.push_back(&AllRenderObjects[i]);
-
-			// objects_to_render++;
-		}
-		else
-		{
-			render_list[0].List[i] = &AllRenderObjects[i];
-		}
-
-		// DrawTexturePro(Texture2D texture, Rectangle sourceRec, Rectangle destRec, Vector2 origin, float rotation, Color tint)
-		// cout << RenderObject_list[i]->layer;
-	}
-}
-
-inline void RenderMapEntities()
-{
-
-	//// Rectangle type
-	// typedef struct Rectangle {
-	//	float x;
-	//	float y;
-	//	float width;
-	//	float height;
-	// } Rectangle;
-
-	//// N-Patch layout info
-	// typedef struct NPatchInfo {
-	//	Rectangle source;       // Texture source rectangle
-	//	int left;               // Left border offset
-	//	int top;                // Top border offset
-	//	int right;              // Right border offset
-	//	int bottom;             // Bottom border offset
-	//	int layout;             // Layout of the n-patch: 3x3, 1x3 or 3x1
-	// } NPatchInfo;
-
-	int templayer = 0;
-
-	int lowerlayer = 0;
-
-	int entity_count = 0;
-
-	for (size_t i = 0; i < map_entity_list.size(); i++)
-	{
-
-		Vector2 vec = { 0, 0 };
-
-		recSprite2 = { (float)map_entity_list[i].sprite->x, (float)map_entity_list[i].sprite->y, (float)map_entity_list[i].sprite->w, (float)map_entity_list[i].sprite->h };
-
-		recEntity2 = { (float)map_entity_list[i].x + map_entity_list[i].sprite->offset_x, (float)map_entity_list[i].y + map_entity_list[i].sprite->offset_y, (float)map_entity_list[i].w, (float)map_entity_list[i].h };
-
-		map_entity_list[i].entity_tile.x = map_entity_list[i].x;
-
-		map_entity_list[i].entity_tile.y = map_entity_list[i].y;
-
-		// DrawRectangleLines(map_entity_list[i].entity_tile.x, map_entity_list[i].entity_tile.y, tile_width, tile_height, BLUE);
-
-		// DrawRectangleLines(map_entity_list[i].x, map_entity_list[i].y, map_entity_list[i].w, map_entity_list[i].h, RED);
-
-		// DrawRectangleLines((float)map_entity_list[i].x + map_entity_list[i].sprite->offset_x, (float)map_entity_list[i].y + map_entity_list[i].sprite->offset_y, map_entity_list[i].w, map_entity_list[i].h, GREEN);
-
-		if (map_entity_list[i].ID == target->ID)
-		{
-			lowerlayer = 1;
-		}
-		else
-		{
-			lowerlayer = 0;
-		}
-
-		templayer = map_entity_list[i].y - lowerlayer;
-
-		AllRenderObjects[i + objects_to_render[0]] = { getTexture(map_entity_list[i].sprite->ID).tex, recSprite2, recEntity2, vec, 0, WHITE, templayer, true };
-
-		if (render_list[0].List.size() < map_entity_list.size() + objects_to_render[0])
-		{
-
-			render_list[0].List.push_back(&AllRenderObjects[i + objects_to_render[0]]);
-
-			entity_count++;
-		}
-		else
-		{
-			render_list[0].List[i] = &AllRenderObjects[i + objects_to_render[0]];
-		}
-
-		// DrawTexturePro(Texture2D texture, Rectangle sourceRec, Rectangle destRec, Vector2 origin, float rotation, Color tint)
-		// cout << RenderObject_list[i]->layer;
-	}
-}
-
 static int added_once = 0;
 
-inline void RenderEntities(vector<entity>& entities)
+inline void RenderEntities(vector<entity>& entities, int render_list_index)
 {
-
 	int templayer = 0;
 
 	int lowerlayer = 0;
 
 	int entity_count = 0;
+
+	DebugLog("RenderEntities entities.size(): ", (int)entities.size());
 
 	for (size_t i = 0; i < entities.size(); i++)
 	{
-
 		recSprite2 = { (float)entities[i].sprite->x, (float)entities[i].sprite->y, (float)entities[i].sprite->w, (float)entities[i].sprite->h };
 
-		recEntity2 = { (float)entities[i].x + entities[i].sprite->offset_x, (float)entities[i].y + entities[i].sprite->offset_y, (float)entities[i].w, (float)entities[i].h };
+		recEntity2 = { (float)entities[i].x + entities[i].sprite->offset_x, /*((-GAME_TILE_HEIGHT / 2)*/  (float)entities[i].y + entities[i].sprite->offset_y, (float)entities[i].w, (float)entities[i].h };
 
 		entities[i].entity_tile.x = entities[i].x;
 
@@ -607,29 +514,29 @@ inline void RenderEntities(vector<entity>& entities)
 			lowerlayer = 0;
 		}
 
-		templayer = entities[i].y - lowerlayer;
+
+		templayer = entities[i].y - lowerlayer + (800 * entities[i].layer);
 
 		if (entities[i].ID == 999)
 		{
 			//	cout << "99 "<< endl;
-			templayer = -30;
+			templayer = templayer - 30;
 		}
 
-		if (entities[i].ID == 1)
+		if (entities[i].ID == GRID_SPRITE_ID)
 		{
-			// templayer = -1000;
+			templayer = templayer -1000;
 		}
 
-		AllRenderObjects[i + objects_to_render[0] + objects_to_render[1]] = { getTexture(entities[i].sprite->ID).tex, recSprite2, recEntity2, {0, 0}, 0, WHITE, templayer, entities[i].render_this };
+		AllRenderObjects[i + objects_to_render[render_list_index]][render_list_index] = { getTexture(entities[i].sprite->ID).tex, recSprite2, recEntity2, {0, 0}, 0, WHITE, templayer, entities[i].render_this, entities[i].use_shader };
 
-		if (render_list[0].List.size() < entities.size() + objects_to_render[0])
+		if (render_list[render_list_index].List.size() < entities.size() + objects_to_render[render_list_index])
 		{
-
-			render_list[0].List.push_back(&AllRenderObjects[i + objects_to_render[0]]);
+			render_list[render_list_index].List.push_back(&AllRenderObjects[i + objects_to_render[render_list_index]][render_list_index]);
 		}
 		else
 		{
-			render_list[0].List[i + objects_to_render[0]] = &AllRenderObjects[i + objects_to_render[0]];
+			render_list[render_list_index].List[i + objects_to_render[render_list_index]] = &AllRenderObjects[i + objects_to_render[render_list_index]][render_list_index];
 		}
 
 		if (render_entity_boxes == true)
@@ -642,12 +549,12 @@ inline void RenderEntities(vector<entity>& entities)
 		}
 	}
 
-	if (objects_to_render[0] < objects_to_render[0] + entities.size())
+	if (objects_to_render[render_list_index] < objects_to_render[render_list_index] + entities.size())
 	{
-
-		objects_to_render[0] = objects_to_render[0] + entities.size();
+		objects_to_render[render_list_index] = objects_to_render[render_list_index] + entities.size();
 	}
 }
+
 
 inline void RenderEntityBoxes(vector<entity>& entities)
 {
@@ -684,12 +591,9 @@ inline void RenderEntityBoxes(vector<entity>& entities)
 
 		if (ToggleEntityBoxes == true)
 		{
-
-			DrawRectangleLines(gamescreen_offset_x + entities[i].entity_tile.x, gamescreen_offset_y + entities[i].entity_tile.y, tile_width, tile_height, BLUE);
-
 			DrawRectangleLines(gamescreen_offset_x + entities[i].x - offset_x, gamescreen_offset_y + entities[i].y - offset_y, entities[i].w, entities[i].h, RED);
-
 			DrawRectangleLines(gamescreen_offset_x + (float)entities[i].x + entities[i].sprite->offset_x, gamescreen_offset_y + (float)entities[i].y + entities[i].sprite->offset_y, entities[i].w, entities[i].h, GREEN);
+			DrawRectangleLines(gamescreen_offset_x + entities[i].entity_tile.x, gamescreen_offset_y + entities[i].entity_tile.y, tile_width, tile_height, BLUE);
 		}
 	}
 }
@@ -1522,58 +1426,6 @@ Vector2 vec = { 0, 0 };
 
 bool render = false;
 
-inline void RenderField(field& fieldRef)
-{
-	int list_next = 0;
-
-	for (size_t i = 0; i < fieldRef.sum_of_field_tiles; i++)
-	{
-		recEntity = { (float)(fieldRef.tiles[i].x), (float)(fieldRef.tiles[i].y), (float)tile_width, (float)tile_height };
-
-		recSprite = { (float)(fieldRef.tiles[i].sprite->x), (float)(fieldRef.tiles[i].sprite->y), (float)fieldRef.tiles[i].sprite->w, (float)fieldRef.tiles[i].sprite->h };
-
-		// DrawTexturePro( getTexture("BlueTile").tex , recSprite, recEntity, vec, 0, WHITE);
-
-		if ((fieldRef.tiles[i].render == true) && (fieldRef.render_field == true))
-		{
-			render = true;
-		}
-		else
-		{
-			render = false;
-		}
-
-		AllRenderObjects[i + objects_to_render[list_next]] = { getTexture(fieldRef.tiles[i].sprite->ID).tex, recSprite, recEntity, vec, 0, Fade(WHITE, fieldRef.field_alpha), -60,render };
-
-		if (render_list[list_next].List.size() < fieldRef.sum_of_field_tiles + objects_to_render[list_next])
-		{
-			// cout << "index to render: " << (i  + objects_to_render[1]) << endl;
-			render_list[list_next].List.push_back(&AllRenderObjects[i + objects_to_render[list_next]]);
-		}
-		else
-		{
-			render_list[list_next].List[i + objects_to_render[list_next]] = &AllRenderObjects[i + objects_to_render[list_next]];
-
-		}
-		if (move_field_up == true)
-		{
-			//DrawRectangleLines(recEntity.x - 1 + (tile_width / 2), recEntity.y - 1 + (tile_height / 2), 2, 2, BLACK);
-		}
-	}
-
-	if (move_field_up == true)
-	{
-		//DrawRectangleLines(target_field.x, target_field.y, target_field.w, target_field.h, RED);
-	}
-
-	if (objects_to_render[list_next] < objects_to_render[list_next] + fieldRef.sum_of_field_tiles)
-	{
-		objects_to_render[list_next] = objects_to_render[list_next] + fieldRef.sum_of_field_tiles;
-	}
-
-
-}
-
 inline void SetRenderField(field* fieldRef, bool render)
 {
 	int tiles = *(&fieldRef->tiles + 1) - fieldRef->tiles;
@@ -1586,7 +1438,7 @@ inline void SetRenderField(field* fieldRef, bool render)
 
 inline void RenderAllFields()
 {
-	int list_next = 0;
+	int render_list_index = 0;
 	int diff = 0;
 
 	for (size_t n = 0; n < fields.size(); n++)
@@ -1606,28 +1458,28 @@ inline void RenderAllFields()
 				render = false;
 			}
 
-			AllRenderObjects[i + objects_to_render[list_next]] = { getTexture(fields[n]->tiles[i].sprite->ID).tex, recSprite, recEntity, vec, 0, Fade(WHITE, fields[n]->field_alpha), -60,render };
+			AllRenderObjects[i + objects_to_render[render_list_index]][render_list_index] = { getTexture(fields[n]->tiles[i].sprite->ID).tex, recSprite, recEntity, vec, 0, Fade(WHITE, fields[n]->field_alpha), -60,render };
 
-			if (render_list[list_next].List.size() < fields[n]->sum_of_field_tiles + objects_to_render[list_next])
+			if (render_list[render_list_index].List.size() < fields[n]->sum_of_field_tiles + objects_to_render[render_list_index])
 			{
-				render_list[list_next].List.push_back(&AllRenderObjects[i + objects_to_render[list_next]]);
+				render_list[render_list_index].List.push_back(&AllRenderObjects[i + objects_to_render[render_list_index]][render_list_index]);
 			}
 			else
 			{
-				render_list[list_next].List[i + objects_to_render[list_next]] = &AllRenderObjects[i + objects_to_render[list_next]];
-				diff = (int)render_list[list_next].List.size() - (fields[n]->sum_of_field_tiles + objects_to_render[list_next]);
+				render_list[render_list_index].List[i + objects_to_render[render_list_index]] = &AllRenderObjects[i + objects_to_render[render_list_index]][render_list_index];
+				diff = (int)render_list[render_list_index].List.size() - (fields[n]->sum_of_field_tiles + objects_to_render[render_list_index]);
 			}
 		}
 
-		if (objects_to_render[list_next] < objects_to_render[list_next] + fields[n]->sum_of_field_tiles)
+		if (objects_to_render[render_list_index] < objects_to_render[render_list_index] + fields[n]->sum_of_field_tiles)
 		{
-			objects_to_render[list_next] = objects_to_render[list_next] + fields[n]->sum_of_field_tiles;
+			objects_to_render[render_list_index] = objects_to_render[render_list_index] + fields[n]->sum_of_field_tiles;
 		}
 	}
 
 	for (size_t j = 0; j < diff; j++)
 	{
-		render_list[list_next].List[((render_list[list_next].List.size()) - diff) + j]->render_this = false;
+		render_list[render_list_index].List[((render_list[render_list_index].List.size()) - diff) + j]->render_this = false;
 	}
 }
 
@@ -1666,6 +1518,9 @@ inline void SortLayerRenderObjectList()
 			newlist_size++;
 		}
 	}
+
+	DebugLog(" SortedRenderObject_list.size():", (int)SortedRenderObject_list.size());
+	DebugLog("newlist_size:", newlist_size);
 
 	// cout << newlist_size << endl;
 
@@ -1764,6 +1619,96 @@ inline void SortLayerRenderObjectList()
 	}
 }
 
+inline void SortLayerRenderObjectList(Render_List& render_list, vector<RenderObject*>& Sortedlist)
+{
+	RenderObject temp;
+
+	int i = 0;
+	int j = 0;
+	int n = Sortedlist.size();
+
+	int num_of_lists = 0;
+	int list_index = 0;
+	int count = 0;
+
+	for (list_index = 0; list_index < render_list.List.size(); list_index++)
+	{
+		if (Sortedlist.size() < render_list.List.size())
+		{
+			Sortedlist.push_back(render_list.List[list_index]);
+
+			last_sorted_list[i] = Sortedlist[i]->layer;
+			i++;
+		}
+		else
+		{
+			Sortedlist[count] = render_list.List[list_index];
+			count++;
+		}
+	}
+
+	if (sorted == false)
+	{
+		for (i = 0; i < n - 1; i++)
+		{
+			for (j = 0; j < n - i - 1; j++)
+			{
+
+				if (Sortedlist[j]->layer > Sortedlist[j + 1]->layer)
+				{
+					swap(Sortedlist[j], Sortedlist[j + 1]);
+				}
+				else
+				{
+				}
+			}
+		}
+		for (i = 0; i < Sortedlist.size(); i++)
+		{
+			last_sorted_list[i] = Sortedlist[i]->layer;
+		}
+	}
+	else
+	{
+		for (i = 0; i < Sortedlist.size(); i++)
+		{
+			if (Sortedlist.empty() != true)
+			{
+				if (last_sorted_list[i] != Sortedlist[i]->layer)
+				{
+					sorted = false;
+					break;
+				}
+			}
+		}
+	}
+
+	for (i = 0; i < Sortedlist.size(); i++)
+	{
+		if (Sortedlist.empty() != true)
+		{
+			last_sorted_list[i] = Sortedlist[i]->layer;
+		}
+	}
+
+	if (firstround == 0)
+	{
+		firstround++;
+	}
+	else if (firstround == 1)
+	{
+		firstround++;
+		sorted = true;
+	}
+	else
+	{
+	}
+	if (sorted == false)
+	{
+
+	}
+}
+
 
 
 inline void RenderAllLayers()
@@ -1817,13 +1762,133 @@ inline void RenderAllLayers()
 	DebugLog("render_count: ", render_count);
 }
 
-/////----------------------------------------------------------------------------------------------------
 
-/////-------------------------------------------------  ColorFieldTile -------------------------------------------
+inline void RenderAllLayers(vector<RenderObject*>& RenderObjectList)
+{
+	float offset_x = 0;
+	float offset_y = 0;
+
+	float dest_x = 0;
+
+	float dest_y = 0;
+
+	int render_count = 0;
+
+	DebugLog("RenderObjectList: ", (int)RenderObjectList.size());
+
+	for (size_t i = 0; i < RenderObjectList.size(); i++)
+	{
+		if (RenderObjectList[i] != NULL)
+		{
+			if (RenderObjectList[i]->render_this == true)
+			{
+				render_count++;
+				if (RenderObjectList[i]->dest.width < 500)
+				{
+					offset_x = (RenderObjectList[i]->dest.width - tile_width) / 2;
+				}
+
+				if (RenderObjectList[i]->dest.height < 500)
+				{
+					offset_y = RenderObjectList[i]->dest.height - (tile_height);
+				}
+
+				if (RenderObjectList[i]->texture.id == getSprite(GRID_SPRITE_ID).tex_ID)
+				{
+					offset_x = 0;
+
+					offset_y = 0;
+				}
+
+				dest_x = RenderObjectList[i]->dest.x + gamescreen_offset_x - offset_x;
+
+				dest_y = RenderObjectList[i]->dest.y + gamescreen_offset_y - offset_y;
+
+
+				if ( RenderObjectList[i]->use_shader == true)
+				{
+					BeginShaderMode(shader);
+				}else
+				{
+					EndShaderMode();
+				}
+				
+				DrawTexturePro(RenderObjectList[i]->texture, RenderObjectList[i]->source,
+					{ dest_x, dest_y, RenderObjectList[i]->dest.width, RenderObjectList[i]->dest.height },
+					RenderObjectList[i]->origin, RenderObjectList[i]->rotation, RenderObjectList[i]->tint);
+			}
+		}
+	}
+
+	DebugLog("render_count: ", render_count);
+}
+
+
+
+/////----------------------------------------------------------------------------------------------------
 
 Rectangle temp1 = { -100, -100, 0, 0 };
 
 Rectangle temp2 = { -100, -100, 0, 0 };
+
+void CycleColoredTiles(entity* target, vector<tile>& colored_tiles)
+{
+	static int index = 0;
+
+	if (IsKeyPressed(KEY_RIGHT))
+	{
+		if (index < colored_tiles.size() - 1) {
+			index++;
+		}
+		else
+		{
+			index = 0;
+		}
+	}
+	else if (IsKeyPressed(KEY_LEFT))
+	{
+		if (index > 0) {
+			index--;
+		}
+		else
+		{
+			index = colored_tiles.size() - 1;
+		}
+	}
+
+	if (IsKeyPressed(KEY_UP))
+	{
+		if (index < colored_tiles.size() - 1) {
+			index++;
+		}
+		else
+		{
+			index = 0;
+		}
+	}
+	else if (IsKeyPressed(KEY_DOWN))
+	{
+		if (index > 0) {
+			index--;
+		}
+		else
+		{
+			index = colored_tiles.size() - 1;
+		}
+	}
+
+	//cout << "index:" << index << endl;
+	//cout << " colored_tiles[index].x:" << colored_tiles[index].x << endl;
+
+	target->x = colored_tiles[index].x;
+	target->y = colored_tiles[index].y;
+}
+
+
+
+/////-------------------------------------------------  ColorFieldTile -------------------------------------------
+
+
 
 inline void SetFieldTileColors(field& fieldRef, int Sprite_ID)
 {
@@ -1837,62 +1902,116 @@ inline bool ColorFieldTileEntityList(vector<tile>& colored_tiles, field* fieldRe
 {
 	bool colored_tile = false;
 
-	Rectangle temp2;
+	Rectangle temp1 = { -100, -100, 0, 0 };
+	Rectangle temp2 = { -100, -100, 0, 0 };
+
 	tile temptile;
 
-	for (size_t i = 0; i < list.size(); i++)
+	if (colored_tiles.empty())
 	{
-		temp2 = { list[i].pEntity->x, list[i].pEntity->y, list[i].pEntity->w, list[i].pEntity->h };
-		if (list[i].pEntity->x == combatant_list[combatant_selected].pEntity->x && list[i].pEntity->y == combatant_list[combatant_selected].pEntity->y)
+		for (size_t i = 0; i < list.size(); i++)
 		{
-			// cout << "Player X Y" << endl;
-		}
-		else
-		{
-			if (enemy_colored == false)
+			temp2 = { list[i].pEntity->x, list[i].pEntity->y, list[i].pEntity->w, list[i].pEntity->h };
+			if (list[i].pEntity->x == combatant_list[combatant_selected].pEntity->x && list[i].pEntity->y == combatant_list[combatant_selected].pEntity->y)
 			{
-				for (size_t j = 0; j < fieldRef->sum_of_field_tiles; j++)
+				// cout << "Player X Y" << endl;
+			}
+			else
+			{
+				if (enemy_colored == false)
 				{
-					temp1 = { (float)(fieldRef->tiles[j].x), (float)(fieldRef->tiles[j].y), (float)tile_width, (float)tile_height };
-
-					if (
-						CheckCollisionRecs(
-							{ (float)(temp2.x - 1 + (tile_width / 2)), (float)(temp2.y - 1 + (tile_height / 2)), 2, 2 },
-							{ (float)(temp1.x - 1 + (tile_width / 2)), (float)(temp1.y - 1 + (tile_height / 2)), 2, 2 }))
+					for (size_t j = 0; j < fieldRef->sum_of_field_tiles; j++)
 					{
+						temp1 = { (float)(fieldRef->tiles[j].x), (float)(fieldRef->tiles[j].y), (float)tile_width, (float)tile_height };
 
-						if (last_tile.x != temp2.x || last_tile.y != temp2.y)
+						if (
+							CheckCollisionRecs(
+								{ (float)(temp2.x - 1 + (tile_width / 2)), (float)(temp2.y - 1 + (tile_height / 2)), 2, 2 },
+								{ (float)(temp1.x - 1 + (tile_width / 2)), (float)(temp1.y - 1 + (tile_height / 2)), 2, 2 }))
 						{
 							fieldRef->tiles[j].sprite = &getSprite(iTileColor);
 
-							colored_enemy_tiles.push_back(fieldRef->tiles[j]);
-
-							last_tile = { temp2.x, temp2.y, 0, 0 };
+							colored_tiles.push_back(fieldRef->tiles[j]);
 
 							colored_tile = true;
+
+							cout << "coloured tile 1 " << i << endl;
 						}
 						else
 						{
 						}
 					}
+
+					if (entity_checked >= list.size())
+					{
+						enemy_colored = true;
+					}
 					else
 					{
+						entity_checked++;
 					}
 				}
+			}
+		}
 
-				if (entity_checked >= list.size())
+	}
+	else
+	{
+		for (size_t i = 0; i < list.size(); i++)
+		{
+			temp2 = { list[i].pEntity->x, list[i].pEntity->y, list[i].pEntity->w, list[i].pEntity->h };
+			if (list[i].pEntity->x == combatant_list[combatant_selected].pEntity->x && list[i].pEntity->y == combatant_list[combatant_selected].pEntity->y)
+			{
+				// cout << "Player X Y" << endl;
+			}
+			else
+			{
+				if (enemy_colored == false)
 				{
-					enemy_colored = true;
-				}
-				else
-				{
-					entity_checked++;
+					for (size_t j = 0; j < fieldRef->sum_of_field_tiles; j++)
+					{
+						temp1 = { (float)(fieldRef->tiles[j].x), (float)(fieldRef->tiles[j].y), (float)tile_width, (float)tile_height };
+
+						if (
+							CheckCollisionRecs(
+								{ (float)(temp2.x - 1 + (tile_width / 2)), (float)(temp2.y - 1 + (tile_height / 2)), 2, 2 },
+								{ (float)(temp1.x - 1 + (tile_width / 2)), (float)(temp1.y - 1 + (tile_height / 2)), 2, 2 }))
+						{
+							fieldRef->tiles[j].sprite = &getSprite(iTileColor);
+
+							if (fieldRef->tiles[j].x == colored_tiles[i].x && fieldRef->tiles[j].y == colored_tiles[i].y)
+							{
+								colored_tiles[i].sprite = &getSprite(iTileColor);
+							}
+							else
+							{
+								colored_tiles.push_back(fieldRef->tiles[j]);
+							}
+
+							colored_tile = true;
+
+							cout << "coloured tile 2 " << i << endl;
+						}
+						else
+						{
+						}
+					}
+
+					if (entity_checked >= list.size())
+					{
+						enemy_colored = true;
+					}
+					else
+					{
+						entity_checked++;
+					}
 				}
 			}
 		}
 	}
 
 	return colored_tile;
+
 }
 
 inline bool ColorFieldTileEntityList(vector<tile>& colored_tiles, field* fieldRef, vector<entity>& entity_list, int iTileColor)
@@ -1905,121 +2024,69 @@ inline bool ColorFieldTileEntityList(vector<tile>& colored_tiles, field* fieldRe
 	for (size_t i = 0; i < entity_list.size(); i++)
 	{
 		temp2 = { (float)entity_list[i].x, (float)entity_list[i].y, (float)entity_list[i].w, (float)entity_list[i].h };
+
 		if (entity_list[i].x == combatant_list[combatant_selected].pEntity->x && entity_list[i].y == combatant_list[combatant_selected].pEntity->y)
 		{
 			// cout << "Player X Y" << endl;
 		}
 		else
 		{
-			if (enemy_colored == false)
+			// Check layer
+			if (combatant_list[combatant_selected].pEntity->layer != entity_list[i].layer)
 			{
-				for (size_t j = 0; j < fieldRef->sum_of_field_tiles; j++)
+
+			}
+			else
+			{
+				if (enemy_colored == false)
 				{
-					temp1 = { (float)(fieldRef->tiles[j].x), (float)(fieldRef->tiles[j].y), (float)tile_width, (float)tile_height };
-
-					if (
-						CheckCollisionRecs(
-							{ (float)(temp2.x - 1 + (tile_width / 2)), (float)(temp2.y - 1 + (tile_height / 2)), 2, 2 },
-							{ (float)(temp1.x - 1 + (tile_width / 2)), (float)(temp1.y - 1 + (tile_height / 2)), 2, 2 }))
+					for (size_t j = 0; j < fieldRef->sum_of_field_tiles; j++)
 					{
+						temp1 = { (float)(fieldRef->tiles[j].x), (float)(fieldRef->tiles[j].y), (float)tile_width, (float)tile_height };
 
-						if (last_tile.x != temp2.x || last_tile.y != temp2.y)
+						if (
+							CheckCollisionRecs(
+								{ (float)(temp2.x - 1 + (tile_width / 2)), (float)(temp2.y - 1 + (tile_height / 2)), 2, 2 },
+								{ (float)(temp1.x - 1 + (tile_width / 2)), (float)(temp1.y - 1 + (tile_height / 2)), 2, 2 }))
 						{
-							fieldRef->tiles[j].sprite = &getSprite(iTileColor); // red tile
 
-							colored_enemy_tiles.push_back(fieldRef->tiles[j]);
+							if (last_tile.x != temp2.x || last_tile.y != temp2.y)
+							{
+								fieldRef->tiles[j].sprite = &getSprite(iTileColor); // red tile
 
-							last_tile = { temp2.x, temp2.y, 0, 0 };
+								colored_enemy_tiles.push_back(fieldRef->tiles[j]);
 
-							colored_tile = true;
+								last_tile = { temp2.x, temp2.y, 0, 0 };
+
+								colored_tile = true;
+							}
+							else
+							{
+							}
 						}
 						else
 						{
 						}
 					}
+
+					if (entity_checked >= entity_list.size())
+					{
+						enemy_colored = true;
+					}
 					else
 					{
+						entity_checked++;
 					}
 				}
-
-				if (entity_checked >= entity_list.size())
-				{
-					enemy_colored = true;
-				}
-				else
-				{
-					entity_checked++;
-				}
 			}
+
+
+
 		}
 	}
 
 	return colored_tile;
 }
-
-inline bool ColorFieldTileEntityList(vector<tile>& colored_tiles, field* fieldRef, vector<entity>& entity_list)
-{
-	bool colored_tile = false;
-
-	Rectangle temp2;
-	tile temptile;
-
-	for (size_t i = 0; i < entity_list.size(); i++)
-	{
-		temp2 = { (float)entity_list[i].x, (float)entity_list[i].y, (float)entity_list[i].w, (float)entity_list[i].h };
-		if (entity_list[i].x == combatant_list[combatant_selected].pEntity->x && entity_list[i].y == combatant_list[combatant_selected].pEntity->y)
-		{
-			// cout << "Player X Y" << endl;
-		}
-		else
-		{
-			if (enemy_colored == false)
-			{
-				for (size_t j = 0; j < fieldRef->sum_of_field_tiles; j++)
-				{
-					temp1 = { (float)(fieldRef->tiles[j].x), (float)(fieldRef->tiles[j].y), (float)tile_width, (float)tile_height };
-
-					if (
-						CheckCollisionRecs(
-							{ (float)(temp2.x - 1 + (tile_width / 2)), (float)(temp2.y - 1 + (tile_height / 2)), 2, 2 },
-							{ (float)(temp1.x - 1 + (tile_width / 2)), (float)(temp1.y - 1 + (tile_height / 2)), 2, 2 }))
-					{
-
-						if (last_tile.x != temp2.x || last_tile.y != temp2.y)
-						{
-							fieldRef->tiles[j].sprite = &getSprite(RED_TILE); // red tile
-
-							colored_enemy_tiles.push_back(fieldRef->tiles[j]);
-
-							last_tile = { temp2.x, temp2.y, 0, 0 };
-
-							colored_tile = true;
-						}
-						else
-						{
-						}
-					}
-					else
-					{
-					}
-				}
-
-				if (entity_checked >= entity_list.size())
-				{
-					enemy_colored = true;
-				}
-				else
-				{
-					entity_checked++;
-				}
-			}
-		}
-	}
-
-	return colored_tile;
-}
-
-
 
 inline bool ColorFieldTile(field& fieldRef, entity* target)
 {

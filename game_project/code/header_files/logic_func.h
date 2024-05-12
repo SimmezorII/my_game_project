@@ -1,4 +1,4 @@
-#pragma once
+ #pragma once
 
 #if !defined(LOGIC_FUNC)
 
@@ -491,11 +491,10 @@ Rectangle cTemp = { 0,0, 64, 32 };
 inline void CheckCordsCollision( Rectangle e)
 {
 	//cout << "Testing setEntityCords" << endl;
-	//cords[39][20]
 
-	for (size_t i = 0; i < 40; i++)
+	for (size_t i = 0; i < Y_TILES; i++)
 	{
-		for (size_t j = 0; j < 20; j++)
+		for (size_t j = 0; j < X_TILES; j++)
 		{
 			cTemp.x = pos_cords[i][j].x;
 			cTemp.y = pos_cords[i][j].y;
@@ -513,11 +512,10 @@ inline pos GetCordsCollisionXY(Rectangle e)
 {
 	pos temp = {0,0,0};
 	//cout << "Testing setEntityCords" << endl;
-	//cords[39][20]
 
-	for (size_t i = 0; i < 40; i++)
+	for (size_t i = 0; i < Y_TILES; i++)
 	{
-		for (size_t j = 0; j < 20; j++)
+		for (size_t j = 0; j < X_TILES; j++)
 		{
 			cTemp.x = pos_cords[i][j].x;
 			cTemp.y = pos_cords[i][j].y;
@@ -540,11 +538,11 @@ inline pos GetCordsCollisionIndex(Rectangle e)
 {
 	pos temp = { -1,-1, 0 };
 	//cout << "Testing setEntityCords" << endl;
-	//cords[39][20]
 
-	for (size_t i = 0; i < 40; i++)
+
+	for (size_t i = 0; i < Y_TILES; i++)
 	{
-		for (size_t j = 0; j < 20; j++)
+		for (size_t j = 0; j < X_TILES; j++)
 		{
 			cTemp.x = pos_cords[i][j].x;
 			cTemp.y = pos_cords[i][j].y;

@@ -59,27 +59,27 @@ inline int WriteUpdatedMap( string path) {
 		myfile << "Map2" << "\n";
 		myfile << "------" << "\n";
 
-		for (size_t i = 0; i < 40; i++)
+		for (size_t i = 0; i < Y_TILES; i++)
 		{
 			for (size_t j = 0; j < 20; j++)
 			{
-				if (to_string(cords[i][j]).size() == 1)
+				if (to_string(cords[i][j][CURRENT_LAYER]).size() == 1)
 				{
 					temp = "00";
-					temp.append(to_string(cords[i][j]));
+					temp.append(to_string(cords[i][j][CURRENT_LAYER]));
 
 					myfile << "[" << temp << "]";
 				}
-				else if ((to_string(cords[i][j]).size() == 2))
+				else if ((to_string(cords[i][j][CURRENT_LAYER]).size() == 2))
 				{
 					temp = "0";
-					temp.append(to_string(cords[i][j]));
+					temp.append(to_string(cords[i][j][CURRENT_LAYER]));
 
 					myfile << "[" << temp << "]";
 				}
 				else 
 				{
-					myfile << "[" << cords[i][j] << "]";
+					myfile << "[" << cords[i][j][CURRENT_LAYER] << "]";
 				}
 
 			}

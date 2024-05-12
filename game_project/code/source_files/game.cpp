@@ -41,12 +41,14 @@ float offset_y = 0;
 
 inline void Load()
 {
-	int sprite_count;
+
+
+	int sprite_count = 0;
 
 	png_list = GetPNG_FilesInDir(GAME_ASSET_PATH.c_str());
 
 	//Loads all png files into textures
-	if (!GAME_CreateTextures())
+	if (!GAME_CreateTexturesFromImage())
 	{
 		printf("Failed to load GUI media!\n");
 	}
@@ -69,7 +71,7 @@ inline void Load()
 
 	entity_count = ReadEntityData(MAPS_PATH + "game_entity_data_temp.txt");
 
-	if (sprite_count > 0)
+	if (entity_count > 0)
 	{
 		printf("LoadEntityData(entity_count), entity_count was %d\n", entity_count);
 		LoadEntityData(entity_count);
@@ -81,18 +83,26 @@ inline void Load()
 
 	SetSpriteTextures();
 
-	if (ReadMapData(MAPS_PATH + "map2.txt"))
+	if (ReadMapDataTiledMap(TILED_MAPS_PATH + "untitled.tmx"))
 	{
-		setMapCords();
+		setMapCordsTiled();
 	}
-	else
-	{
-		printf("\n");
-	}
+
+	// if (ReadMapData(MAPS_PATH + "map2.txt"))
+	// {
+	// 	setMapCords();
+	// }
+	// else
+	// {
+	// 	printf("\n");
+	// }
 
 	setPosCords();
 
-	setEntityCords();
+	setEntityCords(0);
+	setEntityCords(1);
+	setEntityCords(2);
+
 
 	// Loads entities seperate from game entities that need to be present on a map
 	setGuiEntities();
@@ -129,34 +139,51 @@ inline void Init()
 	objects_to_render.push_back(0);
 	objects_to_render.push_back(0);
 
-
-
-////////////////////   TARGET //////////////////////////////////
-
+	// Init this with the first entity, used to render entity info
 	game_entity = &entity_list[0];
+
+	////////////////////   TARGET //////////////////////////////////
 
 	target = &getEntityByID("target", gui_entity_list);
 
 	target->render_this = false;
 
-	target_field.range = 4; 
+	////////////////////   TARGET FIELD //////////////////////////////////
 
-	setField(target_field, entity_list[0].x, entity_list[0].y, SQUARE, (Col)GREEN_TILE);
+	target_field.range = 4;
+
+	SetField(target_field, entity_list[0].x, entity_list[0].y, SQUARE, (Col)GREEN_TILE);
 
 	fields.push_back(&target_field);
 
 
-////////////////////   PLAYER(Julius) //////////////////////////////////
+	////////////////////  ATTACK TARGET FIELD //////////////////////////////////
 
-	world_player.pEntity = getEntityByID(player_entity_ID, game_entity_list);
+	attack_target_field.range = 4;
 
-	world_player.move_range = 4;
+	attack_target_field.field_alpha = 0.5;
+
+	SetField(attack_target_field, entity_list[0].x, entity_list[0].y, SQUARE, (Col)BLUE_TILE);
+
+	fields.push_back(&attack_target_field);
+
+	////////////////////   PLAYER(Julius) //////////////////////////////////
+
+	cout << "PLAYER this happens " << endl;
+
+	world_player.pEntity = &getEntityByID(player_entity_ID, map_entity_list);
+
+	world_player.move_range = 8;
 
 	world_player.attack_range = 2;
 
+	world_player.pEntity->use_shader = true;
+
 	combatant_list.push_back(world_player);
 
-////////////////////   ENEMIES  //////////////////////////////////
+	////////////////////   ENEMIES  //////////////////////////////////
+
+	cout << "ENEMIES this happens 2" << endl;
 
 	combatant e1;
 
@@ -179,7 +206,7 @@ inline void Init()
 	enemy_list.push_back(e2);
 
 	InitEnemyFields();
-	
+
 	////////////////////   LOG  //////////////////////////////////
 
 	Log("Init");
@@ -193,6 +220,29 @@ inline void Init()
 
 }
 
+inline void InitShaders()
+{
+	printf("######################### SHADER ##############################\n");
+    shader = LoadShader(0, TextFormat("resources/assets/shaders/outline.fs"));
+
+
+	float outlineSize = 1.75f;
+	float outlineColor[4] = { 0.0f, 1.0f, 0.0f, 1.0f };     // Normalized Greed color
+
+	// sprite w : [28] sprite h : [40] -> Julius
+	float textureSize[2] = { (float)(140), (float)(158) };
+
+	// Get shader locations
+	int outlineSizeLoc = GetShaderLocation(shader, "outlineSize");
+	int outlineColorLoc = GetShaderLocation(shader, "outlineColor");
+	int textureSizeLoc = GetShaderLocation(shader, "textureSize");
+
+	// Set shader values (they can be changed later)
+	SetShaderValue(shader, outlineSizeLoc, &outlineSize, SHADER_UNIFORM_FLOAT);
+	SetShaderValue(shader, outlineColorLoc, outlineColor, SHADER_UNIFORM_VEC4);
+	SetShaderValue(shader, textureSizeLoc, textureSize, SHADER_UNIFORM_VEC2);
+}
+
 // Gameplay Screen Initialization logic
 inline void InitGameplayScreen(void)
 {
@@ -200,6 +250,8 @@ inline void InitGameplayScreen(void)
 	finishScreen = 0;
 
 	Init();
+
+	InitShaders();
 
 	InitGui();
 
@@ -210,18 +262,14 @@ inline void InitGameplayScreen(void)
 // Game logic
 inline void UpdateGameplayScreen(void)
 {
-
 	static int UpdateGameplayScreen_runonce = 0;
 
 	static int animating = 0;
 
-
 	if (moving != true && enemy_moving != true)
 	{
-
 		CheckKeyboardInput();
 		//UpdateDebugText();
-
 
 		//for (size_t i = 0; i < map_entity_list.size(); i++)
 		//{
@@ -261,7 +309,7 @@ inline void UpdateGameplayScreen(void)
 
 		CombatLogic();
 
-		if (ActionMenuUp == true)
+		if (action_menu_up == true)
 		{
 			ActionGuiLogic();
 		}
@@ -274,8 +322,6 @@ inline void UpdateGameplayScreen(void)
 
 		//render_entity_boxes = ToggleEntityBoxes;
 
-
-
 	}
 	else
 	{
@@ -284,7 +330,6 @@ inline void UpdateGameplayScreen(void)
 		{
 			if (combatant_selected > -1)
 			{
-
 				MovementAnimated(combatant_list[combatant_selected].pEntity);
 				//moving = false;
 			}
@@ -321,11 +366,11 @@ inline void DrawGameplayScreen(void)
 		printf("This happens 1\n");
 	}
 
-	RenderEntities(map_entity_list);
+	RenderEntities(gui_entity_list, RENDER_INDEX);
 
-	RenderEntities(gui_entity_list);
+	RenderEntities(map_entity_list, RENDER_INDEX);
 
-	RenderEntities(new_entity_list);
+	RenderEntities(new_entity_list, RENDER_INDEX);
 
 	if (DrawGameplayScreen_runonce == 0)
 	{
@@ -340,11 +385,10 @@ inline void DrawGameplayScreen(void)
 		printf("This happens 3\n");
 	}
 
-	//RendedDebugInfo();
+	SortLayerRenderObjectList(render_list[RENDER_INDEX], SortedRenderObject_list);
 
-	SortLayerRenderObjectList();
+	RenderAllLayers(SortedRenderObject_list);
 
-	RenderAllLayers();
 
 	DrawGui();
 
@@ -355,7 +399,7 @@ inline void DrawGameplayScreen(void)
 		printf("This happens 4\n");
 	}
 
-	if (ActionMenuUp == true)
+	if (action_menu_up == true)
 	{
 		DrawActionGui();
 	}
@@ -367,7 +411,7 @@ inline void DrawGameplayScreen(void)
 	}
 
 	//RenderEntityBoxes(gui_entity_list);
-	RenderEntityBoxes(map_entity_list);
+	//RenderEntityBoxes(map_entity_list);
 
 	RenderEntityBoxes(new_entity_list);
 
@@ -388,7 +432,10 @@ inline void DrawGameplayScreen(void)
 
 	DrawGameplayScreen_runonce++;
 
-
+	// for(int i : last_sorted_list)
+	// {
+	// 	last_sorted_list[i] = 0;
+	// }
 
 }
 
@@ -396,6 +443,11 @@ inline void DrawGameplayScreen(void)
 // Unload logic
 inline void UnloadGameplayScreen(void)
 {
+	for (size_t i = 0; i < gui_texture_list.size(); i++)
+	{
+		UnloadTexture(gui_texture_list[i].tex);
+	}
+
 	// TODO: Unload GAMEPLAY screen variables here!
 }
 

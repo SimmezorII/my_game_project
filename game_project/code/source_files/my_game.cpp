@@ -1,14 +1,5 @@
 /*******************************************************************************************
 *
-*   raylib - Advance Game template
-*
-*   <Game title>
-*   <Game description>
-*
-*   This game has been created using raylib (www.raylib.com)
-*   raylib is licensed under an unmodified zlib/libpng license (View raylib.h for details)
-*
-*   Copyright (c) 2014-2021 Ramon Santamaria (@raysan5)
 *
 ********************************************************************************************/
 
@@ -24,6 +15,8 @@ static bool onTransition = false;
 static bool transFadeOut = false;
 static int transFromScreen = -1;
 static int transToScreen = -1;
+
+
 
 //----------------------------------------------------------------------------------
 // Local Functions Declaration
@@ -51,6 +44,7 @@ int main(void)
 
 
 
+
 	// Global data loading (assets that must be available in all screens, i.e. fonts)
 	//InitAudioDevice();
 
@@ -69,7 +63,7 @@ int main(void)
 	InitGameplayScreen();
 
 
-	SetTargetFPS(120);   // Set our game to run at 60 frames-per-second
+	SetTargetFPS(60);   // Set our game to run at 60 frames-per-second
 	//--------------------------------------------------------------------------------------
 
 	// Main game loop
@@ -200,6 +194,8 @@ static void TransitionToScreen(int screen)
 // Update and draw game frame
 static void UpdateDrawFrame(void)
 {
+
+
 	// Update
 	//----------------------------------------------------------------------------------
 	//UpdateMusicStream(music);       // NOTE: Music keeps playing between screens
@@ -232,13 +228,16 @@ static void UpdateDrawFrame(void)
 	//----------------------------------------------------------------------------------
 	// Draw
 	//----------------------------------------------------------------------------------
+
 	BeginDrawing();
 
 	ClearBackground(WHITE);
 
 	switch (currentScreen)
 	{
-	case GAMEPLAY: DrawGameplayScreen(); break;
+	case GAMEPLAY: 
+		DrawGameplayScreen(); 
+		break;
 		//case GUI: DrawGuiScreen(); break;
 
 	default: break;
@@ -248,5 +247,6 @@ static void UpdateDrawFrame(void)
 	//
 
 	EndDrawing();
+
 	//----------------------------------------------------------------------------------
 }

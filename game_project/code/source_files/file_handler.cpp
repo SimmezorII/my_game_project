@@ -9,61 +9,11 @@
 using namespace std;
 
 
-inline void ReadAllFilesInDir(const char * path)
+inline void ReadAllFilesInDir(const char* path)
 {
 	int count = 0;
 
-	char **DirectoryFiles;
-
-	char empty1[] = ".";
-	char empty2[] = "..";
-
-	if (DirectoryExists(path)) {
-		
-		//printf("Directory exists\n");
-
-
-		DirectoryFiles = GetDirectoryFiles(path, &count);
-
-		//printf("%d\n", count);
-
-		for (size_t i = 0; i < count; i++)
-		{
-
-			if ( (strcmp(DirectoryFiles[i],empty1) == 0)  || (strcmp(DirectoryFiles[i], empty2) == 0))
-			{
-					// Do nothing with . and .. paths
-			}
-			else {
-
-				printf("%s\n", DirectoryFiles[i]);
-			}
-
-			
-		}
-
-
-
-	}
-	else 
-	{
-		printf("Directory does not exist\n");
-	}
-
-	ClearDirectoryFiles();
-}
-
-
-inline vector <string> GetPNG_FilesInDir(const char * path)
-{
-
-	vector <  string > png_list;
-
-	all_png_list = "";
-
-	int count = 0;
-
-	char **DirectoryFiles;
+	char** DirectoryFiles;
 
 	char empty1[] = ".";
 	char empty2[] = "..";
@@ -84,11 +34,61 @@ inline vector <string> GetPNG_FilesInDir(const char * path)
 			{
 				// Do nothing with . and .. paths
 			}
-			else 
+			else {
+
+				printf("%s\n", DirectoryFiles[i]);
+			}
+
+
+		}
+
+
+
+	}
+	else
+	{
+		printf("Directory does not exist\n");
+	}
+
+	ClearDirectoryFiles();
+}
+
+
+inline vector <string> GetPNG_FilesInDir(const char* path)
+{
+
+	vector <  string > png_list;
+
+	all_png_list = "";
+
+	int count = 0;
+
+	char** DirectoryFiles;
+
+	char empty1[] = ".";
+	char empty2[] = "..";
+
+	if (DirectoryExists(path)) {
+
+		//printf("Directory exists\n");
+
+
+		DirectoryFiles = GetDirectoryFiles(path, &count);
+
+		//printf("%d\n", count);
+
+		for (size_t i = 0; i < count; i++)
+		{
+
+			if ((strcmp(DirectoryFiles[i], empty1) == 0) || (strcmp(DirectoryFiles[i], empty2) == 0))
+			{
+				// Do nothing with . and .. paths
+			}
+			else
 			{
 
-				if (IsFileExtension(DirectoryFiles[i], ".png")){
-					
+				if (IsFileExtension(DirectoryFiles[i], ".png")) {
+
 					png_list.push_back(DirectoryFiles[i]);
 
 
@@ -96,16 +96,16 @@ inline vector <string> GetPNG_FilesInDir(const char * path)
 					{
 						all_png_list = all_png_list + DirectoryFiles[i];
 					}
-					else 
+					else
 					{
-						all_png_list = all_png_list + ";" + DirectoryFiles[i] ;
+						all_png_list = all_png_list + ";" + DirectoryFiles[i];
 					}
-					
+
 
 				}
-				else 
+				else
 				{
-				
+
 				}
 
 			}
@@ -126,18 +126,18 @@ inline vector <string> GetPNG_FilesInDir(const char * path)
 	return png_list;
 }
 
-inline void AddIntegerFromString(vector <string> *LinesInFile,string str)
+inline void AddIntegerFromString(vector <string>* LinesInFile, string str)
 {
 
 	size_t i = 0;
 
-	for (; i < str.length(); i++) 
-	{ 
+	for (; i < str.length(); i++)
+	{
 		if (isdigit(str[i]))
-			break; 
+			break;
 	}
 
-	str = str.substr(i, (str.length()-1) - i);
+	str = str.substr(i, (str.length() - 1) - i);
 
 	if (str != "") {
 		LinesInFile->push_back(str);
@@ -148,7 +148,7 @@ inline void AddIntegerFromString(vector <string> *LinesInFile,string str)
 
 }
 
-inline int GetIntegerFromString( string str)
+inline int GetIntegerFromString(string str)
 {
 
 	size_t i = 0;
@@ -197,8 +197,8 @@ inline string GetDataFromReadline(string line)
 
 	// entity sprite w:	[64] <-- example this functions reads and returns what is inside []
 
-	string start = "["; 
-	
+	string start = "[";
+
 	string end = "]";
 
 	size_t start_at = line.find(start);
@@ -220,7 +220,7 @@ inline string GetDataFromReadline(string line)
 	}
 
 	if (line != "") {
-		line = line.substr(start_at + 1, (end_at-1 - start_at));
+		line = line.substr(start_at + 1, (end_at - 1 - start_at));
 	}
 
 
@@ -264,11 +264,9 @@ inline string GetDataFromReadlineTwo(string line)
 
 }
 
-
-
-
-inline string GetDataFromReadlineThree(string line)
+inline string GetDataFromReadlineThree(string line, int layer)
 {
+	global_variable int row = 0;
 
 	// entity sprite w:	[64] <-- example this functions reads and returns what is inside []
 
@@ -301,9 +299,9 @@ inline string GetDataFromReadlineThree(string line)
 		end_at = 0;
 	}
 
-	if (line != ""  && start_at != -1) {
+	if (line != "" && start_at != -1) {
 
-	 	//cout << "line size " << line.size() << endl;
+		//cout << "line size " << line.size() << endl;
 
 		loop = (line.size() - start_at) / (end_at - start_at + 1);
 
@@ -311,7 +309,7 @@ inline string GetDataFromReadlineThree(string line)
 
 		string_cords[row][0] = (line.substr(start_at + 1, (end_at - 1 - start_at)));
 
-		cords[row][0] = stoi(string_cords[row][0]);
+		cords[row][0][layer] = stoi(string_cords[row][0]);
 
 		temp = line.substr((end_at + 1), line.size());
 
@@ -342,7 +340,7 @@ inline string GetDataFromReadlineThree(string line)
 
 			string_cords[row][i] = (temp.substr(start_at + 1, (end_at - 1 - start_at)));
 
-			cords[row][i] = stoi(string_cords[row][i]);
+			cords[row][i][layer] = stoi(string_cords[row][i]);
 
 			temp = temp.substr((end_at + 1), temp.size());
 
@@ -350,8 +348,97 @@ inline string GetDataFromReadlineThree(string line)
 
 		row++;
 	}
-	
 
+
+	return line;
+
+}
+
+
+inline string GetDataFromReadlineTiledMap(string line, int layer)
+{
+	// entity sprite w:	[64] <-- example this functions reads and returns what is inside []
+
+	size_t loop;
+
+	string temp = "";
+
+	string start = "";
+
+	string end = ",";
+
+	size_t start_at = line.find(start);
+
+	//line.find_last_of(start);
+
+	if (start_at != string::npos) {
+	}
+	else {
+
+		start_at = -1;
+	}
+
+	size_t end_at = line.find(end);
+
+	if (end_at != string::npos) {
+	}
+	else {
+		end_at = 0;
+	}
+
+	if (line != "" && start_at != -1) {
+
+		//cout << "line size " << line.size() << endl;
+
+		loop = (line.size() - start_at) / (end_at - start_at + 1);
+
+		string_cords[row][0] = (line.substr(start_at, (end_at - start_at)));
+
+		//cout << " | " << string_cords[row][0] << " | ";
+
+		cords[row][0][layer] = stoi(string_cords[row][0]);
+
+		temp = line.substr((end_at + 1), line.size());
+
+		for (size_t i = 1; i < 19; i++)
+		{
+			start_at = temp.find(start);
+
+			//line.find_last_of(start);
+
+			if (start_at != string::npos) {
+				//cout << "[ occurrence is " << start_at << endl;
+			}
+			else {
+
+				start_at = -1;
+			}
+
+			end_at = temp.find(end);
+
+			if (end_at != string::npos) {
+				//cout << "] occurrence is " << end_at << endl;
+			}
+			else {
+				end_at = 0;
+			}
+
+			string_cords[row][i] = (temp.substr(start_at, (end_at - start_at)));
+
+			//cout << " | " << string_cords[row][i] << " | ";
+
+			cords[row][i][layer] = stoi(string_cords[row][i]);
+
+			temp = temp.substr((end_at + 1), temp.size());
+
+		}
+
+		cords[row][19][layer] = stoi(temp);
+
+		cout << "layer: "<<layer<< endl;
+
+		row++;
+	}
 	return line;
 
 }
@@ -386,9 +473,9 @@ inline string GetPropertyNameFromReadline(string line)
 
 }
 
-inline void setSprite(entity *e, int ID) {
+inline void setSprite(entity* e, int ID) {
 
-//	printf("Searching for: %d \n", ID);
+	//	printf("Searching for: %d \n", ID);
 	for (size_t i = 0; i < sprite_list.size(); i++)
 	{
 		//printf("Compare: %d vs %d \n", sprite_list[i].ID, ID);
@@ -396,13 +483,13 @@ inline void setSprite(entity *e, int ID) {
 		if (sprite_list[i].ID == ID)
 		{
 			e->sprite = &sprite_list[i];
-			
-		//	printf("Match! %s\n", sprite_list[i].img.c_str());
+
+			//	printf("Match! %s\n", sprite_list[i].img.c_str());
 			break;
 		}
-		else 
+		else
 		{
-		//	printf("Didn't find: %d \n", ID);
+			//	printf("Didn't find: %d \n", ID);
 		}
 	}
 
@@ -410,20 +497,20 @@ inline void setSprite(entity *e, int ID) {
 
 }
 
-inline void LoadSpriteData(int sprite_count){
+inline void LoadSpriteData(int sprite_count) {
 
-		//------
-		//entity sprite ID : [0]
-		//entity sprite filename : []
-		//entity sprite x : [0]
-		//entity sprite y : [0]
-		//entity sprite w : [64]
-		//entity sprite h : [32
-		//------	
+	//------
+	//entity sprite ID : [0]
+	//entity sprite filename : []
+	//entity sprite x : [0]
+	//entity sprite y : [0]
+	//entity sprite w : [64]
+	//entity sprite h : [32
+	//------	
 
-		//strcpy(temp.sprite.img, &tmp_str[0]);
-		//temp.sprite.img = &tmp_str[0];
-		//printf("Loadentity: %s\n", temp.sprite.img);
+	//strcpy(temp.sprite.img, &tmp_str[0]);
+	//temp.sprite.img = &tmp_str[0];
+	//printf("Loadentity: %s\n", temp.sprite.img);
 
 
 	sprite temp;
@@ -481,7 +568,7 @@ inline void LoadSpriteData(int sprite_count){
 		tmp_str = GetDataFromReadline(sprite_lines[index]);
 		temp.offset_y = atoi(tmp_str.c_str());
 		index++;
-		
+
 		sprite_list.push_back(temp);
 
 	}
@@ -537,7 +624,7 @@ inline void LoadEntityData(int entity_count) {
 		tmp_str = GetDataFromReadline(entity_lines[index]);
 		tempSpriteID = atoi(tmp_str.c_str()); // entity sprite ID : [n]
 
-		setSprite(&temp,tempSpriteID);
+		setSprite(&temp, tempSpriteID);
 
 		index++;
 
@@ -573,7 +660,7 @@ inline int ReadEntityData(string path) {
 					entity_lines.push_back(line);
 
 				}
-				else 
+				else
 				{
 					divider_count++;
 				}
@@ -599,7 +686,7 @@ inline int ReadEntityData(string path) {
 inline bool ReadMapData(string path) {
 
 	//string map_path = path + "map1.txt";
-	
+
 	bool success = false;
 
 	string entity_divider = "------";
@@ -623,12 +710,12 @@ inline bool ReadMapData(string path) {
 				{
 					map_lines.push_back(line);
 				}
-				else 
+				else
 				{
 					divider_count++;
 				}
 			}
-			else 
+			else
 			{
 				//	cout << line << endl;
 			}
@@ -650,71 +737,151 @@ inline bool ReadMapData(string path) {
 	return success;
 }
 
-inline void setMapCords()
-{
+inline bool ReadMapDataTiledMap(string path) {
 
-	for (size_t i = 0; i < map_lines.size(); i++)
+	//string map_path = path + "map1.txt";
+
+	bool success = false;
+
+	string entity_divider = "------";
+
+	string comment_token = "<";
+
+	string line;
+
+	string eof = "</map>";
+
+	int divider_count = 0;
+
+	int line_count = 0;
+
+	map_tiled_lines.clear();
+
+	ifstream myfile(path);
+	if (myfile.is_open())
 	{
-		//cout << "Data: " << GetDataFromReadlineTwo(map_lines[i]) << endl;
-		GetDataFromReadlineThree(map_lines[i]);
+		while (getline(myfile, line))
+		{
+			if (line.find(eof) != string::npos) {
+				break;
+			}
+
+			if (line.find(comment_token) == string::npos)
+			{
+				// if (line.find(entity_divider) == string::npos)
+				// {
+				map_tiled_lines.push_back(line);
+				line_count++;
+				// }
+				// else 
+				// {
+				// 	divider_count++;
+				// }
+			}
+			else
+			{
+				//	cout << line << endl;
+			}
+		}
+
+		myfile.close();
+		success = true;
+	}
+	else
+	{
+		printf("Unable to open file\n");
+	}
+
+	cout << "lines: " << map_tiled_lines.size() << endl;
+	for (size_t i = 0; i < map_tiled_lines.size(); i++)
+	{
+				if(i % Y_TILES == 0 && i != 0)
+		{ cout << endl;}
+
+		cout << map_tiled_lines[i] << endl;
+
 
 	}
 
-	//cout << "Cords: " << endl;
-
-	//for (size_t j = 0; j < 40; j++)
-	//{
-	//	for (size_t i = 0; i < 20; i++)
-	//	{
-	//		cout << cords[j][i] << " ";
-	//	}
-
-	//	cout << endl;
-	//}
+	return success;
 }
 
-inline void setEntityCords()
-{
 
+inline void setMapCords(int layer)
+{
+	for (size_t i = 0; i < map_lines.size(); i++)
+	{
+		//cout << "Data: " << GetDataFromReadlineTwo(map_lines[i]) << endl;
+		GetDataFromReadlineThree(map_lines[i], layer);
+
+	}
+}
+
+inline void setMapCordsTiled()
+{
+	int layer = 0;
+
+	row = 0;
+
+	for (size_t i = 0; i < map_tiled_lines.size(); i++)
+	{
+
+		if(i % Y_TILES == 0 && i != 0)
+		{
+			cout << "layer: " << layer << endl;
+			cout << "lines: " <<  map_tiled_lines.size() << endl;
+			cout << "layer switch: " << i << endl;
+			layer++;
+			row = 0;
+		}
+
+		GetDataFromReadlineTiledMap(map_tiled_lines[i],layer);
+		
+	}
+
+}
+
+inline void setEntityCords(int layer)
+{
 	cout << "Testing setEntityCords" << endl;
-	//cords[39][20]
 
 	entity temp;
 
-	for (size_t i = 0; i < 40; i++)
+	for (size_t i = 0; i < Y_TILES; i++)
 	{
-		for (size_t j = 0; j < 20; j++)
+		for (size_t j = 0; j < X_TILES; j++)
 		{
 
 			for (size_t k = 0; k < entity_list.size(); k++)
 			{
-				if (entity_list[k].ID == cords[i][j]) 
+				if (entity_list[k].ID == cords[i][j][layer])
 				{
-					cout << "setEntityCords Found: " << cords[i][j] << endl;
-
-
 					temp.ID = entity_list[k].ID;
 					if (i % 2 == 0)
 					{
-						temp.x = (j * 64);
-						temp.y = (i * 16);
+						temp.x = (j * GAME_TILE_WIDTH);
+						temp.y = (i * (GAME_TILE_HEIGHT / 2));
 					}
-					else 
+					else
 					{
-						temp.x = (j * 64) + 32;
-						temp.y = (i * 16);
+						temp.x = (j * GAME_TILE_WIDTH) + (GAME_TILE_WIDTH / 2);
+						temp.y = (i * (GAME_TILE_HEIGHT / 2));
 					}
+
+					temp.y = temp.y;
 
 					temp.w = entity_list[k].w;
 					temp.h = entity_list[k].h;
 					temp.entity_tile = entity_list[k].entity_tile;
 					temp.sprite = entity_list[k].sprite;
 
+					temp.layer = layer;
+
 					map_entity_list.push_back(temp);
 				}
 			}
 
-		
+
 		}
 	}
 }
@@ -723,11 +890,10 @@ inline void setEntityCords()
 inline void setPosCords()
 {
 	cout << "Testing setPosCords" << endl;
-	//cords[39][20]
 
-	for (size_t i = 0; i < 40; i++)
+	for (size_t i = 0; i < Y_TILES; i++)
 	{
-		for (size_t j = 0; j < 20; j++)
+		for (size_t j = 0; j < X_TILES; j++)
 		{
 			if (i % 2 == 0)
 			{
@@ -739,8 +905,6 @@ inline void setPosCords()
 				pos_cords[i][j].x = (j * 64) + 32;
 				pos_cords[i][j].y = (i * 16);
 			}
-
-
 		}
 	}
 }
@@ -769,9 +933,9 @@ inline void setGuiEntities()
 		//	gui_entity_list.push_back(temp);
 		//}
 
-		if (entity_list[k].ID == 7) 
+		if (entity_list[k].ID == 7)
 		{
-		
+
 			temp.ID = entity_list[k].ID;
 			temp.x = 64;
 			temp.y = 32;
@@ -801,10 +965,10 @@ inline void setGuiEntities()
 			cout << "ID == 2 found, Grid set, setGuiEntities" << endl;
 		}
 
-		cout << " " << k << " ";
+		//cout << " " << k << " ";
 	}
 
-	cout << " " << endl;
+	//cout << " " << endl;
 }
 
 
@@ -814,27 +978,42 @@ inline void setPlayer()
 
 	cout << "setPlayer start " << endl;
 
-	for (size_t k = 0; k < map_entity_list.size(); k++)
-	{
-		cout << "setPlayer: " << map_entity_list[k].ID << endl;
+	temp.ID = 9;
+	temp.x = 64;
+	temp.y = 64;
 
-		if (map_entity_list[k].ID == player_entity_ID )
-		{
-			//temp.ID = map_entity_list[k].ID;
-			//temp.x = 0;
-			//temp.y = 0;
-			//temp.w = map_entity_list[k].w;
-			//temp.h = map_entity_list[k].h;
-			//temp.entity_tile = map_entity_list[k].entity_tile;
-			//temp.sprite = map_entity_list[k].sprite;
+	temp.w = 48;
+	temp.h = 64;
+	temp.entity_tile = { temp.x,temp.y,(float)GAME_TILE_WIDTH, (float)GAME_TILE_HEIGHT };
 
-			cout << "true setPlayer: "<< map_entity_list[k].ID << endl;
+	setSprite(&temp, 67);
 
-			game_entity_list.push_back(&map_entity_list[k]);
+	map_entity_list.push_back(temp);
 
-			map_entity_list[k].render_this = true;
-		}
-	}
+	//game_entity_list.push_back(&temp);
+
+	//entity ID : [9] "Julius"
+	//entity w : [48]
+	//entity h : [64]
+	//entity sprite ID : [67]
+
+	// for (size_t k = 0; k < map_entity_list.size(); k++)
+	// {
+	// 	cout << "setPlayer: " << map_entity_list[k].ID << endl;
+
+	// 	if (map_entity_list[k].ID == player_entity_ID )
+	// 	{
+
+
+	// 		cout << "true setPlayer: "<< map_entity_list[k].ID << endl;
+
+	// 		game_entity_list.push_back(&map_entity_list[k]);
+
+	// 		map_entity_list[k].render_this = true;
+	// 	}
+	// }
+
+
 }
 
 
@@ -864,12 +1043,12 @@ inline int ReadSpriteData(string path) {
 
 					sprite_lines.push_back(line);
 				}
-				else 
+				else
 				{
 					divider_count++;
 				}
 			}
-			else 
+			else
 			{
 				//	cout << line << endl;
 			}
@@ -909,11 +1088,11 @@ inline int WriteEntityData(string path) {
 			myfile << "entity h : [" << entity_list[i].h << "]" << "\n";
 
 			myfile << "entity sprite ID : [" << entity_list[i].sprite->ID << "]" << "\n";
-	//		myfile << "entity sprite filename : [" << entity_list[i].sprite.img << "]" << "\n";
-	//		myfile << "entity sprite x : [" << entity_list[i].sprite.x << "]" << "\n";
-	//		myfile << "entity sprite y : [" << entity_list[i].sprite.y << "]" << "\n";
-	//		myfile << "entity sprite w : [" << entity_list[i].sprite.w << "]" << "\n";
-	//		myfile << "entity sprite h : [" << entity_list[i].sprite.h << "]" << "\n";
+			//		myfile << "entity sprite filename : [" << entity_list[i].sprite.img << "]" << "\n";
+			//		myfile << "entity sprite x : [" << entity_list[i].sprite.x << "]" << "\n";
+			//		myfile << "entity sprite y : [" << entity_list[i].sprite.y << "]" << "\n";
+			//		myfile << "entity sprite w : [" << entity_list[i].sprite.w << "]" << "\n";
+			//		myfile << "entity sprite h : [" << entity_list[i].sprite.h << "]" << "\n";
 
 			myfile << "------" << "\n";
 
@@ -945,7 +1124,7 @@ inline int WriteSpriteData(string path) {
 			myfile << "------" << "\n";
 			myfile << "sprite ID : [" << sprite_list[i].ID << "]" << "\n";
 			myfile << "sprite name : [" << sprite_list[i].name << "]" << "\n";
-		    myfile << "sprite filename : [" << sprite_list[i].img << "]" << "\n";
+			myfile << "sprite filename : [" << sprite_list[i].img << "]" << "\n";
 			myfile << "sprite x : [" << sprite_list[i].x << "]" << "\n";
 			myfile << "sprite y : [" << sprite_list[i].y << "]" << "\n";
 			myfile << "sprite w : [" << sprite_list[i].w << "]" << "\n";
@@ -984,7 +1163,7 @@ inline int WriteSpriteDataRaw(string path) {
 				cout << "2:" << gui_texture_list[j].path << endl;
 			}
 		}
-				
+
 	}
 
 
@@ -1002,19 +1181,19 @@ inline int WriteSpriteDataRaw(string path) {
 			//{
 				//if (gui_texture_list[j].path.find(png_list[i]) == 0) 
 				//{
-					myfile << "------" << "\n";
-					myfile << "sprite ID : [" << i + 1 << "]" << "\n";
-					myfile << "sprite name : [" << png_list[i].substr(0, png_list[i].length() - 4) << "]" << "\n";
-					myfile << "sprite filename : [" << png_list[i] << "]" << "\n";
+			myfile << "------" << "\n";
+			myfile << "sprite ID : [" << i + 1 << "]" << "\n";
+			myfile << "sprite name : [" << png_list[i].substr(0, png_list[i].length() - 4) << "]" << "\n";
+			myfile << "sprite filename : [" << png_list[i] << "]" << "\n";
 
-					myfile << "sprite x : [" << 0 << "]" << "\n";
-					myfile << "sprite y : [" << 0 << "]" << "\n";
-					myfile << "sprite w : [" << gui_texture_list[i].tex.width << "]" << "\n";
-					myfile << "sprite h : [" << gui_texture_list[i].tex.height << "]" << "\n";
-					myfile << "sprite offset_x: [" << 0 << "]" << "\n";
-					myfile << "sprite offset_y: [" << 0 << "]" << "\n";
+			myfile << "sprite x : [" << 0 << "]" << "\n";
+			myfile << "sprite y : [" << 0 << "]" << "\n";
+			myfile << "sprite w : [" << gui_texture_list[i].tex.width << "]" << "\n";
+			myfile << "sprite h : [" << gui_texture_list[i].tex.height << "]" << "\n";
+			myfile << "sprite offset_x: [" << 0 << "]" << "\n";
+			myfile << "sprite offset_y: [" << 0 << "]" << "\n";
 
-					myfile << "------" << "\n";
+			myfile << "------" << "\n";
 
 			//	}
 			//}			

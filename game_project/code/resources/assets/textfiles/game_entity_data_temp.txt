@@ -13,7 +13,7 @@ entity sprite ID : [59]
 ------
 entity ID : [8] "sedric"
 entity w : [128]
-entity h : [64]
+entity h : [48]
 entity sprite ID : [62]
 ------
 ------
@@ -35,86 +35,8 @@ entity h : [143]
 entity sprite ID : [62]
 ------
 ------
-entity ID : [12]
+entity ID : [1]
 entity w : [64]
-entity h : [32]
-entity sprite ID : [1]
-------
-------
-entity ID : [13]
-entity w : [64]
-entity h : [32]
-entity sprite ID : [2]
-------
-------
-entity ID : [14]
-entity w : [64]
-entity h : [32]
-entity sprite ID : [3]
-------
-------
-entity ID : [15]
-entity w : [64]
-entity h : [32]
-entity sprite ID : [4]
-------
-------
-entity ID : [16]
-entity w : [64]
-entity h : [32]
-entity sprite ID : [1]
-------
-------
-entity ID : [17]
-entity w : [64]
-entity h : [32]
-entity sprite ID : [2]
-------
-------
-entity ID : [18]
-entity w : [64]
-entity h : [32]
-entity sprite ID : [3]
-------
-------
-entity ID : [19]
-entity w : [64]
-entity h : [32]
-entity sprite ID : [4]
-------
-------
-entity ID : [20]
-entity w : [64]
-entity h : [32]
-entity sprite ID : [10]
-------
-------
-entity ID : [21]
-entity w : [64]
-entity h : [32]
-entity sprite ID : [10]
-------
-------
-entity ID : [22]
-entity w : [64]
-entity h : [32]
-entity sprite ID : [10]
-------
-------
-entity ID : [23]
-entity w : [64]
-entity h : [32]
-entity sprite ID : [10]
-------
-------
-entity ID : [24]
-entity w : [61]
-entity h : [53]
-entity sprite ID : [52]
-------
-------
-entity ID : [25]
-entity w : [64]
-entity h : [83]
-entity sprite ID : [66]
+entity h : [64]
+entity sprite ID : [68]
 ------

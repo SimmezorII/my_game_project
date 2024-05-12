@@ -25,8 +25,6 @@ static field enemy_move_field_two;
 /////----------------------------------------------------------------------------------------------------
 
 
-
-
 inline void setSquareField(field& fieldRef, int nx, int ny, enum Col tile_color)
 {
 	int targetRange = fieldRef.range;
@@ -996,7 +994,6 @@ inline void setConeField(field& fieldRef, int nx, int ny, Direction dir)
 
 	if (dir == DOWN)
 	{
-
 		fx = nx + right_vel + (right_vel * (targetRange - 1));
 		fy = ny + down_vel + (down_vel * (targetRange - 1));
 
@@ -1097,7 +1094,7 @@ inline void setConeField(field& fieldRef, int nx, int ny, Direction dir)
 
 }
 
-inline void setField(field& fieldRef, int nx, int ny, int field_type, enum Col tile_color)
+inline void SetField(field& fieldRef, int nx, int ny, int field_type, enum Col tile_color)
 {
 	SetRenderField(&fieldRef, false);
 
@@ -1161,7 +1158,7 @@ inline void InitEnemyFields()
 	{
 		enemy_list[i].move_field.field_alpha = 0.5;
 
-		setField(enemy_list[i].move_field, enemy_list[i].pEntity->x, enemy_list[i].pEntity->y, SQUARE, (Col)RED_TILE);
+		SetField(enemy_list[i].move_field, enemy_list[i].pEntity->x, enemy_list[i].pEntity->y, SQUARE, (Col)RED_TILE);
 
 		fields.push_back(&enemy_list[i].move_field);
 	}
@@ -1171,7 +1168,7 @@ inline void SetEnemyFields()
 {
 	for (size_t i = 0; i < enemy_list.size(); i++)
 	{
-		setField(enemy_list[i].move_field, enemy_list[i].pEntity->x, enemy_list[i].pEntity->y, SQUARE, (Col)RED_TILE);
+		SetField(enemy_list[i].move_field, enemy_list[i].pEntity->x, enemy_list[i].pEntity->y, SQUARE, (Col)RED_TILE);
 
 	}
 }
@@ -1197,7 +1194,7 @@ inline void InitCombat()
 
 	position_field.range = 5;
 
-	setField(position_field, 512, 512, NON_ISO_SQUARE, (Col)GREEN_TILE);
+	SetField(position_field, 512, 512, NON_ISO_SQUARE, (Col)GREEN_TILE);
 
 }
 

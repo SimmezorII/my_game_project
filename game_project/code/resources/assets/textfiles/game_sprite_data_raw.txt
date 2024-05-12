@@ -308,6 +308,17 @@ sprite offset_y: [0]
 ------
 ------
 sprite ID : [29]
+sprite name : [HalfGreenCube]
+sprite filename : [HalfGreenCube.png]
+sprite x : [0]
+sprite y : [0]
+sprite w : [64]
+sprite h : [48]
+sprite offset_x: [0]
+sprite offset_y: [0]
+------
+------
+sprite ID : [30]
 sprite name : [Grid1280X640 - kopia]
 sprite filename : [Grid1280X640 - kopia.png]
 sprite x : [0]
@@ -318,7 +329,7 @@ sprite offset_x: [0]
 sprite offset_y: [0]
 ------
 ------
-sprite ID : [30]
+sprite ID : [31]
 sprite name : [Grid1280X640]
 sprite filename : [Grid1280X640.png]
 sprite x : [0]
@@ -329,7 +340,7 @@ sprite offset_x: [0]
 sprite offset_y: [0]
 ------
 ------
-sprite ID : [31]
+sprite ID : [32]
 sprite name : [GridBLUE1920X1080]
 sprite filename : [GridBLUE1920X1080.png]
 sprite x : [0]
@@ -340,7 +351,7 @@ sprite offset_x: [0]
 sprite offset_y: [0]
 ------
 ------
-sprite ID : [32]
+sprite ID : [33]
 sprite name : [GridBLUE1920X1080WhiteBG]
 sprite filename : [GridBLUE1920X1080WhiteBG.png]
 sprite x : [0]
@@ -351,7 +362,7 @@ sprite offset_x: [0]
 sprite offset_y: [0]
 ------
 ------
-sprite ID : [33]
+sprite ID : [34]
 sprite name : [Highlight]
 sprite filename : [Highlight.png]
 sprite x : [0]
@@ -362,7 +373,7 @@ sprite offset_x: [0]
 sprite offset_y: [0]
 ------
 ------
-sprite ID : [34]
+sprite ID : [35]
 sprite name : [Highlight_1]
 sprite filename : [Highlight_1.png]
 sprite x : [0]
@@ -373,7 +384,7 @@ sprite offset_x: [0]
 sprite offset_y: [0]
 ------
 ------
-sprite ID : [35]
+sprite ID : [36]
 sprite name : [iso_tile]
 sprite filename : [iso_tile.png]
 sprite x : [0]
@@ -384,7 +395,7 @@ sprite offset_x: [0]
 sprite offset_y: [0]
 ------
 ------
-sprite ID : [36]
+sprite ID : [37]
 sprite name : [iso_tile2]
 sprite filename : [iso_tile2.png]
 sprite x : [0]
@@ -395,7 +406,7 @@ sprite offset_x: [0]
 sprite offset_y: [0]
 ------
 ------
-sprite ID : [37]
+sprite ID : [38]
 sprite name : [iso_tile2_1]
 sprite filename : [iso_tile2_1.png]
 sprite x : [0]
@@ -406,7 +417,7 @@ sprite offset_x: [0]
 sprite offset_y: [0]
 ------
 ------
-sprite ID : [38]
+sprite ID : [39]
 sprite name : [iso_tileGoal]
 sprite filename : [iso_tileGoal.png]
 sprite x : [0]
@@ -417,7 +428,7 @@ sprite offset_x: [0]
 sprite offset_y: [0]
 ------
 ------
-sprite ID : [39]
+sprite ID : [40]
 sprite name : [iso_tileGoal_1]
 sprite filename : [iso_tileGoal_1.png]
 sprite x : [0]
@@ -428,7 +439,7 @@ sprite offset_x: [0]
 sprite offset_y: [0]
 ------
 ------
-sprite ID : [40]
+sprite ID : [41]
 sprite name : [iso_tile_1]
 sprite filename : [iso_tile_1.png]
 sprite x : [0]
@@ -439,7 +450,7 @@ sprite offset_x: [0]
 sprite offset_y: [0]
 ------
 ------
-sprite ID : [41]
+sprite ID : [42]
 sprite name : [iso_tile_hl]
 sprite filename : [iso_tile_hl.png]
 sprite x : [0]
@@ -450,7 +461,7 @@ sprite offset_x: [0]
 sprite offset_y: [0]
 ------
 ------
-sprite ID : [42]
+sprite ID : [43]
 sprite name : [iso_tile_hl_1]
 sprite filename : [iso_tile_hl_1.png]
 sprite x : [0]
@@ -461,18 +472,18 @@ sprite offset_x: [0]
 sprite offset_y: [0]
 ------
 ------
-sprite ID : [43]
+sprite ID : [44]
 sprite name : [Julius]
 sprite filename : [Julius.png]
 sprite x : [0]
 sprite y : [0]
-sprite w : [139]
-sprite h : [157]
+sprite w : [140]
+sprite h : [158]
 sprite offset_x: [0]
 sprite offset_y: [0]
 ------
 ------
-sprite ID : [44]
+sprite ID : [45]
 sprite name : [LimeSlime]
 sprite filename : [LimeSlime.png]
 sprite x : [0]
@@ -483,7 +494,7 @@ sprite offset_x: [0]
 sprite offset_y: [0]
 ------
 ------
-sprite ID : [45]
+sprite ID : [46]
 sprite name : [minimap]
 sprite filename : [minimap.png]
 sprite x : [0]
@@ -494,7 +505,7 @@ sprite offset_x: [0]
 sprite offset_y: [0]
 ------
 ------
-sprite ID : [46]
+sprite ID : [47]
 sprite name : [minus]
 sprite filename : [minus.png]
 sprite x : [0]
@@ -505,7 +516,7 @@ sprite offset_x: [0]
 sprite offset_y: [0]
 ------
 ------
-sprite ID : [47]
+sprite ID : [48]
 sprite name : [newTiles]
 sprite filename : [newTiles.png]
 sprite x : [0]
@@ -516,7 +527,18 @@ sprite offset_x: [0]
 sprite offset_y: [0]
 ------
 ------
-sprite ID : [48]
+sprite ID : [49]
+sprite name : [newTilesSmaller]
+sprite filename : [newTilesSmaller.png]
+sprite x : [0]
+sprite y : [0]
+sprite w : [64]
+sprite h : [32]
+sprite offset_x: [0]
+sprite offset_y: [0]
+------
+------
+sprite ID : [50]
 sprite name : [plus]
 sprite filename : [plus.png]
 sprite x : [0]
@@ -527,7 +549,7 @@ sprite offset_x: [0]
 sprite offset_y: [0]
 ------
 ------
-sprite ID : [49]
+sprite ID : [51]
 sprite name : [plusminus]
 sprite filename : [plusminus.png]
 sprite x : [0]
@@ -538,7 +560,7 @@ sprite offset_x: [0]
 sprite offset_y: [0]
 ------
 ------
-sprite ID : [50]
+sprite ID : [52]
 sprite name : [scarfy]
 sprite filename : [scarfy.png]
 sprite x : [0]
@@ -549,7 +571,7 @@ sprite offset_x: [0]
 sprite offset_y: [0]
 ------
 ------
-sprite ID : [51]
+sprite ID : [53]
 sprite name : [scarfy_1]
 sprite filename : [scarfy_1.png]
 sprite x : [0]
@@ -560,7 +582,7 @@ sprite offset_x: [0]
 sprite offset_y: [0]
 ------
 ------
-sprite ID : [52]
+sprite ID : [54]
 sprite name : [scarfy_2]
 sprite filename : [scarfy_2.png]
 sprite x : [0]
@@ -571,7 +593,7 @@ sprite offset_x: [0]
 sprite offset_y: [0]
 ------
 ------
-sprite ID : [53]
+sprite ID : [55]
 sprite name : [scarfy_3]
 sprite filename : [scarfy_3.png]
 sprite x : [0]
@@ -582,7 +604,7 @@ sprite offset_x: [0]
 sprite offset_y: [0]
 ------
 ------
-sprite ID : [54]
+sprite ID : [56]
 sprite name : [SedricBase]
 sprite filename : [SedricBase.png]
 sprite x : [0]
@@ -593,7 +615,7 @@ sprite offset_x: [0]
 sprite offset_y: [0]
 ------
 ------
-sprite ID : [55]
+sprite ID : [57]
 sprite name : [SedricBaseWider]
 sprite filename : [SedricBaseWider.png]
 sprite x : [0]
@@ -604,7 +626,7 @@ sprite offset_x: [0]
 sprite offset_y: [0]
 ------
 ------
-sprite ID : [56]
+sprite ID : [58]
 sprite name : [SedricBaseWiderA]
 sprite filename : [SedricBaseWiderA.png]
 sprite x : [0]
@@ -615,7 +637,7 @@ sprite offset_x: [0]
 sprite offset_y: [0]
 ------
 ------
-sprite ID : [57]
+sprite ID : [59]
 sprite name : [SedricBaseWiderBlack]
 sprite filename : [SedricBaseWiderBlack.png]
 sprite x : [0]
@@ -626,7 +648,7 @@ sprite offset_x: [0]
 sprite offset_y: [0]
 ------
 ------
-sprite ID : [58]
+sprite ID : [60]
 sprite name : [shieldbarrier]
 sprite filename : [shieldbarrier.png]
 sprite x : [0]
@@ -637,7 +659,7 @@ sprite offset_x: [0]
 sprite offset_y: [0]
 ------
 ------
-sprite ID : [59]
+sprite ID : [61]
 sprite name : [single_red_tile]
 sprite filename : [single_red_tile.png]
 sprite x : [0]
@@ -648,7 +670,7 @@ sprite offset_x: [0]
 sprite offset_y: [0]
 ------
 ------
-sprite ID : [60]
+sprite ID : [62]
 sprite name : [smallgrid]
 sprite filename : [smallgrid.png]
 sprite x : [0]
@@ -659,7 +681,7 @@ sprite offset_x: [0]
 sprite offset_y: [0]
 ------
 ------
-sprite ID : [61]
+sprite ID : [63]
 sprite name : [target]
 sprite filename : [target.png]
 sprite x : [0]
@@ -670,7 +692,7 @@ sprite offset_x: [0]
 sprite offset_y: [0]
 ------
 ------
-sprite ID : [62]
+sprite ID : [64]
 sprite name : [tree]
 sprite filename : [tree.png]
 sprite x : [0]
@@ -681,7 +703,7 @@ sprite offset_x: [0]
 sprite offset_y: [0]
 ------
 ------
-sprite ID : [63]
+sprite ID : [65]
 sprite name : [tree3]
 sprite filename : [tree3.png]
 sprite x : [0]
@@ -692,7 +714,7 @@ sprite offset_x: [0]
 sprite offset_y: [0]
 ------
 ------
-sprite ID : [64]
+sprite ID : [66]
 sprite name : [treewider]
 sprite filename : [treewider.png]
 sprite x : [0]
