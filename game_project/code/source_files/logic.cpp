@@ -8,19 +8,20 @@
 #define logic_cpp
 
 #include <iostream>
-#include "../header_files/raylib.h"
-#include "../header_files/globals.h"
-#include "../header_files/game_entities.h"
-#include "../header_files/Logic_func.h"
-#include "game_engine.cpp"
-#include "combat.cpp"
-// #include "gui.cpp"
-#include "file_handler.cpp"
 
+#include "../header_files/game_entities.h"
+#include "../header_files/globals.h"
+#include "../header_files/logic_func.h"
+#include "../header_files/raylib.h"
+#include "combat.cpp"
+#include "game_engine.cpp"
+
+// #include "gui.cpp"
 #include <cstdlib>
 #include <ctime>
-
 #include <random>
+
+#include "file_handler.cpp"
 
 using namespace std;
 
@@ -54,649 +55,527 @@ bool collision = false;
 
 Rectangle temptarget;
 
-//================================== RANDOMNESS ======================================
-typedef std::mt19937 MyRNG; // the Mersenne Twister with a popular choice of parameters
-static uint32_t seed_val;	// populate somehow
+//================================== RANDOMNESS
+//======================================
+typedef std::mt19937
+    MyRNG;  // the Mersenne Twister with a popular choice of parameters
+static uint32_t seed_val;  // populate somehow
 
-std::uniform_int_distribution<uint32_t> uint_dist;			// by default range [0, MAX]
-std::uniform_int_distribution<uint32_t> uint_dist20(0, 20); // range [1,20]
+std::uniform_int_distribution<uint32_t> uint_dist;  // by default range [0, MAX]
+std::uniform_int_distribution<uint32_t> uint_dist20(0, 20);  // range [1,20]
 
 static MyRNG rng;
 
 //========================================================================
 
-inline void CalculateDamageEnemy(Rectangle& temp_target)
-{
-	entity& entity_ref = getEntityByPosition(temp_target.x, temp_target.y, map_entity_list);
-	entity_ref.entity_stats.current_hp--;
+inline void SetEntityListEllipses(vector<entity>& entities) {
+  for (size_t i = 0; i < entities.size(); i++) {
+    entities[i].el.center.x = entities[i].x + entities[i].entity_tile.width / 2;
+    entities[i].el.center.y =
+        entities[i].y + entities[i].entity_tile.height / 2;
 
+    entities[i].el.w = entities[i].entity_tile.width / 8;
+    entities[i].el.h = entities[i].entity_tile.height / 2;
+  }
 }
 
-inline void UpdateTargetFieldRange()
-{
-	if (target_field.range >= 1 && combatant_list[combatant_selected].current_movecount != 0)
-	{
-		target_field.range = combatant_list[combatant_selected].move_range - (combatant_list[combatant_selected].current_movecount - 1);
-
-		if (target_field.range <= 0)
-		{
-			target_field.range = 1;
-		}
-	}
-	else
-	{
-		target_field.range = 1;
-	}
+inline void CalculateDamageEnemy(Rectangle& temp_target) {
+  entity& entity_ref =
+      getEntityByPosition(temp_target.x, temp_target.y, map_entity_list);
+  entity_ref.entity_stats.current_hp--;
 }
 
-inline void ResetFieldVariables()
-{
-	move_field_up = false;
+inline void UpdateTargetFieldRange() {
+  if (target_field.range >= 1 &&
+      combatant_list[combatant_selected].current_movecount != 0) {
+    target_field.range =
+        combatant_list[combatant_selected].move_range -
+        (combatant_list[combatant_selected].current_movecount - 1);
 
-	colored_moved_tiles.clear();
-	colored_enemy_tiles.clear();
-	enemy_colored = false;
-	entity_checked = 0;
-	attack_target_field.render_field = false;
-
-	X_pressed_count = 0;
-	Z_pressed_count = 0;
-
-	last_tile = { -100, -100, 0, 0 };
-
-	target_field.render_field = false;
-	SetRenderField(&target_field, false);
-	UpdateTargetFieldRange();
+    if (target_field.range <= 0) {
+      target_field.range = 1;
+    }
+  } else {
+    target_field.range = 1;
+  }
 }
 
-inline void EntityMoveLogic(combatant& pEnemy, combatant& pPlayer, bool towards)
-{
-	bool moved = false;
+inline void ResetFieldVariables() {
+  move_field_up = false;
 
-	int random = 0;
+  colored_moved_tiles.clear();
+  colored_enemy_tiles.clear();
+  enemy_colored = false;
+  entity_checked = 0;
+  attack_target_field.render_field = false;
 
-	Log("Random:", random);
+  X_pressed_count = 0;
+  Z_pressed_count = 0;
 
-	float diff_x;
-	float diff_y;
+  last_tile = {-100, -100, 0, 0};
 
-	bool LEFT_OF_PLAYER = false;
-	bool RIGHT_OF_PLAYER = false;
-	bool BELOW_OF_PLAYER = false;
-	bool ABOVE_OF_PLAYER = false;
-	bool YLINE_OF_PLAYER = false;
-	bool XLINE_OF_PLAYER = false;
-
-	float enemy_temp_x = pEnemy.pEntity->x;
-
-	float enemy_temp_y = pEnemy.pEntity->y;
-
-	int dir_moved;
-
-	int direction;
-
-	if (towards == true)
-	{
-		direction = 1;
-	}
-	else
-	{
-		direction = -1;
-	}
-	printf("pEnemy.move_range");
-	cout << pEnemy.move_range << endl;
-	for (size_t i = 0; i < pEnemy.move_range; i++)
-	{
-
-		random = (int)uint_dist20(rng);
-
-
-		cout << "random: " << random << endl;
-
-		dir_moved = 0;
-		LEFT_OF_PLAYER = false;
-		RIGHT_OF_PLAYER = false;
-		BELOW_OF_PLAYER = false;
-		ABOVE_OF_PLAYER = false;
-		YLINE_OF_PLAYER = false;
-		XLINE_OF_PLAYER = false;
-
-		cout << "enemy_temp_y: " << enemy_temp_y << endl;
-
-		cout << "enemy_temp_x: " << enemy_temp_x << endl;
-
-		if (enemy_temp_x < pPlayer.pEntity->x)
-		{
-			Log("ENEMY LEFT OF PLAYER");
-
-			diff_x = (pPlayer.pEntity->x - enemy_temp_x) / 64;
-
-			Log("Diff in x: ", diff_x);
-
-			LEFT_OF_PLAYER = true;
-		}
-		else if (enemy_temp_x == pPlayer.pEntity->x)
-		{
-			Log("ENEMY in Y-LINE OF PLAYER");
-			YLINE_OF_PLAYER = true;
-		}
-		else
-		{
-			Log("ENEMY RIGHT OF PLAYER");
-
-			diff_x = (pPlayer.pEntity->x - enemy_temp_x) / 64;
-
-			Log("Diff in x: ", diff_x);
-
-			RIGHT_OF_PLAYER = true;
-		}
-
-		if (enemy_temp_y < pPlayer.pEntity->y)
-		{
-			Log("ENEMY ABOVE OF PLAYER");
-
-			diff_y = (pPlayer.pEntity->y - enemy_temp_y) / 32;
-
-			Log("Diff in y: ", diff_y);
-
-			ABOVE_OF_PLAYER = true;
-		}
-		else if (enemy_temp_y == pPlayer.pEntity->y)
-		{
-			Log("ENEMY X-LINE OF PLAYER");
-			XLINE_OF_PLAYER = true;
-		}
-		else
-		{
-			Log("ENEMY BELOW OF PLAYER");
-
-			diff_y = (pPlayer.pEntity->y - enemy_temp_y) / 32;
-
-			Log("Diff in y: ", diff_y);
-
-			BELOW_OF_PLAYER = true;
-		}
-
-		if (LEFT_OF_PLAYER && BELOW_OF_PLAYER)
-		{
-			if (diff_y + diff_x == 0)
-			{
-				if (random % 3 == 0)
-				{
-					dir_moved = RIGHT * direction;
-
-					pEnemy.movelist.push_back(dir_moved);
-				}
-				else
-				{
-					if (random % 2 == 0)
-					{
-						dir_moved = DOWN * direction;
-						pEnemy.movelist.push_back(dir_moved);
-					}
-					else
-					{
-						dir_moved = UP * direction;
-						pEnemy.movelist.push_back(dir_moved);
-					}
-				}
-			}
-			else if (diff_x + diff_y < 0)
-			{
-				if (random % 2 == 0)
-				{
-					dir_moved = RIGHT * direction;
-					pEnemy.movelist.push_back(dir_moved);
-				}
-				else
-				{
-					dir_moved = UP * direction;
-					pEnemy.movelist.push_back(dir_moved);
-				}
-			}
-			else
-			{
-				if (random % 2 == 0)
-				{
-					dir_moved = RIGHT * direction;
-					pEnemy.movelist.push_back(dir_moved);
-				}
-				else
-				{
-					dir_moved = DOWN * direction;
-					pEnemy.movelist.push_back(dir_moved);
-				}
-			}
-		}
-
-		if (LEFT_OF_PLAYER && ABOVE_OF_PLAYER)
-		{
-			if (diff_y == diff_x)
-			{
-				if (random % 3 == 0)
-				{
-					dir_moved = DOWN * direction;
-					pEnemy.movelist.push_back(dir_moved);
-				}
-				else
-				{
-					if (random % 2 == 0)
-					{
-						dir_moved = RIGHT * direction;
-						pEnemy.movelist.push_back(dir_moved);
-					}
-					else
-					{
-						dir_moved = LEFT * direction;
-						pEnemy.movelist.push_back(dir_moved);
-					}
-				}
-			}
-			else if (diff_x - diff_y < 0)
-			{
-				if (random % 2 == 0)
-				{
-					dir_moved = LEFT * direction;
-					pEnemy.movelist.push_back(dir_moved);
-				}
-				else
-				{
-					dir_moved = DOWN * direction;
-					pEnemy.movelist.push_back(dir_moved);
-				}
-			}
-			else
-			{
-				if (random % 2 == 0)
-				{
-					dir_moved = RIGHT * direction;
-					pEnemy.movelist.push_back(dir_moved);
-				}
-				else
-				{
-					dir_moved = DOWN * direction;
-					pEnemy.movelist.push_back(dir_moved);
-				}
-			}
-		}
-
-		if (RIGHT_OF_PLAYER && ABOVE_OF_PLAYER)
-		{
-			if (diff_x + diff_y == 0)
-			{
-				if (random % 3 == 0)
-				{
-					dir_moved = LEFT * direction;
-					pEnemy.movelist.push_back(dir_moved);
-				}
-				else
-				{
-					if (random % 2 == 0)
-					{
-						dir_moved = DOWN * direction;
-						pEnemy.movelist.push_back(dir_moved);
-					}
-					else
-					{
-						dir_moved = UP * direction;
-						pEnemy.movelist.push_back(dir_moved);
-					}
-				}
-			}
-			else if (diff_x + diff_y < 0)
-			{
-				if (random % 2 == 0)
-				{
-					dir_moved = LEFT * direction;
-					pEnemy.movelist.push_back(dir_moved);
-				}
-				else
-				{
-					dir_moved = (UP * direction);
-					pEnemy.movelist.push_back(dir_moved);
-				}
-			}
-			else
-			{
-				if (random % 2 == 0)
-				{
-					dir_moved = LEFT * direction;
-					pEnemy.movelist.push_back(dir_moved);
-				}
-				else
-				{
-					dir_moved = DOWN * direction;
-					pEnemy.movelist.push_back(dir_moved);
-				}
-			}
-		}
-
-		if (RIGHT_OF_PLAYER && BELOW_OF_PLAYER)
-		{
-			if (diff_y == diff_x)
-			{
-				if (diff_y == diff_x)
-				{
-					if (random % 3 == 0)
-					{
-						dir_moved = UP * direction;
-						pEnemy.movelist.push_back(dir_moved);
-					}
-					else
-					{
-						if (random % 2 == 0)
-						{
-							dir_moved = RIGHT * direction;
-							pEnemy.movelist.push_back(dir_moved);
-						}
-						else
-						{
-							dir_moved = LEFT * direction;
-							pEnemy.movelist.push_back(dir_moved);
-						}
-					}
-				}
-			}
-			else if (diff_x - diff_y < 0)
-			{
-				if (random % 2 == 0)
-				{
-					dir_moved = LEFT * direction;
-					pEnemy.movelist.push_back(dir_moved);
-				}
-				else
-				{
-					dir_moved = UP * direction;
-					pEnemy.movelist.push_back(dir_moved);
-				}
-			}
-			else
-			{
-				if (random % 2 == 0)
-				{
-					dir_moved = RIGHT * direction;
-					pEnemy.movelist.push_back(dir_moved);
-				}
-				else
-				{
-					dir_moved = UP * direction;
-					pEnemy.movelist.push_back(dir_moved);
-				}
-			}
-		}
-
-		if (YLINE_OF_PLAYER && BELOW_OF_PLAYER)
-		{
-			if (random % 2 == 0)
-			{
-				dir_moved = RIGHT * direction;
-				pEnemy.movelist.push_back(dir_moved);
-			}
-			else
-			{
-				dir_moved = UP * direction;
-				pEnemy.movelist.push_back(dir_moved);
-			}
-		}
-
-		if (YLINE_OF_PLAYER && ABOVE_OF_PLAYER)
-		{
-			if (random % 2 == 0)
-			{
-				dir_moved = DOWN * direction;
-				pEnemy.movelist.push_back(dir_moved);
-			}
-			else
-			{
-				dir_moved = LEFT * direction;
-				pEnemy.movelist.push_back(dir_moved);
-			}
-		}
-
-		if (XLINE_OF_PLAYER && LEFT_OF_PLAYER)
-		{
-			if (random % 2 == 0)
-			{
-				dir_moved = DOWN * direction;
-				pEnemy.movelist.push_back(dir_moved);
-			}
-			else
-			{
-				dir_moved = RIGHT * direction;
-				pEnemy.movelist.push_back(dir_moved);
-			}
-		}
-
-		if (XLINE_OF_PLAYER && RIGHT_OF_PLAYER)
-		{
-			if (random % 2 == 0)
-			{
-				dir_moved = UP * direction;
-				pEnemy.movelist.push_back(dir_moved);
-			}
-			else
-			{
-				dir_moved = LEFT * direction;
-				pEnemy.movelist.push_back(dir_moved);
-
-			}
-		}
-
-		if (dir_moved == LEFT)
-		{
-			printf("[LEFT1]");
-			enemy_temp_x = enemy_temp_x + (left_vel / 1);
-			enemy_temp_y = enemy_temp_y + (down_vel / 1);
-		}
-		if (dir_moved == RIGHT)
-		{
-			printf("[RIGHT1]");
-			enemy_temp_x = enemy_temp_x + (right_vel / 1);
-			enemy_temp_y = enemy_temp_y + (up_vel / 1);
-
-		}
-		if (dir_moved == UP)
-		{
-			printf("[UP1]");
-			enemy_temp_x = enemy_temp_x + (left_vel / 1);
-			enemy_temp_y = enemy_temp_y + (up_vel / 1);
-		}
-		if (dir_moved == DOWN)
-		{
-			printf("[DOWN1]");
-			enemy_temp_x = enemy_temp_x + (right_vel / 1);
-			enemy_temp_y = enemy_temp_y + (down_vel / 1);
-		}
-		printf(" ");
-	}
+  target_field.render_field = false;
+  SetRenderField(&target_field, false);
+  UpdateTargetFieldRange();
 }
 
-inline void EnemyLogic()
-{
+inline void EntityMoveLogic(combatant& pEnemy, combatant& pPlayer,
+                            bool towards) {
+  bool moved = false;
 
-	Log("Enemy Passed, turn ended");
+  int random = 0;
 
-	SetRenderEnemyFields(false);
+  Log("Random:", random);
 
-	//enemy_list[0].movelist.push_back(1);
+  float diff_x;
+  float diff_y;
 
-	EntityMoveLogic(enemy_list[1], combatant_list[0], false);
+  bool LEFT_OF_PLAYER = false;
+  bool RIGHT_OF_PLAYER = false;
+  bool BELOW_OF_PLAYER = false;
+  bool ABOVE_OF_PLAYER = false;
+  bool YLINE_OF_PLAYER = false;
+  bool XLINE_OF_PLAYER = false;
 
-	for (size_t i = 0; i < enemy_list.size(); i++)
-	{
-		if (!enemy_list[i].movelist.empty())
-		{
-			enemy_moving = true;
-		}
-	}
+  float enemy_temp_x = pEnemy.pEntity->x;
 
-	PLAYER_TURN = true;
-	game_turn++;
+  float enemy_temp_y = pEnemy.pEntity->y;
+
+  int dir_moved;
+
+  int direction;
+
+  if (towards == true) {
+    direction = 1;
+  } else {
+    direction = -1;
+  }
+  printf("pEnemy.move_range");
+  cout << pEnemy.move_range << endl;
+  for (size_t i = 0; i < pEnemy.move_range; i++) {
+    random = (int)uint_dist20(rng);
+
+    cout << "random: " << random << endl;
+
+    dir_moved = 0;
+    LEFT_OF_PLAYER = false;
+    RIGHT_OF_PLAYER = false;
+    BELOW_OF_PLAYER = false;
+    ABOVE_OF_PLAYER = false;
+    YLINE_OF_PLAYER = false;
+    XLINE_OF_PLAYER = false;
+
+    cout << "enemy_temp_y: " << enemy_temp_y << endl;
+
+    cout << "enemy_temp_x: " << enemy_temp_x << endl;
+
+    if (enemy_temp_x < pPlayer.pEntity->x) {
+      Log("ENEMY LEFT OF PLAYER");
+
+      diff_x = (pPlayer.pEntity->x - enemy_temp_x) / 64;
+
+      Log("Diff in x: ", diff_x);
+
+      LEFT_OF_PLAYER = true;
+    } else if (enemy_temp_x == pPlayer.pEntity->x) {
+      Log("ENEMY in Y-LINE OF PLAYER");
+      YLINE_OF_PLAYER = true;
+    } else {
+      Log("ENEMY RIGHT OF PLAYER");
+
+      diff_x = (pPlayer.pEntity->x - enemy_temp_x) / 64;
+
+      Log("Diff in x: ", diff_x);
+
+      RIGHT_OF_PLAYER = true;
+    }
+
+    if (enemy_temp_y < pPlayer.pEntity->y) {
+      Log("ENEMY ABOVE OF PLAYER");
+
+      diff_y = (pPlayer.pEntity->y - enemy_temp_y) / 32;
+
+      Log("Diff in y: ", diff_y);
+
+      ABOVE_OF_PLAYER = true;
+    } else if (enemy_temp_y == pPlayer.pEntity->y) {
+      Log("ENEMY X-LINE OF PLAYER");
+      XLINE_OF_PLAYER = true;
+    } else {
+      Log("ENEMY BELOW OF PLAYER");
+
+      diff_y = (pPlayer.pEntity->y - enemy_temp_y) / 32;
+
+      Log("Diff in y: ", diff_y);
+
+      BELOW_OF_PLAYER = true;
+    }
+
+    if (LEFT_OF_PLAYER && BELOW_OF_PLAYER) {
+      if (diff_y + diff_x == 0) {
+        if (random % 3 == 0) {
+          dir_moved = RIGHT * direction;
+
+          pEnemy.movelist.push_back(dir_moved);
+        } else {
+          if (random % 2 == 0) {
+            dir_moved = DOWN * direction;
+            pEnemy.movelist.push_back(dir_moved);
+          } else {
+            dir_moved = UP * direction;
+            pEnemy.movelist.push_back(dir_moved);
+          }
+        }
+      } else if (diff_x + diff_y < 0) {
+        if (random % 2 == 0) {
+          dir_moved = RIGHT * direction;
+          pEnemy.movelist.push_back(dir_moved);
+        } else {
+          dir_moved = UP * direction;
+          pEnemy.movelist.push_back(dir_moved);
+        }
+      } else {
+        if (random % 2 == 0) {
+          dir_moved = RIGHT * direction;
+          pEnemy.movelist.push_back(dir_moved);
+        } else {
+          dir_moved = DOWN * direction;
+          pEnemy.movelist.push_back(dir_moved);
+        }
+      }
+    }
+
+    if (LEFT_OF_PLAYER && ABOVE_OF_PLAYER) {
+      if (diff_y == diff_x) {
+        if (random % 3 == 0) {
+          dir_moved = DOWN * direction;
+          pEnemy.movelist.push_back(dir_moved);
+        } else {
+          if (random % 2 == 0) {
+            dir_moved = RIGHT * direction;
+            pEnemy.movelist.push_back(dir_moved);
+          } else {
+            dir_moved = LEFT * direction;
+            pEnemy.movelist.push_back(dir_moved);
+          }
+        }
+      } else if (diff_x - diff_y < 0) {
+        if (random % 2 == 0) {
+          dir_moved = LEFT * direction;
+          pEnemy.movelist.push_back(dir_moved);
+        } else {
+          dir_moved = DOWN * direction;
+          pEnemy.movelist.push_back(dir_moved);
+        }
+      } else {
+        if (random % 2 == 0) {
+          dir_moved = RIGHT * direction;
+          pEnemy.movelist.push_back(dir_moved);
+        } else {
+          dir_moved = DOWN * direction;
+          pEnemy.movelist.push_back(dir_moved);
+        }
+      }
+    }
+
+    if (RIGHT_OF_PLAYER && ABOVE_OF_PLAYER) {
+      if (diff_x + diff_y == 0) {
+        if (random % 3 == 0) {
+          dir_moved = LEFT * direction;
+          pEnemy.movelist.push_back(dir_moved);
+        } else {
+          if (random % 2 == 0) {
+            dir_moved = DOWN * direction;
+            pEnemy.movelist.push_back(dir_moved);
+          } else {
+            dir_moved = UP * direction;
+            pEnemy.movelist.push_back(dir_moved);
+          }
+        }
+      } else if (diff_x + diff_y < 0) {
+        if (random % 2 == 0) {
+          dir_moved = LEFT * direction;
+          pEnemy.movelist.push_back(dir_moved);
+        } else {
+          dir_moved = (UP * direction);
+          pEnemy.movelist.push_back(dir_moved);
+        }
+      } else {
+        if (random % 2 == 0) {
+          dir_moved = LEFT * direction;
+          pEnemy.movelist.push_back(dir_moved);
+        } else {
+          dir_moved = DOWN * direction;
+          pEnemy.movelist.push_back(dir_moved);
+        }
+      }
+    }
+
+    if (RIGHT_OF_PLAYER && BELOW_OF_PLAYER) {
+      if (diff_y == diff_x) {
+        if (diff_y == diff_x) {
+          if (random % 3 == 0) {
+            dir_moved = UP * direction;
+            pEnemy.movelist.push_back(dir_moved);
+          } else {
+            if (random % 2 == 0) {
+              dir_moved = RIGHT * direction;
+              pEnemy.movelist.push_back(dir_moved);
+            } else {
+              dir_moved = LEFT * direction;
+              pEnemy.movelist.push_back(dir_moved);
+            }
+          }
+        }
+      } else if (diff_x - diff_y < 0) {
+        if (random % 2 == 0) {
+          dir_moved = LEFT * direction;
+          pEnemy.movelist.push_back(dir_moved);
+        } else {
+          dir_moved = UP * direction;
+          pEnemy.movelist.push_back(dir_moved);
+        }
+      } else {
+        if (random % 2 == 0) {
+          dir_moved = RIGHT * direction;
+          pEnemy.movelist.push_back(dir_moved);
+        } else {
+          dir_moved = UP * direction;
+          pEnemy.movelist.push_back(dir_moved);
+        }
+      }
+    }
+
+    if (YLINE_OF_PLAYER && BELOW_OF_PLAYER) {
+      if (random % 2 == 0) {
+        dir_moved = RIGHT * direction;
+        pEnemy.movelist.push_back(dir_moved);
+      } else {
+        dir_moved = UP * direction;
+        pEnemy.movelist.push_back(dir_moved);
+      }
+    }
+
+    if (YLINE_OF_PLAYER && ABOVE_OF_PLAYER) {
+      if (random % 2 == 0) {
+        dir_moved = DOWN * direction;
+        pEnemy.movelist.push_back(dir_moved);
+      } else {
+        dir_moved = LEFT * direction;
+        pEnemy.movelist.push_back(dir_moved);
+      }
+    }
+
+    if (XLINE_OF_PLAYER && LEFT_OF_PLAYER) {
+      if (random % 2 == 0) {
+        dir_moved = DOWN * direction;
+        pEnemy.movelist.push_back(dir_moved);
+      } else {
+        dir_moved = RIGHT * direction;
+        pEnemy.movelist.push_back(dir_moved);
+      }
+    }
+
+    if (XLINE_OF_PLAYER && RIGHT_OF_PLAYER) {
+      if (random % 2 == 0) {
+        dir_moved = UP * direction;
+        pEnemy.movelist.push_back(dir_moved);
+      } else {
+        dir_moved = LEFT * direction;
+        pEnemy.movelist.push_back(dir_moved);
+      }
+    }
+
+    if (dir_moved == LEFT) {
+      printf("[LEFT1]");
+      enemy_temp_x = enemy_temp_x + (left_vel / 1);
+      enemy_temp_y = enemy_temp_y + (down_vel / 1);
+    }
+    if (dir_moved == RIGHT) {
+      printf("[RIGHT1]");
+      enemy_temp_x = enemy_temp_x + (right_vel / 1);
+      enemy_temp_y = enemy_temp_y + (up_vel / 1);
+    }
+    if (dir_moved == UP) {
+      printf("[UP1]");
+      enemy_temp_x = enemy_temp_x + (left_vel / 1);
+      enemy_temp_y = enemy_temp_y + (up_vel / 1);
+    }
+    if (dir_moved == DOWN) {
+      printf("[DOWN1]");
+      enemy_temp_x = enemy_temp_x + (right_vel / 1);
+      enemy_temp_y = enemy_temp_y + (down_vel / 1);
+    }
+    printf(" ");
+  }
 }
 
-inline void CheckKeyboardInput()
-{
-	if (IsKeyPressed(KEY_Z))
-	{
-		cout << "CheckKeyboardInput Z PRESSED" << endl;
-		Z_pressed_count++;
-	}
+inline void EnemyLogic() {
+  Log("Enemy Passed, turn ended");
 
-	if (IsKeyPressed(KEY_X))
-	{
-		cout << "X PRESSED" << endl;
-		X_pressed_count++;
+  SetRenderEnemyFields(false);
 
-		// printf("%d", GetRandomValue(0, 99));
-	}
+  // enemy_list[0].movelist.push_back(1);
 
-	if (IsKeyPressed(KEY_L))
-	{
-		cout << "L PRESSED" << endl;
+  EntityMoveLogic(enemy_list[1], combatant_list[0], false);
 
-		for (size_t i = 0; i < map_entity_list.size(); i++)
-		{
-			map_entity_list[i].layer = 1;
-		}
-		cout << endl;
+  for (size_t i = 0; i < enemy_list.size(); i++) {
+    if (!enemy_list[i].movelist.empty()) {
+      enemy_moving = true;
+    }
+  }
 
-	}
-
-	if (IsKeyPressed(KEY_K))
-	{
-		cout << "K PRESSED" << endl;
-
-		// setLayers();
-
-		// cout << entity_list.size() + sum_of_field_tiles << endl;
-
-		// for (size_t i = 0; i < entity_list.size(); i++)
-		//{
-		//	cout << "entity x: " << entity_list[i].x << " y: " << entity_list[i].y << endl;
-		//	cout << "entity ID: " << entity_list[i].ID << endl;
-		// }
-
-		// cout << "objects_to_render[0]: " << objects_to_render[0] << endl;
-
-		// cout << "objects_to_render[1]: " << objects_to_render[1] << endl;
-		// // cout << "SortedRenderObject_list: " << SortedRenderObject_list.size() << endl;
-
-		// randomSpawnTile(position_field, spawn_field);
-
-		// cout << "objects_to_render: " << objects_to_render[0] << endl;
-		// cout << "gui_entity_list: " << gui_entity_list.size() << endl;
-		// cout << "map_entity_list: " << map_entity_list.size() << endl;
-
-		// cout << "target_field.sum_of_field_tiles " << target_field.sum_of_field_tiles << endl;
-
-		cout << "render_list[0].List.size(): " << render_list[0].List.size() << endl;
-		cout << "render_list[1].List.size(): " << render_list[1].List.size() << endl;
-
-		cout << "new_entity_list.size: " << new_entity_list.size() << endl;
-
-		// cout << "SortedRenderObject_list.size(): " << SortedRenderObject_list.size() << endl;
-
-		for (size_t i = 0; i < map_entity_list.size(); i++)
-		{
-			map_entity_list[i].layer = 0;
-		}
-		cout << endl;
-
-
-
-	}
-
-	if (IsKeyPressed(KEY_TAB))
-	{
-		cout << "TAB PRESSED" << endl;
-		if (toggle_enemy_movefields == true)
-		{
-			toggle_enemy_movefields = false;
-			cout << "toggle_enemy_movefields  false" << endl;
-
-			SetRenderEnemyFields(false);
-		}
-		else
-		{
-			toggle_enemy_movefields = true;
-			cout << "toggle_enemy_movefields  true" << endl;
-		}
-	}
-
-
-	if (IsKeyPressed(KEY_F5))
-	{
-		cout << "WriteSpriteDataRaw" << endl;
-		WriteSpriteDataRaw(MAPS_PATH + "game_sprite_data_raw.txt");
-	}
+  PLAYER_TURN = true;
+  game_turn++;
 }
 
-inline bool CheckColoredTileCollission(vector<tile>& colored_tiles, Rectangle& temptarget)
-{
-	bool col = false;
+inline void CheckKeyboardInput() {
+  if (IsKeyPressed(KEY_Z)) {
+    cout << "CheckKeyboardInput Z PRESSED" << endl;
+    Z_pressed_count++;
+  }
 
-	if (colored_tiles.empty() != true)
-	{
-		for (size_t i = 0; i < colored_tiles.size(); i++)
-		{
-			// Check if any tile has already been crossed
-			if (CheckCollisionRecs(
-				{ (float)(temptarget.x - 1 + (tile_width / 2)), (float)(temptarget.y - 1 + (tile_height / 2)), 2, 2 },
-				{ (float)(colored_tiles[i].x - 1 + (tile_width / 2)), (float)(colored_tiles[i].y - 1 + (tile_height / 2)), 2, 2 }))
-			{
-				// if (last_tile.x != temptarget.x || last_tile.y != temptarget.y)
+  if (IsKeyPressed(KEY_X)) {
+    cout << "X PRESSED" << endl;
+    X_pressed_count++;
 
-				col = true;
+    // printf("%d", GetRandomValue(0, 99));
+  }
 
-				// Log("Colored tile ", (int)i);
+  if (IsKeyPressed(KEY_L)) {
+    cout << "L PRESSED" << endl;
 
-				return col;
+    for (size_t i = 0; i < map_entity_list.size(); i++) {
+      map_entity_list[i].layer = 1;
+    }
+    cout << endl;
+  }
 
-				break;
-			}
-			else
-			{
-				/// moved = true;
-			}
-		}
-	}
+  if (IsKeyPressed(KEY_K)) {
+    cout << "K PRESSED" << endl;
 
-	return col;
+    // setLayers();
+
+    // cout << entity_list.size() + sum_of_field_tiles << endl;
+
+    // for (size_t i = 0; i < entity_list.size(); i++)
+    //{
+    //	cout << "entity x: " << entity_list[i].x << " y: " <<
+    // entity_list[i].y
+    //<< endl; 	cout << "entity ID: " << entity_list[i].ID << endl;
+    // }
+
+    // cout << "objects_to_render[0]: " << objects_to_render[0] << endl;
+
+    // cout << "objects_to_render[1]: " << objects_to_render[1] << endl;
+    // // cout << "SortedRenderObject_list: " <<
+    // SortedRenderObject_list.size()
+    // << endl;
+
+    // randomSpawnTile(position_field, spawn_field);
+
+    // cout << "objects_to_render: " << objects_to_render[0] << endl;
+    // cout << "gui_entity_list: " << gui_entity_list.size() << endl;
+    // cout << "map_entity_list: " << map_entity_list.size() << endl;
+
+    // cout << "target_field.sum_of_field_tiles " <<
+    // target_field.sum_of_field_tiles << endl;
+
+    cout << "render_list[0].List.size(): " << render_list[0].List.size()
+         << endl;
+    cout << "render_list[1].List.size(): " << render_list[1].List.size()
+         << endl;
+
+    cout << "new_entity_list.size: " << new_entity_list.size() << endl;
+
+    // cout << "SortedRenderObject_list.size(): " <<
+    // SortedRenderObject_list.size() << endl;
+
+    for (size_t i = 0; i < map_entity_list.size(); i++) {
+      map_entity_list[i].layer = 0;
+    }
+    cout << endl;
+  }
+
+  if (IsKeyPressed(KEY_TAB)) {
+    cout << "TAB PRESSED" << endl;
+    if (toggle_enemy_movefields == true) {
+      toggle_enemy_movefields = false;
+      cout << "toggle_enemy_movefields  false" << endl;
+
+      SetRenderEnemyFields(false);
+    } else {
+      toggle_enemy_movefields = true;
+      cout << "toggle_enemy_movefields  true" << endl;
+    }
+  }
+
+  if (IsKeyPressed(KEY_F5)) {
+    cout << "WriteSpriteDataRaw" << endl;
+    WriteSpriteDataRaw(MAPS_PATH + "game_sprite_data_raw.txt");
+  }
 }
 
-inline bool CheckColoredMoveTileCollission(Rectangle& temptarget)
-{
-	bool collission = false;
+inline bool CheckColoredTileCollission(vector<tile>& colored_tiles,
+                                       Rectangle& temptarget) {
+  bool col = false;
 
-	if (colored_moved_tiles.empty() != true)
-	{
-		DebugLog("colored_moved_tiles.size()", (int)colored_moved_tiles.size());
+  if (colored_tiles.empty() != true) {
+    for (size_t i = 0; i < colored_tiles.size(); i++) {
+      // Check if any tile has already been crossed
+      if (CheckCollisionRecs(
+              {(float)(temptarget.x - 1 + (tile_width / 2)),
+               (float)(temptarget.y - 1 + (tile_height / 2)), 2, 2},
+              {(float)(colored_tiles[i].x - 1 + (tile_width / 2)),
+               (float)(colored_tiles[i].y - 1 + (tile_height / 2)), 2, 2})) {
+        // if (last_tile.x != temptarget.x || last_tile.y != temptarget.y)
 
-		for (size_t i = 0; i < colored_moved_tiles.size() - 1; i++)
-		{
-			// Check if any tile has already been crossed
-			if (CheckCollisionRecs(
-				{ (float)(temptarget.x - 1 + (tile_width / 2)), (float)(temptarget.y - 1 + (tile_height / 2)), 2, 2 },
-				{ (float)(colored_moved_tiles[i].x - 1 + (tile_width / 2)), (float)(colored_moved_tiles[i].y - 1 + (tile_height / 2)), 2, 2 }))
-			{
-				// if (last_tile.x != temptarget.x || last_tile.y != temptarget.y)
+        col = true;
 
-				collission = true;
+        // Log("Colored tile ", (int)i);
 
-				DebugLog("Colored tile ", (int)i);
+        return col;
 
-				collission;
+        break;
+      } else {
+        /// moved = true;
+      }
+    }
+  }
 
-				break;
-			}
-			else
-			{
-				/// moved = true;
-			}
-		}
-	}
+  return col;
+}
 
-	return collission;
+inline bool CheckColoredMoveTileCollission(Rectangle& temptarget) {
+  bool collission = false;
+
+  if (colored_moved_tiles.empty() != true) {
+    DebugLog("colored_moved_tiles.size()", (int)colored_moved_tiles.size());
+
+    for (size_t i = 0; i < colored_moved_tiles.size() - 1; i++) {
+      // Check if any tile has already been crossed
+      if (CheckCollisionRecs(
+              {(float)(temptarget.x - 1 + (tile_width / 2)),
+               (float)(temptarget.y - 1 + (tile_height / 2)), 2, 2},
+              {(float)(colored_moved_tiles[i].x - 1 + (tile_width / 2)),
+               (float)(colored_moved_tiles[i].y - 1 + (tile_height / 2)), 2,
+               2})) {
+        // if (last_tile.x != temptarget.x || last_tile.y != temptarget.y)
+
+        collission = true;
+
+        DebugLog("Colored tile ", (int)i);
+
+        collission;
+
+        break;
+      } else {
+        /// moved = true;
+      }
+    }
+  }
+
+  return collission;
 }
 
 // inline void PerformAttack()
@@ -704,787 +583,750 @@ inline bool CheckColoredMoveTileCollission(Rectangle& temptarget)
 
 //}
 
-inline void AttackLogic()
-{
-	Rectangle temp_target = { target->x, target->y, target->w, target->h };
+inline void AttackLogic() {
+  Rectangle temp_target = {target->x, target->y, target->w, target->h};
 
-	if (combatant_selected >= 0)
-	{
-		if (ColorFieldTileEntityList(colored_enemy_tiles, &attack_target_field, enemy_list, GREEN_TILE))
-		{
-			DebugLog("AttackField Collision", (int)colored_enemy_tiles.size());
-		}
-		else
-		{
-			DebugLog("AttackField Collision", (int)colored_enemy_tiles.size());
-		}
+  if (combatant_selected >= 0) {
+    if (ColorFieldTileEntityList(colored_enemy_tiles, &attack_target_field,
+                                 enemy_list, GREEN_TILE)) {
+      DebugLog("AttackField Collision", (int)colored_enemy_tiles.size());
+    } else {
+      DebugLog("AttackField Collision", (int)colored_enemy_tiles.size());
+    }
 
-		if (colored_enemy_tiles.empty() != true)
-		{
-			target->x = colored_enemy_tiles[0].x;
-			target->y = colored_enemy_tiles[0].y;
+    if (colored_enemy_tiles.empty() != true) {
+      target->x = colored_enemy_tiles[0].x;
+      target->y = colored_enemy_tiles[0].y;
 
-			CycleColoredTiles(target, colored_enemy_tiles);
+      CycleColoredTiles(target, colored_enemy_tiles);
 
-			if (CheckColoredTileCollission(colored_enemy_tiles, temp_target))
-			{
+      if (CheckColoredTileCollission(colored_enemy_tiles, temp_target)) {
+        if ((IsKeyPressed(KEY_X) && !IsKeyPressed(KEY_Z))) {
+          cout << "Attack collision and x pressed" << endl;
 
-				if ((IsKeyPressed(KEY_X) && !IsKeyPressed(KEY_Z)))
-				{
-					cout << "Attack collision and x pressed" << endl;
+          CalculateDamageEnemy(temp_target);
 
-					CalculateDamageEnemy(temp_target);
+          attacking = false;
 
-					attacking = false;
+          ResetFieldVariables();
 
-					ResetFieldVariables();
+          target->x = combatant_list[combatant_selected].pEntity->x;
+          target->y = combatant_list[combatant_selected].pEntity->y;
+        }
+      }
+    }
+  }
 
-					target->x = combatant_list[combatant_selected].pEntity->x;
-					target->y = combatant_list[combatant_selected].pEntity->y;
-				}
-			}
-		}
-	}
+  if ((IsKeyPressed(KEY_Z) && !IsKeyPressed(KEY_X))) {
+    cout << "Attack z pressed" << endl;
 
-	if ((IsKeyPressed(KEY_Z) && !IsKeyPressed(KEY_X)))
-	{
-		cout << "Attack z pressed" << endl;
+    ResetFieldVariables();
 
-		ResetFieldVariables();
+    target->x = combatant_list[combatant_selected].pEntity->x;
+    target->y = combatant_list[combatant_selected].pEntity->y;
 
-		target->x = combatant_list[combatant_selected].pEntity->x;
-		target->y = combatant_list[combatant_selected].pEntity->y;
-
-		attacking = false;
-	}
+    attacking = false;
+  }
 }
 
 int static previous_turn = 1;
 bool static previous_state = false;
 
-inline void UpdateGameTurn()
-{
-	if (PLAYER_TURN != previous_state)
-	{
-		previous_state = PLAYER_TURN;
+inline void UpdateGameTurn() {
+  if (PLAYER_TURN != previous_state) {
+    previous_state = PLAYER_TURN;
 
-		if (game_turn == previous_turn)
-		{
-			Log("Game Turn ", game_turn);
+    if (game_turn == previous_turn) {
+      Log("Game Turn ", game_turn);
 
-			previous_turn = game_turn + 1;
-		}
-	}
+      previous_turn = game_turn + 1;
+    }
+  }
 }
 
-void InitMoveLogic()
-{
-	move_field_up = true;
-	action_menu_up = false;
+void InitMoveLogic() {
+  move_field_up = true;
+  action_menu_up = false;
 
-	target_field.render_field = false;
+  target_field.render_field = false;
 
-	UpdateTargetFieldRange();
+  UpdateTargetFieldRange();
 
-	SetField(target_field, combatant_list[combatant_selected].pEntity->x, combatant_list[combatant_selected].pEntity->y, SQUARE, (Col)GREEN_TILE);
+  SetField(target_field, combatant_list[combatant_selected].pEntity->x,
+           combatant_list[combatant_selected].pEntity->y, SQUARE, GREEN_TILE);
 
-	//cout << "target_field " << target_field.sum_of_field_tiles << endl;
+  // cout << "target_field " << target_field.sum_of_field_tiles << endl;
 
-	colored_enemy_tiles.clear();
-	colored_moved_tiles.clear();
+  colored_enemy_tiles.clear();
+  colored_moved_tiles.clear();
 
-	enemy_colored = false;
-	entity_checked = 0;
+  enemy_colored = false;
+  entity_checked = 0;
 
-	target_field.render_field = true;
-
+  target_field.render_field = true;
 }
 
-void InitAttackLogic()
-{
-	Log("ATTACK!");
-	enemy_colored = false;
-	entity_checked = 0;
+void InitAttackLogic() {
+  Log("ATTACK!");
+  enemy_colored = false;
+  entity_checked = 0;
 
-	attack_target_field.range = 8; // combatant_list[combatant_selected].attack_range;
+  attack_target_field.range =
+      8;  // combatant_list[combatant_selected].attack_range;
 
-	SetField(attack_target_field, combatant_list[combatant_selected].pEntity->x, combatant_list[combatant_selected].pEntity->y, SQUARE, (Col)BLUE_TILE);
+  SetField(attack_target_field, combatant_list[combatant_selected].pEntity->x,
+           combatant_list[combatant_selected].pEntity->y, SQUARE, BLUE_TILE);
 
-	attack_target_field.render_field = true;
-	SetRenderField(&attack_target_field, attack_target_field.render_field);
-	action_menu_up = false;
+  attack_target_field.render_field = true;
+  SetRenderField(&attack_target_field, attack_target_field.render_field);
+  action_menu_up = false;
 
-	attacking = true;
-
+  attacking = true;
 }
 
-inline void MovePressed()
-{
-	InitMoveLogic();
+inline void MovePressed() { InitMoveLogic(); }
+
+inline void ReadyPressed() {
+  X_pressed_count = 0;
+
+  precombat = false;
+
+  target->x = combatant_list[combatant_selected].pEntity->x;
+  target->y = combatant_list[combatant_selected].pEntity->y;
+
+  position_field.render_field = false;
+  SetRenderField(&position_field, false);
+
+  action_menu_up = false;
+
+  PLAYER_TURN = true;
 }
 
-inline void ReadyPressed()
-{
+inline void EndPressed() {
+  X_pressed_count = 0;
+  Z_pressed_count = 0;
 
-	X_pressed_count = 0;
+  position_field.render_field = false;
+  SetRenderField(&position_field, false);
 
-	precombat = false;
+  action_menu_up = false;
 
-	target->x = combatant_list[combatant_selected].pEntity->x;
-	target->y = combatant_list[combatant_selected].pEntity->y;
+  PLAYER_TURN = false;
 
-	position_field.render_field = false;
-	SetRenderField(&position_field, false);
+  Log("Player ended turn ", game_turn);
 
-	action_menu_up = false;
+  combatant_list[combatant_selected].current_movecount = 1;
 
-	PLAYER_TURN = true;
+  temp_movecount[combatant_selected] =
+      combatant_list[combatant_selected].current_movecount;
 }
 
-inline void EndPressed()
-{
+inline void AttackPressed() { InitAttackLogic(); }
 
-	X_pressed_count = 0;
-	Z_pressed_count = 0;
+inline void ActionGuiLogic() {
+  if (precombat == true) {
+    if (ActionButton[0] == true) {
+      Log("Ready");
 
-	position_field.render_field = false;
-	SetRenderField(&position_field, false);
+      ReadyPressed();
 
-	action_menu_up = false;
+      ActionButton[0] = false;
+    }
+  } else {
+    if (ActionButton[0] == true && action_menu_up == true &&
+        X_pressed_count > 1 &&
+        combatant_list[combatant_selected].current_movecount <
+            combatant_list[combatant_selected].move_range) {
+      Log("Move");
 
-	PLAYER_TURN = false;
+      MovePressed();
 
-	Log("Player ended turn ", game_turn);
+      ActionButton[0] = false;
+    }
 
-	combatant_list[combatant_selected].current_movecount = 1;
+    if (ActionButton[1] == true && action_menu_up == true &&
+        X_pressed_count > 1) {
+      printf("Attack\n");
 
-	temp_movecount[combatant_selected] = combatant_list[combatant_selected].current_movecount;
+      AttackPressed();
 
+      ActionButton[1] = false;
+    }
+
+    if (ActionButton[2] == true && action_menu_up == true &&
+        X_pressed_count > 1) {
+      printf("END\n");
+
+      EndPressed();
+
+      ActionButton[2] = false;
+    }
+  }
+
+  if (IsKeyPressed(KEY_UP)) {
+    if (currentbutton_index != top_button_index) {
+      currentbutton_index--;
+    } else {
+      currentbutton_index = ActionMenuRects.size() - 1;
+    }
+
+    action_target->y = ActionMenuRects[currentbutton_index].y;
+  }
+
+  if (IsKeyPressed(KEY_DOWN)) {
+    if (currentbutton_index != ActionMenuRects.size() - 1) {
+      currentbutton_index++;
+    } else {
+      currentbutton_index = top_button_index;
+    }
+
+    action_target->y = ActionMenuRects[currentbutton_index].y;
+  }
+
+  if (IsKeyPressed(KEY_LEFT)) {
+    // action_target->x = action_target->x + left_vel;
+  }
+  if (IsKeyPressed(KEY_RIGHT)) {
+    // action_target->x = action_target->x + right_vel;
+  }
+
+  if (IsKeyPressed(KEY_Z)) {
+    cout << "ActionGuiLogic Z PRESSED" << endl;
+
+    Z_pressed_count++;
+
+    X_pressed_count = 0;
+
+    action_menu_up = false;
+  }
 }
 
-inline void AttackPressed()
-{
-	InitAttackLogic();
+inline void MoveLogic() {
+  if (move_field_up == true) {
+    temptarget = {(float)target->x, (float)target->y, (float)target->w,
+                  (float)target->h};
 
+    ColorFieldTileEntityList(colored_enemy_tiles, &target_field,
+                             map_entity_list, RED_TILE);
+
+    ColorFieldTile(target_field, target);
+
+    // if ((GetTime() - last) > input_delay) // Needed to limit target
+    // movespeed
+    //{
+    //	last = (float)GetTime();
+
+    if (combatant_list[combatant_selected].current_movecount <
+            combatant_list[combatant_selected].move_range &&
+        !moving && on_field == true) {
+      if (IsKeyPressed(KEY_UP) && !IsKeyPressed(KEY_DOWN) &&
+          !IsKeyPressed(KEY_LEFT) && !IsKeyPressed(KEY_RIGHT)) {
+        temptarget.y = temptarget.y + up_vel;
+        temptarget.x = temptarget.x + left_vel;
+
+        moved_target = true;
+
+        combatant_list[combatant_selected].current_movecount++;
+        DebugLog("Up", combatant_list[combatant_selected].current_movecount);
+        move_list.push_back(UP);
+      }
+
+      if (IsKeyPressed(KEY_DOWN) && !IsKeyPressed(KEY_UP) &&
+          !IsKeyPressed(KEY_LEFT) && !IsKeyPressed(KEY_RIGHT)) {
+        temptarget.y = temptarget.y + down_vel;
+        temptarget.x = temptarget.x + right_vel;
+
+        moved_target = true;
+
+        combatant_list[combatant_selected].current_movecount++;
+        DebugLog("Down", combatant_list[combatant_selected].current_movecount);
+        move_list.push_back(DOWN);
+      }
+      if (IsKeyPressed(KEY_LEFT) && !IsKeyPressed(KEY_DOWN) &&
+          !IsKeyPressed(KEY_UP) && !IsKeyPressed(KEY_RIGHT)) {
+        temptarget.y = temptarget.y + down_vel;
+        temptarget.x = temptarget.x + left_vel;
+
+        moved_target = true;
+
+        combatant_list[combatant_selected].current_movecount++;
+        DebugLog("Left", combatant_list[combatant_selected].current_movecount);
+        move_list.push_back(LEFT);
+      }
+      if (IsKeyPressed(KEY_RIGHT) && !IsKeyPressed(KEY_DOWN) &&
+          !IsKeyPressed(KEY_UP) && !IsKeyPressed(KEY_LEFT)) {
+        temptarget.y = temptarget.y + up_vel;
+        temptarget.x = temptarget.x + right_vel;
+
+        moved_target = true;
+
+        combatant_list[combatant_selected].current_movecount++;
+        DebugLog("Right", combatant_list[combatant_selected].current_movecount);
+        move_list.push_back(RIGHT);
+      }
+    }
+
+    //	for (size_t i = 0; i < target_field.sum_of_field_tiles; i++)
+    //	{
+    if (CheckCollisionRecs({(float)temptarget.x, (float)temptarget.y,
+                            (float)temptarget.width, (float)temptarget.height},
+                           {(float)target_field.x, (float)target_field.y,
+                            (float)target_field.w, (float)target_field.h})) {
+      DebugLog("Field Collision", 0);
+
+      on_field = true;
+
+      // break;
+    } else {
+      DebugLog("Field Collision", 1);
+
+      if (combatant_list[combatant_selected].current_movecount > 0) {
+        combatant_list[combatant_selected].current_movecount--;
+      }
+
+      if (move_list.empty() != true) {
+        move_list.pop_back();
+      }
+
+      on_field = false;
+      // break;
+    }
+    //	}
+
+    if (moved_target == true) {
+      if (CheckColoredTileCollission(colored_enemy_tiles, temptarget) ||
+          CheckColoredMoveTileCollission(temptarget)) {
+        moved_target = false;
+
+        if (combatant_list[combatant_selected].current_movecount > 0) {
+          combatant_list[combatant_selected].current_movecount--;
+        }
+
+        if (move_list.empty() != true) {
+          move_list.pop_back();
+
+          collision = true;
+        }
+      }
+    }
+
+    if ((IsKeyPressed(KEY_X) && !IsKeyPressed(KEY_Z)) &&
+        move_field_up == true && X_pressed_count != 1 && !moving) {
+      // cout << "Second Press X " << X_pressed_count << endl;
+
+      // PrintMoveList();
+
+      if (move_list.empty() != true) {
+        moving = true;
+        moved_target = false;
+        temp_movecount[combatant_selected] =
+            combatant_list[combatant_selected].current_movecount;
+        // Log("current_movecount ", temp_movecount[combatant_selected]);
+
+        ResetFieldVariables();
+
+        player_animation = true;
+      } else {
+        cout << "move_list.empty() == true" << endl;
+      }
+    }
+
+    if ((IsKeyPressed(KEY_Z) && !IsKeyPressed(KEY_X)) &&
+        move_field_up == true && !moving) {
+      if (Z_pressed_count == 1 && moved_target == true) {
+        target->x = combatant_list[combatant_selected].pEntity->x;
+
+        target->y = combatant_list[combatant_selected].pEntity->y;
+
+        ResetMovedTilesColor(target_field, 2);
+
+        colored_moved_tiles.clear();
+
+        combatant_list[combatant_selected].current_movecount =
+            temp_movecount[combatant_selected];
+
+        moved_target = false;
+
+        move_list.clear();
+
+        Z_pressed_count = 0;
+
+        // Log("Z_pressed_count == 1 && moved_target == true");
+
+        // enemy_colored = false;
+        // entity_checked = 0;
+      }
+
+      if (Z_pressed_count == 1 && moved_target == false && collision == false) {
+        moved_target = false;
+
+        cout << collision << endl;
+
+        // Log("(Z_pressed_count == 1 && (moved_target == false) && collision
+        // == false) moving");
+
+        ResetFieldVariables();
+
+        enemy_colored = false;
+        entity_checked = 0;
+      }
+
+      if (Z_pressed_count == 1 && collision == true) {
+        target->x = combatant_list[combatant_selected].pEntity->x;
+
+        target->y = combatant_list[combatant_selected].pEntity->y;
+
+        if (move_list.empty() == false) {
+          ResetMovedTilesColor(target_field, 2);
+        }
+
+        colored_moved_tiles.clear();
+
+        combatant_list[combatant_selected].current_movecount =
+            temp_movecount[combatant_selected];
+
+        moved_target = false;
+
+        collision = false;
+
+        move_list.clear();
+
+        Z_pressed_count = 0;
+
+        // Log("Z_pressed_count == 1 && moved_target == true");
+
+        // enemy_colored = false;
+        // entity_checked = 0;
+      }
+    }
+
+    if (on_field == true && moved_target == true) {
+      target->x = temptarget.x;
+      target->y = temptarget.y;
+    } else {
+    }
+  }
 }
 
-inline void ActionGuiLogic()
-{
-	if (precombat == true)
-	{
-		if (ActionButton[0] == true)
-		{
+inline void CheckEnemy() {
+  for (size_t i = 0; i < enemy_list.size(); i++) {
+    // Check if target is on enemy entity position and X pressed, not on
+    // movefield, not moveing
+    if ((IsKeyPressed(KEY_X) && !IsKeyPressed(KEY_Z)) &&
+        (target->x == enemy_list[i].pEntity->x) &&
+        (target->y == enemy_list[i].pEntity->y) && move_field_up == false &&
+        action_menu_up != true && !moving) {
+      cout << "Enemy checked" << endl;
+      enemy_list[i].move_field.render_field = true;
+    }
 
-			Log("Ready");
-
-			ReadyPressed();
-
-			ActionButton[0] = false;
-		}
-	}
-	else
-	{
-		if (ActionButton[0] == true && action_menu_up == true && X_pressed_count > 1 && combatant_list[combatant_selected].current_movecount < combatant_list[combatant_selected].move_range)
-		{
-
-			Log("Move");
-
-			MovePressed();
-
-			ActionButton[0] = false;
-		}
-
-		if (ActionButton[1] == true && action_menu_up == true && X_pressed_count > 1)
-		{
-
-			printf("Attack\n");
-
-			AttackPressed();
-
-			ActionButton[1] = false;
-		}
-
-		if (ActionButton[2] == true && action_menu_up == true && X_pressed_count > 1)
-		{
-
-			printf("END\n");
-
-			EndPressed();
-
-			ActionButton[2] = false;
-		}
-	}
-
-	if (IsKeyPressed(KEY_UP))
-	{
-		if (currentbutton_index != top_button_index)
-		{
-			currentbutton_index--;
-		}
-		else
-		{
-			currentbutton_index = ActionMenuRects.size() - 1;
-		}
-
-		action_target->y = ActionMenuRects[currentbutton_index].y;
-	}
-
-	if (IsKeyPressed(KEY_DOWN))
-	{
-		if (currentbutton_index != ActionMenuRects.size() - 1)
-		{
-			currentbutton_index++;
-		}
-		else
-		{
-			currentbutton_index = top_button_index;
-		}
-
-		action_target->y = ActionMenuRects[currentbutton_index].y;
-	}
-
-	if (IsKeyPressed(KEY_LEFT))
-	{
-		// action_target->x = action_target->x + left_vel;
-	}
-	if (IsKeyPressed(KEY_RIGHT))
-	{
-		// action_target->x = action_target->x + right_vel;
-	}
-
-	if (IsKeyPressed(KEY_Z))
-	{
-		cout << "ActionGuiLogic Z PRESSED" << endl;
-
-		Z_pressed_count++;
-
-		X_pressed_count = 0;
-
-		action_menu_up = false;
-	}
+    // Check if target is on enemy entity position and X pressed, not on
+    // movefield, not moveing
+    if ((!IsKeyPressed(KEY_X) && IsKeyPressed(KEY_Z)) &&
+        (target->x == enemy_list[i].pEntity->x) &&
+        (target->y == enemy_list[i].pEntity->y) && move_field_up == false &&
+        action_menu_up != true && !moving) {
+      cout << "Enemy checked" << endl;
+      enemy_list[i].move_field.render_field = false;
+    }
+  }
 }
 
-inline void MoveLogic()
-{
-	if (move_field_up == true)
-	{
-		temptarget = { (float)target->x, (float)target->y, (float)target->w, (float)target->h };
+inline void TargetLogic() {
+  temptarget = {0, 0, 0, 0};
 
-		ColorFieldTileEntityList(colored_enemy_tiles, &target_field, map_entity_list, RED_TILE);
+  for (size_t i = 0; i < combatant_list.size(); i++) {
+    if (target->ID == combatant_list[i].pEntity->ID) {
+    } else {
+      // Check if target is on combat entity position and X pressed, not on
+      // movefield, not moveing
+      if ((IsKeyPressed(KEY_X) && !IsKeyPressed(KEY_Z)) &&
+          (target->x == combatant_list[i].pEntity->x) &&
+          (target->y == combatant_list[i].pEntity->y) &&
+          move_field_up == false && action_menu_up != true && !moving) {
+        cout << "First Press X " << X_pressed_count << endl;
 
-		ColorFieldTile(target_field, target);
+        cout << "Collision" << endl;
+        SetField(target_field, target->x, target->y, 0, GREEN_TILE);
 
-		// if ((GetTime() - last) > input_delay) // Needed to limit target movespeed
-		//{
-		//	last = (float)GetTime();
+        // field_up = true;
 
-		if (combatant_list[combatant_selected].current_movecount < combatant_list[combatant_selected].move_range && !moving && on_field == true)
-		{
+        Z_pressed_count = 0;
 
-			if (IsKeyPressed(KEY_UP) && !IsKeyPressed(KEY_DOWN) && !IsKeyPressed(KEY_LEFT) && !IsKeyPressed(KEY_RIGHT))
-			{
-				temptarget.y = temptarget.y + up_vel;
-				temptarget.x = temptarget.x + left_vel;
+        X_pressed_count = 1;
 
-				moved_target = true;
+        combatant_selected = i;
 
-				combatant_list[combatant_selected].current_movecount++;
-				DebugLog("Up", combatant_list[combatant_selected].current_movecount);
-				move_list.push_back(UP);
-			}
+        action_target->x = (float)(combatant_list[i].pEntity->x +
+                                   combatant_list[i].pEntity->w) +
+                           16;
+        action_target->y = (float)(combatant_list[i].pEntity->y -
+                                   combatant_list[i].pEntity->h) +
+                           20;
 
-			if (IsKeyPressed(KEY_DOWN) && !IsKeyPressed(KEY_UP) && !IsKeyPressed(KEY_LEFT) && !IsKeyPressed(KEY_RIGHT))
-			{
-				temptarget.y = temptarget.y + down_vel;
-				temptarget.x = temptarget.x + right_vel;
+        setActionMenu();
 
-				moved_target = true;
+        action_menu_up = true;
 
-				combatant_list[combatant_selected].current_movecount++;
-				DebugLog("Down", combatant_list[combatant_selected].current_movecount);
-				move_list.push_back(DOWN);
-			}
-			if (IsKeyPressed(KEY_LEFT) && !IsKeyPressed(KEY_DOWN) && !IsKeyPressed(KEY_UP) && !IsKeyPressed(KEY_RIGHT))
-			{
-				temptarget.y = temptarget.y + down_vel;
-				temptarget.x = temptarget.x + left_vel;
+        break;
+      }
+    }
+  }
 
-				moved_target = true;
+  if (move_field_up == true) {
+    MoveLogic();
+  } else if (attacking == true) {
+    AttackLogic();
+  } else  // Not on a movefield
+  {
+    if (action_menu_up != true) {
+      CheckEnemy();
 
-				combatant_list[combatant_selected].current_movecount++;
-				DebugLog("Left", combatant_list[combatant_selected].current_movecount);
-				move_list.push_back(LEFT);
-			}
-			if (IsKeyPressed(KEY_RIGHT) && !IsKeyPressed(KEY_DOWN) && !IsKeyPressed(KEY_UP) && !IsKeyPressed(KEY_LEFT))
-			{
-				temptarget.y = temptarget.y + up_vel;
-				temptarget.x = temptarget.x + right_vel;
+      if ((GetTime() - last2) >
+          input_delay)  // Needed to limit target movespeed
+      {
+        last2 = (float)GetTime();
 
-				moved_target = true;
+        if (IsKeyDown(KEY_UP)) {
+          target->y = target->y + up_vel;
+        }
 
-				combatant_list[combatant_selected].current_movecount++;
-				DebugLog("Right", combatant_list[combatant_selected].current_movecount);
-				move_list.push_back(RIGHT);
-			}
-		}
+        if (IsKeyDown(KEY_DOWN)) {
+          target->y = target->y + down_vel;
+        }
+        if (IsKeyDown(KEY_LEFT)) {
+          target->x = target->x + left_vel;
+        }
+        if (IsKeyDown(KEY_RIGHT)) {
+          target->x = target->x + right_vel;
+        }
+      }
 
-		//	for (size_t i = 0; i < target_field.sum_of_field_tiles; i++)
-		//	{
-		if (CheckCollisionRecs(
-			{ (float)temptarget.x, (float)temptarget.y, (float)temptarget.width, (float)temptarget.height },
-			{ (float)target_field.x, (float)target_field.y, (float)target_field.w, (float)target_field.h }))
-		{
+      // colored_tiles.clear();
 
-			DebugLog("Field Collision", 0);
-
-			on_field = true;
-
-			//break;
-		}
-		else
-		{
-			DebugLog("Field Collision", 1);
-
-			if (combatant_list[combatant_selected].current_movecount > 0)
-			{
-				combatant_list[combatant_selected].current_movecount--;
-			}
-
-			if (move_list.empty() != true)
-			{
-				move_list.pop_back();
-			}
-
-			on_field = false;
-			//break;
-		}
-		//	}
-
-		if (moved_target == true)
-		{
-			if (CheckColoredTileCollission(colored_enemy_tiles, temptarget) || CheckColoredMoveTileCollission(temptarget))
-			{
-				moved_target = false;
-
-				if (combatant_list[combatant_selected].current_movecount > 0)
-				{
-					combatant_list[combatant_selected].current_movecount--;
-				}
-
-				if (move_list.empty() != true)
-				{
-
-					move_list.pop_back();
-
-					collision = true;
-				}
-			}
-		}
-
-		if ((IsKeyPressed(KEY_X) && !IsKeyPressed(KEY_Z)) && move_field_up == true && X_pressed_count != 1 && !moving)
-		{
-			// cout << "Second Press X " << X_pressed_count << endl;
-
-			// PrintMoveList();
-
-			if (move_list.empty() != true)
-			{
-				moving = true;
-				moved_target = false;
-				temp_movecount[combatant_selected] = combatant_list[combatant_selected].current_movecount;
-				// Log("current_movecount ", temp_movecount[combatant_selected]);
-
-				ResetFieldVariables();
-
-				player_animation = true;
-			}
-			else
-			{
-				cout << "move_list.empty() == true" << endl;
-			}
-		}
-
-		if ((IsKeyPressed(KEY_Z) && !IsKeyPressed(KEY_X)) && move_field_up == true && !moving)
-		{
-
-			if (Z_pressed_count == 1 && moved_target == true)
-			{
-				target->x = combatant_list[combatant_selected].pEntity->x;
-
-				target->y = combatant_list[combatant_selected].pEntity->y;
-
-				ResetMovedTilesColor(target_field, 2);
-
-				colored_moved_tiles.clear();
-
-				combatant_list[combatant_selected].current_movecount = temp_movecount[combatant_selected];
-
-				moved_target = false;
-
-				move_list.clear();
-
-				Z_pressed_count = 0;
-
-				// Log("Z_pressed_count == 1 && moved_target == true");
-
-				// enemy_colored = false;
-				// entity_checked = 0;
-			}
-
-			if (Z_pressed_count == 1 && moved_target == false && collision == false)
-			{
-				moved_target = false;
-
-				cout << collision << endl;
-
-				//Log("(Z_pressed_count == 1 && (moved_target == false) && collision == false) moving");
-
-				ResetFieldVariables();
-
-				enemy_colored = false;
-				entity_checked = 0;
-			}
-
-			if (Z_pressed_count == 1 && collision == true)
-			{
-				target->x = combatant_list[combatant_selected].pEntity->x;
-
-				target->y = combatant_list[combatant_selected].pEntity->y;
-
-				if (move_list.empty() == false)
-				{
-					ResetMovedTilesColor(target_field, 2);
-				}
-
-				colored_moved_tiles.clear();
-
-				combatant_list[combatant_selected].current_movecount = temp_movecount[combatant_selected];
-
-				moved_target = false;
-
-				collision = false;
-
-				move_list.clear();
-
-				Z_pressed_count = 0;
-
-				// Log("Z_pressed_count == 1 && moved_target == true");
-
-				// enemy_colored = false;
-				// entity_checked = 0;
-			}
-		}
-
-		if (on_field == true && moved_target == true)
-		{
-			target->x = temptarget.x;
-			target->y = temptarget.y;
-		}
-		else
-		{
-		}
-	}
+      last_tile = {-100, -100, 0, 0};
+    }
+  }
 }
 
-inline void CheckEnemy()
-{
-	for (size_t i = 0; i < enemy_list.size(); i++)
-	{
-		// Check if target is on enemy entity position and X pressed, not on movefield, not moveing
-		if ((IsKeyPressed(KEY_X) && !IsKeyPressed(KEY_Z)) && (target->x == enemy_list[i].pEntity->x) && (target->y == enemy_list[i].pEntity->y) && move_field_up == false && action_menu_up != true && !moving)
-		{
-			cout << "Enemy checked" << endl;
-			enemy_list[i].move_field.render_field = true;
+inline void MoveUnit() {
+  int speed_adjustment = 8;
+  int static frame_count = 0;
+  if (action_menu_up != true) {
+    if ((GetTime() - last) > 0.1)  // Needed to limit target movespeed
+    {
+ 
+      last = (float)GetTime();
 
-		}
+      SetEllipsesColPointArray(world_player.pEntity->el, ellipses_point);
 
-		// Check if target is on enemy entity position and X pressed, not on movefield, not moveing
-		if ((!IsKeyPressed(KEY_X) && IsKeyPressed(KEY_Z)) && (target->x == enemy_list[i].pEntity->x) && (target->y == enemy_list[i].pEntity->y) && move_field_up == false && action_menu_up != true && !moving)
-		{
-			cout << "Enemy checked" << endl;
-			enemy_list[i].move_field.render_field = false;
-		}
+      for (size_t i = 0; i < map_entity_list.size(); i++) {
+        //     if (map_entity_list[i] != world_player.pEntity->ID) {
+        //       GetEllipsesColPoint(collision_arry, map_entity_list[i].el,
+        //                           ellipses_point);
+        //     }
 
-	}
-}
+        //     for (size_t i = 0; i < collision_arry.size(); i++) {
+        //       if (collision_arry[i]) {
+        //         cout << "true"
+        //              << " ";
+        //       } else {
+        //         cout << "false"
+        //              << " ";
+        //       }
+        //     }
 
-inline void TargetLogic()
-{
+        //     cout << endl;
+      }
 
-	temptarget = { 0, 0, 0, 0 };
+      if (IsKeyDown(KEY_W)) {
+        // if (CheckCollisionRecs(
+        // 	{ (float)combatant_list[0].pEntity->x,
+        // (float)combatant_list[0].pEntity->y,
+        // (float)combatant_list[0].pEntity->w,
+        // (float)combatant_list[0].pEntity->h }, 	{ (float)target_field.x,
+        // (float)target_field.y, (float)target_field.w, (float)target_field.h
+        // }))
+        // {
+        // }
 
-	for (size_t i = 0; i < combatant_list.size(); i++)
-	{
-		if (target->ID == combatant_list[i].pEntity->ID)
-		{
-		}
-		else
-		{
-			// Check if target is on combat entity position and X pressed, not on movefield, not moveing
-			if ((IsKeyPressed(KEY_X) && !IsKeyPressed(KEY_Z)) && (target->x == combatant_list[i].pEntity->x) && (target->y == combatant_list[i].pEntity->y) && move_field_up == false && action_menu_up != true && !moving)
-			{
-				cout << "First Press X " << X_pressed_count << endl;
+        if (frame_count % 8 == 0) {
+          AnimateMovement(combatant_list[0].pEntity, UP);
+        }
 
-				cout << "Collision" << endl;
-				SetField(target_field, target->x, target->y, 0, (Col)GREEN_TILE);
+        combatant_list[0].pEntity->y = combatant_list[0].pEntity->y -
+                                       (speed_adjustment / speed_adjustment);
+      }
 
-				// field_up = true;
+      if (IsKeyDown(KEY_S)) {
+        if (frame_count % 4 == 0) {
+          AnimateMovement(combatant_list[0].pEntity, DOWN);
+        }
+        combatant_list[0].pEntity->y = combatant_list[0].pEntity->y +
+                                       (speed_adjustment / speed_adjustment);
+      }
 
-				Z_pressed_count = 0;
+      if (IsKeyDown(KEY_A)) {
+        if (frame_count % 4 == 0) {
+          AnimateMovement(combatant_list[0].pEntity, LEFT);
+        }
+        combatant_list[0].pEntity->x = combatant_list[0].pEntity->x -
+                                       (speed_adjustment / speed_adjustment);
+      }
+      if (IsKeyDown(KEY_D)) {
+        if (frame_count % 4 == 0) {
+          AnimateMovement(combatant_list[0].pEntity, RIGHT);
+        }
+        if (collision_map) {
+          ///
 
-				X_pressed_count = 1;
+        } else {
+          combatant_list[0].pEntity->x = combatant_list[0].pEntity->x +
+                                         (speed_adjustment / speed_adjustment);
+        }
+      }
+      frame_count++;
 
-				combatant_selected = i;
-
-				action_target->x = (float)(combatant_list[i].pEntity->x + combatant_list[i].pEntity->w) + 16;
-				action_target->y = (float)(combatant_list[i].pEntity->y - combatant_list[i].pEntity->h) + 20;
-
-				setActionMenu();
-
-				action_menu_up = true;
-
-				break;
-			}
-		}
-	}
-
-
-
-	if (move_field_up == true)
-	{
-		MoveLogic();
-	}
-	else if (attacking == true)
-	{
-		AttackLogic();
-	}
-	else // Not on a movefield
-	{
-		if (action_menu_up != true)
-		{
-			CheckEnemy();
-
-			if ((GetTime() - last2) > input_delay) // Needed to limit target movespeed
-			{
-				last2 = (float)GetTime();
-
-				if (IsKeyDown(KEY_UP))
-				{
-					target->y = target->y + up_vel;
-				}
-
-				if (IsKeyDown(KEY_DOWN))
-				{
-					target->y = target->y + down_vel;
-				}
-				if (IsKeyDown(KEY_LEFT))
-				{
-					target->x = target->x + left_vel;
-				}
-				if (IsKeyDown(KEY_RIGHT))
-				{
-					target->x = target->x + right_vel;
-				}
-			}
-
-			// colored_tiles.clear();
-
-			last_tile = { -100, -100, 0, 0 };
-		}
-	}
-}
-
-inline void MoveUnit()
-{
-	if (action_menu_up != true)
-	{
-		if ((GetTime() - last) > 0.08) // Needed to limit target movespeed
-		{
-			last = (float)GetTime();
-
-			if (IsKeyDown(KEY_W))
-			{
-				AnimateMovement(combatant_list[0].pEntity, UP);
-				combatant_list[0].pEntity->y = combatant_list[0].pEntity->y - (right_vel / 2);
-			}
-
-			if (IsKeyDown(KEY_S))
-			{
-				AnimateMovement(combatant_list[0].pEntity, DOWN);
-				combatant_list[0].pEntity->y = combatant_list[0].pEntity->y + (right_vel / 2);
-			}
-			if (IsKeyDown(KEY_A))
-			{
-				AnimateMovement(combatant_list[0].pEntity, LEFT);
-				combatant_list[0].pEntity->x = combatant_list[0].pEntity->x - (right_vel / 2);
-			}
-			if (IsKeyDown(KEY_D))
-			{
-				AnimateMovement(combatant_list[0].pEntity, RIGHT);
-
-				combatant_list[0].pEntity->x = combatant_list[0].pEntity->x + (right_vel / 2);
-			}
-		}
-	}
+      if (frame_count == 41) {
+        frame_count = 0;
+      }
+    }
+  }
 }
 
 static bool startset = false;
 
-inline bool HoverSelect(field& fieldRef, entity* e)
-{
-	bool ret = false;
+inline bool HoverSelect(field& fieldRef, entity* e) {
+  bool ret = false;
 
-	float mouseX = GetMouseX();
-	float mouseY = GetMouseY();
+  float mouseX = GetMouseX();
+  float mouseY = GetMouseY();
 
-	Rectangle mouseRect = { mouseX, mouseY, 1, 1 };
-	//	Rectangle tempEntityRect;
+  Rectangle mouseRect = {mouseX, mouseY, 1, 1};
+  //	Rectangle tempEntityRect;
 
-	// Rectangle tempEntityRect = { 0,0,0,0 };
+  // Rectangle tempEntityRect = { 0,0,0,0 };
 
-	combatant_list[combatant_selected].pEntity->render_this = true;
+  combatant_list[combatant_selected].pEntity->render_this = true;
 
-	Rectangle tempEntityRect;
+  Rectangle tempEntityRect;
 
-	if (startset == false)
-	{
-		tempEntityRect = { (float)fieldRef.tiles[0].x, (float)fieldRef.tiles[0].y, (float)fieldRef.tiles[0].w, (float)fieldRef.tiles[0].h };
+  if (startset == false) {
+    tempEntityRect = {(float)fieldRef.tiles[0].x, (float)fieldRef.tiles[0].y,
+                      (float)fieldRef.tiles[0].w, (float)fieldRef.tiles[0].h};
 
-		combatant_list[combatant_selected].pEntity->x = tempEntityRect.x;
+    combatant_list[combatant_selected].pEntity->x = tempEntityRect.x;
 
-		combatant_list[combatant_selected].pEntity->y = tempEntityRect.y;
+    combatant_list[combatant_selected].pEntity->y = tempEntityRect.y;
 
-		cout << (float)fieldRef.tiles[10].x << endl;
+    cout << (float)fieldRef.tiles[10].x << endl;
 
-		cout << (float)fieldRef.tiles[10].y << endl;
+    cout << (float)fieldRef.tiles[10].y << endl;
 
-		startset = true;
+    startset = true;
 
-		ret = true;
-	}
+    ret = true;
+  }
 
-	for (size_t i = 0; i < fieldRef.sum_of_field_tiles; i++)
-	{
-		tempEntityRect = { (float)fieldRef.tiles[i].x, (float)fieldRef.tiles[i].y, (float)fieldRef.tiles[i].w, (float)fieldRef.tiles[i].h };
+  for (size_t i = 0; i < fieldRef.sum_of_field_tiles; i++) {
+    tempEntityRect = {(float)fieldRef.tiles[i].x, (float)fieldRef.tiles[i].y,
+                      (float)fieldRef.tiles[i].w, (float)fieldRef.tiles[i].h};
 
-		if (CollisionIsoTrianglesMouse(tempEntityRect) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-		{
-			printf("Collision with tile: x:%.0f y:%.0f \n", tempEntityRect.x, tempEntityRect.y);
+    if (CollisionIsoTrianglesMouse(tempEntityRect) &&
+        IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+      printf("Collision with tile: x:%.0f y:%.0f \n", tempEntityRect.x,
+             tempEntityRect.y);
 
-			combatant_list[combatant_selected].pEntity->x = tempEntityRect.x;
+      combatant_list[combatant_selected].pEntity->x = tempEntityRect.x;
 
-			combatant_list[combatant_selected].pEntity->y = tempEntityRect.y;
+      combatant_list[combatant_selected].pEntity->y = tempEntityRect.y;
 
-			ret = true;
-		}
-	}
+      ret = true;
+    }
+  }
 
-	return ret;
+  return ret;
 }
 
-inline void MouseLogic()
-{
-	if (IsMouseButtonDown(MOUSE_LEFT_BUTTON) && true)
-	{
-		//	printf("Button LEFT is pressed and Entity one clicked");
-	}
+inline void MouseLogic() {
+  if (IsMouseButtonDown(MOUSE_LEFT_BUTTON) && true) {
+    //	printf("Button LEFT is pressed and Entity one clicked");
+  }
 
-	if (IsMouseButtonDown(MOUSE_RIGHT_BUTTON))
-	{
-		// printf("Button RIGHT is pressed");
+  if (IsMouseButtonDown(MOUSE_RIGHT_BUTTON)) {
+    // printf("Button RIGHT is pressed");
 
-		if (PLACING_ENTITY)
-		{
-			PLACING_ENTITY = false;
-			// printf("Button RIGHT is pressed");
-		}
-	}
+    if (PLACING_ENTITY) {
+      PLACING_ENTITY = false;
+      // printf("Button RIGHT is pressed");
+    }
+  }
 }
 
-inline void EditorGuiLogic()
-{
-	if (SaveButton001 == true)
-	{
+inline void EditorGuiLogic() {
+  if (SaveButton001 == true) {
+    printf("Saved entitiy data\n");
 
-		printf("Saved entitiy data\n");
+    WriteEntityData(GAME_ASSET_PATH + "game_entity_data.txt");
 
-		WriteEntityData(GAME_ASSET_PATH + "game_entity_data.txt");
+    SaveButton001 = false;
+  }
 
-		SaveButton001 = false;
-	}
+  if (SaveButton002 == true) {
+    printf("Saved Sprite data\n");
 
-	if (SaveButton002 == true)
-	{
+    WriteSpriteData(GAME_ASSET_PATH + "game_sprite_data.txt");
 
-		printf("Saved Sprite data\n");
+    SaveButton002 = false;
+  }
 
-		WriteSpriteData(GAME_ASSET_PATH + "game_sprite_data.txt");
+  if (ReloadButton == true) {
+    printf("Reload");
 
-		SaveButton002 = false;
-	}
-
-	if (ReloadButton == true)
-	{
-
-		printf("Reload");
-
-		ReloadButton = false;
-	}
+    ReloadButton = false;
+  }
 }
 
 bool run_init = false;
 
-inline void CombatLogic()
-{
-	if (combat == true)
-	{
-		UpdateGameTurn();
+inline void CombatLogic() {
+  if (combat == true) {
+    UpdateGameTurn();
 
-		if (run_init == false)
-		{
-			InitCombat();
+    if (run_init == false) {
+      InitCombat();
 
-			run_init = true;
+      run_init = true;
 
-			precombat = true;
+      precombat = true;
 
-			combatant_selected = 0;
+      combatant_selected = 0;
 
-			action_menu_up = true;
-		}
+      action_menu_up = true;
+    }
 
-		if (precombat == true)
-		{
-			if (HoverSelect(position_field, combatant_list[combatant_selected].pEntity) == true)
-			{
-				setActionMenu();
-			}
-		}
+    if (precombat == true) {
+      if (HoverSelect(position_field,
+                      combatant_list[combatant_selected].pEntity) == true) {
+        setActionMenu();
+      }
+    }
 
-		if (PLAYER_TURN == true)
-		{
-			SetEnemyFields();
+    if (PLAYER_TURN == true) {
+      SetEnemyFields();
 
-			if (toggle_enemy_movefields == true)
-			{
-				SetRenderEnemyFields(true);
-			}
-		}
-		else
-		{
-			EnemyLogic();
-		}
-	}
-	else
-	{
-		// Overworld Logic
-		gui_entity_list[0].render_this = true;
-		world_player.pEntity->render_this = true;
-		MoveUnit();
-	}
+      if (toggle_enemy_movefields == true) {
+        SetRenderEnemyFields(true);
+      }
+    } else {
+      EnemyLogic();
+    }
+  } else {
+    // Overworld Logic
+    gui_entity_list[0].render_this = true;
+    world_player.pEntity->render_this = false;
+    MoveUnit();
+  }
 }
-
-
-
 
 #endif

@@ -2,17 +2,14 @@
 
 ======================================================================== */
 
-
 //#include "file_handler.cpp" // included in logic.cpp
 //#include "game_engine.cpp" // included in logic.cpp
 
-#include "logic.cpp"
+#include "../header_files/raylib.h"
+#include "../header_files/raylib_functions.h"
 #include "combat.cpp"
 #include "gui.cpp"
-#include "../header_files/raylib.h"
-
-#include "../header_files/raylib_functions.h"
-
+#include "logic.cpp"
 
 //----------------------------------------------------------------------------------
 // Global Variables Definition (local to this module)
@@ -22,14 +19,14 @@ static int framesCounter;
 static int finishScreen;
 
 //----------------------------------------------------------------------------------
-//  Variables Definition 
+//  Variables Definition
 //----------------------------------------------------------------------------------
 
-Rectangle panelRec2 = { 20, 40, 200, 150 };
-Rectangle panelContentRec2 = { 0, 0, 340, 340 };
-Vector2 panelScroll2 = { 99, -20 };
+Rectangle panelRec2 = {20, 40, 200, 150};
+Rectangle panelContentRec2 = {0, 0, 340, 340};
+Vector2 panelScroll2 = {99, -20};
 
-Rectangle ctrlvalue = { 0, 0, 0, 0 };
+Rectangle ctrlvalue = {0, 0, 0, 0};
 
 float offset_x = 0;
 float offset_y = 0;
@@ -38,421 +35,371 @@ float offset_y = 0;
 // Function Definitions
 //----------------------------------------------------------------------------------
 
+inline void Load() {
+  int sprite_count = 0;
 
-inline void Load()
-{
+  png_list = GetPNG_FilesInDir(GAME_ASSET_PATH.c_str());
 
+  // Loads all png files into textures
+  if (!GAME_CreateTexturesFromImage()) {
+    printf("Failed to load GUI media!\n");
+  } else {
+  }
 
-	int sprite_count = 0;
+  sprite_count = ReadSpriteData(MAPS_PATH + "game_sprite_data.txt");
 
-	png_list = GetPNG_FilesInDir(GAME_ASSET_PATH.c_str());
+  if (sprite_count > 0) {
+    printf("LoadSpriteData(sprite_count), sprite_count was %d\n", sprite_count);
+    LoadSpriteData(sprite_count);
+  } else {
+    printf("LoadSpriteData(sprite_count), sprite_count was %d\n", sprite_count);
+  }
 
-	//Loads all png files into textures
-	if (!GAME_CreateTexturesFromImage())
-	{
-		printf("Failed to load GUI media!\n");
-	}
-	else
-	{
+  entity_count = ReadEntityData(MAPS_PATH + "game_entity_data_temp.txt");
 
-	}
+  if (entity_count > 0) {
+    printf("LoadEntityData(entity_count), entity_count was %d\n", entity_count);
+    LoadEntityData(entity_count);
+  } else {
+    printf("LoadEntityData(entity_count), entity_count was %d\n", entity_count);
+  }
 
-	sprite_count = ReadSpriteData(MAPS_PATH + "game_sprite_data.txt");
+  SetSpriteTextures();
 
-	if (sprite_count > 0)
-	{
-		printf("LoadSpriteData(sprite_count), sprite_count was %d\n", sprite_count);
-		LoadSpriteData(sprite_count);
-	}
-	else
-	{
-		printf("LoadSpriteData(sprite_count), sprite_count was %d\n", sprite_count);
-	}
+  if (ReadMapDataTiledMap(TILED_MAPS_PATH + "untitled.tmx")) {
+    setMapCordsTiled();
+  }
 
-	entity_count = ReadEntityData(MAPS_PATH + "game_entity_data_temp.txt");
+  // if (ReadMapData(MAPS_PATH + "map2.txt"))
+  // {
+  // 	setMapCords();
+  // }
+  // else
+  // {
+  // 	printf("\n");
+  // }
 
-	if (entity_count > 0)
-	{
-		printf("LoadEntityData(entity_count), entity_count was %d\n", entity_count);
-		LoadEntityData(entity_count);
-	}
-	else
-	{
-		printf("LoadEntityData(entity_count), entity_count was %d\n", entity_count);
-	}
+  setPosCords();
 
-	SetSpriteTextures();
+  setEntityCords(0);
+  setEntityCords(1);
+  setEntityCords(2);
 
-	if (ReadMapDataTiledMap(TILED_MAPS_PATH + "untitled.tmx"))
-	{
-		setMapCordsTiled();
-	}
+  // Loads entities seperate from game entities that need to be present on a map
+  setGuiEntities();
 
-	// if (ReadMapData(MAPS_PATH + "map2.txt"))
-	// {
-	// 	setMapCords();
-	// }
-	// else
-	// {
-	// 	printf("\n");
-	// }
+  setPlayer();
 
-	setPosCords();
+  printf("Sprite string:%s\n", sprite_png_list.c_str());
 
-	setEntityCords(0);
-	setEntityCords(1);
-	setEntityCords(2);
-
-
-	// Loads entities seperate from game entities that need to be present on a map
-	setGuiEntities();
-
-	setPlayer();
-
-	printf("Sprite string:%s\n", sprite_png_list.c_str());
-
-	printf("Load done\n");
-
+  printf("Load done\n");
 }
 
+inline void Init() {
+  player_entity_ID = 9;
 
-inline void Init()
-{
+  Load();
 
-	player_entity_ID = 9;
+  InitLog();
+  InitDebugLog();
 
-	Load();
+  // Init seed used for randomness
+  rng.seed(time(0));
 
-	InitLog();
-	InitDebugLog();
+  Render_List temp1;
+  Render_List temp2;
 
-	// Init seed used for randomness
-	rng.seed(time(0));
+  render_list.push_back(temp1);
 
-	Render_List temp1;
-	Render_List temp2;
+  render_list.push_back(temp1);
 
-	render_list.push_back(temp1);
+  objects_to_render.push_back(0);
+  objects_to_render.push_back(0);
 
-	render_list.push_back(temp1);
+  // Init this with the first entity, used to render entity info
+  game_entity = &entity_list[0];
 
-	objects_to_render.push_back(0);
-	objects_to_render.push_back(0);
+  ////////////////////   TARGET //////////////////////////////////
 
-	// Init this with the first entity, used to render entity info
-	game_entity = &entity_list[0];
+  target = &getEntityByID("target", gui_entity_list);
 
-	////////////////////   TARGET //////////////////////////////////
+  target->render_this = false;
 
-	target = &getEntityByID("target", gui_entity_list);
+  ////////////////////   TARGET FIELD //////////////////////////////////
 
-	target->render_this = false;
+  target_field.range = 4;
 
-	////////////////////   TARGET FIELD //////////////////////////////////
+  SetField(target_field, entity_list[0].x, entity_list[0].y, SQUARE,
+           GREEN_TILE);
 
-	target_field.range = 4;
+  fields.push_back(&target_field);
 
-	SetField(target_field, entity_list[0].x, entity_list[0].y, SQUARE, (Col)GREEN_TILE);
+  ////////////////////  ATTACK TARGET FIELD //////////////////////////////////
 
-	fields.push_back(&target_field);
+  attack_target_field.range = 4;
 
+  attack_target_field.field_alpha = 0.5;
 
-	////////////////////  ATTACK TARGET FIELD //////////////////////////////////
+  SetField(attack_target_field, entity_list[0].x, entity_list[0].y, SQUARE,
+           BLUE_TILE);
 
-	attack_target_field.range = 4;
+  fields.push_back(&attack_target_field);
 
-	attack_target_field.field_alpha = 0.5;
+  ////////////////////   PLAYER(Julius) //////////////////////////////////
 
-	SetField(attack_target_field, entity_list[0].x, entity_list[0].y, SQUARE, (Col)BLUE_TILE);
+  cout << "PLAYER this happens " << endl;
 
-	fields.push_back(&attack_target_field);
+  world_player.pEntity = &getEntityByID(player_entity_ID, map_entity_list);
 
-	////////////////////   PLAYER(Julius) //////////////////////////////////
+  world_player.move_range = 8;
 
-	cout << "PLAYER this happens " << endl;
+  world_player.attack_range = 2;
 
-	world_player.pEntity = &getEntityByID(player_entity_ID, map_entity_list);
+  world_player.pEntity->use_shader = true;
 
-	world_player.move_range = 8;
+  world_player.pEntity->render_this = false;
 
-	world_player.attack_range = 2;
+  combatant_list.push_back(world_player);
 
-	world_player.pEntity->use_shader = true;
+  ////////////////////   ENEMIES  //////////////////////////////////
 
-	combatant_list.push_back(world_player);
+  cout << "ENEMIES this happens 2" << endl;
 
-	////////////////////   ENEMIES  //////////////////////////////////
+  combatant e1;
 
-	cout << "ENEMIES this happens 2" << endl;
+  combatant e2;
 
-	combatant e1;
+  e1.move_range = 2;
 
-	combatant e2;
+  e2.move_range = 2;
 
-	e1.move_range = 2;
+  e1.move_field.range = 3;
 
-	e2.move_range = 2;
+  e2.move_field.range = 3;
 
-	e1.move_field.range = 3;
+  e1.pEntity = &getEntityByID(24, map_entity_list);
 
-	e2.move_field.range = 3;
+  e2.pEntity = &getEntityByID(25, map_entity_list);
 
-	e1.pEntity = &getEntityByID(24, map_entity_list);
+  enemy_list.push_back(e1);
 
-	e2.pEntity = &getEntityByID(25, map_entity_list);
+  enemy_list.push_back(e2);
 
-	enemy_list.push_back(e1);
+  InitEnemyFields();
 
-	enemy_list.push_back(e2);
+  ////////////////////   LOG  //////////////////////////////////
 
-	InitEnemyFields();
+  Log("Init");
 
-	////////////////////   LOG  //////////////////////////////////
+  Log("test 1");
 
-	Log("Init");
-
-	Log("test 1");
-
-	for (size_t i = 0; i < 15; i++)
-	{
-		Log("Log");
-	}
-
+  for (size_t i = 0; i < 15; i++) {
+    Log("Log");
+  }
 }
 
-inline void InitShaders()
-{
-	printf("######################### SHADER ##############################\n");
-    shader = LoadShader(0, TextFormat("resources/assets/shaders/outline.fs"));
+inline void InitShaders() {
+  printf("######################### SHADER ##############################\n");
+  shader = LoadShader(0, TextFormat("resources/assets/shaders/outline.fs"));
 
+  float outlineSize = 1.75f;
+  float outlineColor[4] = {0.0f, 1.0f, 0.0f, 1.0f};  // Normalized Greed color
 
-	float outlineSize = 1.75f;
-	float outlineColor[4] = { 0.0f, 1.0f, 0.0f, 1.0f };     // Normalized Greed color
+  // sprite w : [28] sprite h : [40] -> Julius
+  float textureSize[2] = {(float)(140), (float)(158)};
 
-	// sprite w : [28] sprite h : [40] -> Julius
-	float textureSize[2] = { (float)(140), (float)(158) };
+  // Get shader locations
+  int outlineSizeLoc = GetShaderLocation(shader, "outlineSize");
+  int outlineColorLoc = GetShaderLocation(shader, "outlineColor");
+  int textureSizeLoc = GetShaderLocation(shader, "textureSize");
 
-	// Get shader locations
-	int outlineSizeLoc = GetShaderLocation(shader, "outlineSize");
-	int outlineColorLoc = GetShaderLocation(shader, "outlineColor");
-	int textureSizeLoc = GetShaderLocation(shader, "textureSize");
-
-	// Set shader values (they can be changed later)
-	SetShaderValue(shader, outlineSizeLoc, &outlineSize, SHADER_UNIFORM_FLOAT);
-	SetShaderValue(shader, outlineColorLoc, outlineColor, SHADER_UNIFORM_VEC4);
-	SetShaderValue(shader, textureSizeLoc, textureSize, SHADER_UNIFORM_VEC2);
+  // Set shader values (they can be changed later)
+  SetShaderValue(shader, outlineSizeLoc, &outlineSize, SHADER_UNIFORM_FLOAT);
+  SetShaderValue(shader, outlineColorLoc, outlineColor, SHADER_UNIFORM_VEC4);
+  SetShaderValue(shader, textureSizeLoc, textureSize, SHADER_UNIFORM_VEC2);
 }
 
 // Gameplay Screen Initialization logic
-inline void InitGameplayScreen(void)
-{
-	framesCounter = 0;
-	finishScreen = 0;
+inline void InitGameplayScreen(void) {
+  framesCounter = 0;
+  finishScreen = 0;
 
-	Init();
+  Init();
 
-	InitShaders();
+  InitShaders();
 
-	InitGui();
+  InitGui();
 
-	InitActionMenu();
-
+  InitActionMenu();
 }
 
 // Game logic
-inline void UpdateGameplayScreen(void)
-{
-	static int UpdateGameplayScreen_runonce = 0;
+inline void UpdateGameplayScreen(void) {
+  static int UpdateGameplayScreen_runonce = 0;
 
-	static int animating = 0;
+  static int animating = 0;
 
-	if (moving != true && enemy_moving != true)
-	{
-		CheckKeyboardInput();
-		//UpdateDebugText();
+  SetEntityListEllipses(map_entity_list);
 
-		//for (size_t i = 0; i < map_entity_list.size(); i++)
-		//{
-		//	if (map_entity_list[i].ID == 6)
-		//	{
-		//		if (CheckCollisionRecs({(float)world_player.pEntity->x, (float)world_player.pEntity->y,  (float)world_player.pEntity->w, (float)world_player.pEntity->h },
-		//			                   {(float)(map_entity_list[i].x),(float)(map_entity_list[i].y), (float)(map_entity_list[i].w) / 2, (float)(map_entity_list[i].h) / 2 }))
-		//		{
-		//			cout << "collision sedric" << endl;
-		//			combat = true;
-		//		}
-		//	}
-		//}
+  if (moving != true && enemy_moving != true) {
+    CheckKeyboardInput();
+    // UpdateDebugText();
 
-		if (UpdateGameplayScreen_runonce == 0)
-		{
-			printf("UpdateGameplayScreen\n");
+    for (size_t i = 0; i < map_entity_list.size(); i++) {
 
-			UpdateGameplayScreen_runonce++;
-		}
+      if (map_entity_list[i].ID == 1) {
+        // if (({(float)world_player.pEntity->x, (float)world_player.pEntity->y,
+        // (float)world_player.pEntity->w, (float)world_player.pEntity->h },
+        // 	                   {(float)(map_entity_list[i].x),(float)(map_entity_list[i].y),
+        // (float)(map_entity_list[i].w) / 2, (float)(map_entity_list[i].h) / 2
+        // }))
+        // {
+        // 	cout << "collision sedric" << endl;
+        // //combat = true;
+        // 	collision_map = true;
+        // 	break;
 
-		if (NewEntityButton)
-		{
-			printf("NewEntityButton Clicked\n");
-			PLACING_ENTITY = true;
-			NewEntityButton = false;
-		}
+        // }else
+        // {
+        // 	collision_map = false;
+        // }
+      }
+    }
 
-		if (setMouseEntity(map_entity_list) == true)
-		{
+    if (UpdateGameplayScreen_runonce == 0) {
+      printf("UpdateGameplayScreen\n");
 
-		}
+      UpdateGameplayScreen_runonce++;
+    }
 
-		CreateNewEntity();
+    if (NewEntityButton) {
+      printf("NewEntityButton Clicked\n");
+      PLACING_ENTITY = true;
+      NewEntityButton = false;
+    }
 
-		MouseLogic();
+    if (setMouseEntity(map_entity_list) == true) {
+    }
 
-		CombatLogic();
+    CreateNewEntity();
 
-		if (action_menu_up == true)
-		{
-			ActionGuiLogic();
-		}
-		else
-		{
-			target->render_this = true;
+    MouseLogic();
 
-			TargetLogic();
-		}
+    CombatLogic();
 
-		//render_entity_boxes = ToggleEntityBoxes;
+    if (action_menu_up == true) {
+      ActionGuiLogic();
+    } else {
+      target->render_this = true;
 
-	}
-	else
-	{
+      TargetLogic();
+    }
 
-		if (moving == true)
-		{
-			if (combatant_selected > -1)
-			{
-				MovementAnimated(combatant_list[combatant_selected].pEntity);
-				//moving = false;
-			}
-		}
+    // render_entity_boxes = ToggleEntityBoxes;
 
-		if (enemy_moving == true)
-		{
-			EnemyMovementAnimated();
-		}
-	}
+  } else {
+    if (moving == true) {
+      if (combatant_selected > -1) {
+        MovementAnimated(combatant_list[combatant_selected].pEntity);
+        // moving = false;
+      }
+    }
 
-
+    if (enemy_moving == true) {
+      EnemyMovementAnimated();
+    }
+  }
 }
 
 // Gameplay Screen Rendering
-inline void DrawGameplayScreen(void)
-{
-	static int DrawGameplayScreen_runonce = 0;
+inline void DrawGameplayScreen(void) {
+  static int DrawGameplayScreen_runonce = 0;
 
-	if (DrawGameplayScreen_runonce == 0)
-	{
-		printf("DrawGameplayScreen\n");
-	}
+  if (DrawGameplayScreen_runonce == 0) {
+    printf("DrawGameplayScreen\n");
+  }
 
-	DrawFPS(GameGui.x - 200, 0);
+  DrawFPS(GameGui.x - 200, 0);
 
-	for (size_t i = 0; i < objects_to_render.size(); i++)
-	{
-		objects_to_render[i] = 0;
-	}
+  for (size_t i = 0; i < objects_to_render.size(); i++) {
+    objects_to_render[i] = 0;
+  }
 
-	if (DrawGameplayScreen_runonce == 0)
-	{
-		printf("This happens 1\n");
-	}
+  if (DrawGameplayScreen_runonce == 0) {
+    printf("This happens 1\n");
+  }
 
-	RenderEntities(gui_entity_list, RENDER_INDEX);
+  RenderEntities(gui_entity_list, RENDER_INDEX);
 
-	RenderEntities(map_entity_list, RENDER_INDEX);
+  RenderEntities(map_entity_list, RENDER_INDEX);
 
-	RenderEntities(new_entity_list, RENDER_INDEX);
+  RenderEntities(new_entity_list, RENDER_INDEX);
 
-	if (DrawGameplayScreen_runonce == 0)
-	{
-		printf("This happens 2\n");
+  if (DrawGameplayScreen_runonce == 0) {
+    printf("This happens 2\n");
+  }
 
-	}
+  RenderAllFields();
 
-	RenderAllFields();
+  if (DrawGameplayScreen_runonce == 0) {
+    printf("This happens 3\n");
+  }
 
-	if (DrawGameplayScreen_runonce == 0)
-	{
-		printf("This happens 3\n");
-	}
+  SortLayerRenderObjectList(render_list[RENDER_INDEX], SortedRenderObject_list);
 
-	SortLayerRenderObjectList(render_list[RENDER_INDEX], SortedRenderObject_list);
+  RenderAllLayers(SortedRenderObject_list);
 
-	RenderAllLayers(SortedRenderObject_list);
+  DrawGui();
 
+  RenderSelectedSprite();
 
-	DrawGui();
+  if (DrawGameplayScreen_runonce == 0) {
+    printf("This happens 4\n");
+  }
 
-	RenderSelectedSprite();
+  if (action_menu_up == true) {
+    DrawActionGui();
+  }
 
-	if (DrawGameplayScreen_runonce == 0)
-	{
-		printf("This happens 4\n");
-	}
+  if (PLACING_ENTITY == true) {
+    RenderNewEntity();
+  }
 
-	if (action_menu_up == true)
-	{
-		DrawActionGui();
-	}
+  // RenderEntityBoxes(gui_entity_list);
+  RenderEntityBoxes(map_entity_list);
 
+  //RenderEntityBoxes(new_entity_list);
 
-	if (PLACING_ENTITY == true)
-	{
-		RenderNewEntity();
-	}
+  // drawIsoTriangles(target);
 
-	//RenderEntityBoxes(gui_entity_list);
-	//RenderEntityBoxes(map_entity_list);
+  DebugLog("combatant_selected: ", combatant_selected);
 
-	RenderEntityBoxes(new_entity_list);
+  RenderEntityInfo();
 
-	//drawIsoTriangles(target);
+  RenderLog();
 
-	DebugLog("combatant_selected: ", combatant_selected);
+  RenderDebugLog();
 
-	RenderEntityInfo();
+  if (DrawGameplayScreen_runonce == 0) {
+    printf("This happens 5\n");
+  }
 
-	RenderLog();
+  DrawGameplayScreen_runonce++;
 
-	RenderDebugLog();
-
-	if (DrawGameplayScreen_runonce == 0)
-	{
-		printf("This happens 5\n");
-	}
-
-	DrawGameplayScreen_runonce++;
-
-	// for(int i : last_sorted_list)
-	// {
-	// 	last_sorted_list[i] = 0;
-	// }
-
+  // for(int i : last_sorted_list)
+  // {
+  // 	last_sorted_list[i] = 0;
+  // }
 }
 
-
 // Unload logic
-inline void UnloadGameplayScreen(void)
-{
-	for (size_t i = 0; i < gui_texture_list.size(); i++)
-	{
-		UnloadTexture(gui_texture_list[i].tex);
-	}
+inline void UnloadGameplayScreen(void) {
+  for (size_t i = 0; i < gui_texture_list.size(); i++) {
+    UnloadTexture(gui_texture_list[i].tex);
+  }
 
-	// TODO: Unload GAMEPLAY screen variables here!
+  // TODO: Unload GAMEPLAY screen variables here!
 }
 
 // Gameplay Screen finish
-inline int FinishGameplayScreen(void)
-{
-	return finishScreen;
-}
+inline int FinishGameplayScreen(void) { return finishScreen; }

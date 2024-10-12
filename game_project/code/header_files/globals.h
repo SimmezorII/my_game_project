@@ -8,7 +8,9 @@
 
 #include <string>
 #include <vector>
+
 #include "game_entities.h"
+
 
 using namespace std;
 
@@ -46,35 +48,34 @@ global_variable int Y_TILES = 40;
 global_variable int gamescreen_offset_x = GAME_TILE_WIDTH;
 global_variable int gamescreen_offset_y = GAME_TILE_HEIGHT;
 
-global_variable enum { TITLE = 0,
-                       OPTIONS,
-                       GAMEPLAY,
-                       ENDING,
-                       GUI } GameScreen;
+global_variable enum { TITLE = 0, OPTIONS, GAMEPLAY, ENDING, GUI } GameScreen;
 
-global_variable enum Direction { UP = 1,
-                                 DOWN = -1,
-                                 LEFT = 2,
-                                 RIGHT = -2 } Dir;
+global_variable enum Direction { UP = 1, DOWN = -1, LEFT = 2, RIGHT = -2 } Dir;
 
-global_variable enum { SQUARE = 0,
-                       NON_ISO_SQUARE = 1,
-                       LINE = 2,
-                       CROSS = 3,
-                       CHECKERED_SQURE = 4,
-                       TRIANGLE = 10,
-                       CONE = 20 } Pat;
+global_variable enum {
+  SQUARE = 0,
+  NON_ISO_SQUARE = 1,
+  LINE = 2,
+  CROSS = 3,
+  CHECKERED_SQURE = 4,
+  TRIANGLE = 10,
+  CONE = 20
+} Pat;
 
-global_variable enum { BLUE_TILE = 1,
-                       GREEN_TILE = 2,
-                       RED_TILE = 3,
-                       YELLOW_TILE = 4 } Col;
+global_variable enum {
+  BLUE_TILE = 1,
+  GREEN_TILE = 2,
+  RED_TILE = 3,
+  YELLOW_TILE = 4
+} Col;
 
 global_variable int currentScreen = 0;
 
 // global_variable SDL_Window* game_window = NULL;
 //
 // global_variable SDL_Renderer* GAME_RENDERER = NULL;
+
+global_variable int TARGET_FPS = 120;
 
 global_variable int GAMEWINDOW_WIDTH = 1600;
 global_variable int GAMEWINDOW_HEIGHT = 940;
@@ -96,7 +97,6 @@ global_variable string GUI_ASSET_PATH = "resources\\assets\\gui\\";
 global_variable string MAPS_PATH = "resources\\assets\\textfiles\\";
 
 global_variable string TILED_MAPS_PATH = "resources\\assets\\game\\tsx\\";
-
 
 // global_variable TTF_Font *GAME_FONT = NULL;
 
@@ -263,10 +263,10 @@ global_variable float GUI_ACTION_BUTTON_HEIGHT = 20;
 
 global_variable float GUI_ACTION_BUTTON_WIDTH = 48;
 
-global_variable int right_vel = (GAME_TILE_WIDTH/2);
-global_variable int left_vel = -(GAME_TILE_WIDTH/2);
-global_variable int up_vel = -(GAME_TILE_HEIGHT/2);
-global_variable int down_vel =(GAME_TILE_HEIGHT/2);
+global_variable int right_vel = (GAME_TILE_WIDTH / 2);
+global_variable int left_vel = -(GAME_TILE_WIDTH / 2);
+global_variable int up_vel = -(GAME_TILE_HEIGHT / 2);
+global_variable int down_vel = (GAME_TILE_HEIGHT / 2);
 
 global_variable int LogScrollCounter = 99;
 
@@ -290,7 +290,7 @@ global_variable int cords[40][20][10];
 
 global_variable pos pos_cords[40][20];
 
-	global_variable int row = 0;
+global_variable int row = 0;
 
 global_variable float entity_offset_y = 0;
 global_variable float entity_offset_x = 0;
@@ -321,11 +321,29 @@ global_variable float enemy_attack = 20;
 
 global_variable float enemy_defense = 20;
 
+/////////////////////////////////////////////////////
+
 global_variable bool player_animation = true;
 
 global_variable vector<Direction> enemy_movelist;
 
 global_variable Shader shader;
+
+global_variable bool collision_map = false;
+
+global_variable vector<point> ellipses_point;
+
+global_variable tile_triangles temp4;
+
+global_variable field position_field;
+
+global_variable field spawn_field;
+
+global_variable field enemy_move_field;
+
+global_variable field enemy_move_field_two;
+
+global_variable vector<bool> collision_arry;
 
 #define GLOBALS_H
 #endif

@@ -25,7 +25,7 @@ int temp_h;
 
 int selected_sprite = 1;
 
-inline void InitGui() 
+inline void InitGui()
 {
 	new_game_entity = &new_e;
 
@@ -36,7 +36,7 @@ static int GUItempx;
 static int GUItempy;
 
 
-inline void RenderEntityInfo() 
+inline void RenderEntityInfo()
 {
 	string s;
 	string name;
@@ -45,16 +45,16 @@ inline void RenderEntityInfo()
 	if (combatant_selected > -1) {
 
 		DebugLog(combatant_list[combatant_selected].pEntity->sprite->name);
-	
+
 		temp.x = combatant_list[combatant_selected].pEntity->offset_rect.x;
 		temp.y = combatant_list[combatant_selected].pEntity->offset_rect.y - FONT_SIZE;
 		temp.width = 100; // Size of max string
 		temp.height = FONT_SIZE;
 
-		GuiLabel(temp , combatant_list[combatant_selected].pEntity->sprite->name.c_str());
+		GuiLabel(temp, combatant_list[combatant_selected].pEntity->sprite->name.c_str());
 
 		s = to_string(player_current_hp) + "/" + to_string(player_max_hp);
-		temp.x = temp.x + s.size()*6;
+		temp.x = temp.x + s.size() * 6;
 		GuiLabel(temp, s.c_str());
 
 
@@ -74,7 +74,7 @@ inline void RenderEntityInfo()
 				GuiLabel(temp, name.c_str());
 
 				s = to_string((int)enemy_list[i].pEntity->entity_stats.current_hp) + "/" + to_string((int)enemy_list[i].pEntity->entity_stats.max_hp);
-				temp.x = temp.x + ( name.size() * 6 ) + 6;
+				temp.x = temp.x + (name.size() * 6) + 6;
 				//temp.y = temp.y + FONT_SIZE;	
 				GuiLabel(temp, s.c_str());
 			}
@@ -89,9 +89,6 @@ inline void RenderEntityInfo()
 	{
 
 	}
-
-
-
 
 }
 
@@ -108,122 +105,122 @@ inline void DrawGui()
 
 	Rectangle SaveRect2 = { 0, 0 , 40 , 24 };
 
-	 SaveButton002 = GuiButton({ SaveRect2.x,  SaveRect2.y, SaveRect2.width, SaveRect2.height }, "Save");
+	SaveButton002 = GuiButton({ SaveRect2.x,  SaveRect2.y, SaveRect2.width, SaveRect2.height }, "Save");
 
-	 GuiLine({ SpriteGroupBoxRect.x - 60, SpriteGroupBoxRect.y, 200, 0 }, "Sprite");
-	 //
+	GuiLine({ SpriteGroupBoxRect.x - 60, SpriteGroupBoxRect.y, 200, 0 }, "Sprite");
+	//
 
-	 gui_temp.x = SpriteGroupBoxRect.x;
-	 gui_temp.y = 10 + SpriteGroupBoxRect.y + (n * 20);
+	gui_temp.x = SpriteGroupBoxRect.x;
+	gui_temp.y = 10 + SpriteGroupBoxRect.y + (n * 20);
 
-	 GuiSpinner({ gui_temp.x, gui_temp.y, gui_temp.width, gui_temp.height }, "sprite id", &game_entity->sprite->ID, 1, sprite_list.size(), false); 
-	 n++;
+	GuiSpinner({ gui_temp.x, gui_temp.y, gui_temp.width, gui_temp.height }, "sprite id", &game_entity->sprite->ID, 1, sprite_list.size(), false);
+	n++;
 
-	 gui_temp.y = 12 + SpriteGroupBoxRect.y + (n * 20);
-	 GuiLabel({ gui_temp.x - 45, gui_temp.y, gui_temp.width, gui_temp.height }, "sprite name");
-	 GuiTextBox({ gui_temp.x + 22, gui_temp.y, gui_temp.width - 10, gui_temp.height }, strdup(game_entity->sprite->name.c_str()), 12, false); 
-	 n++;
+	gui_temp.y = 12 + SpriteGroupBoxRect.y + (n * 20);
+	GuiLabel({ gui_temp.x - 45, gui_temp.y, gui_temp.width, gui_temp.height }, "sprite name");
+	GuiTextBox({ gui_temp.x + 22, gui_temp.y, gui_temp.width - 10, gui_temp.height }, strdup(game_entity->sprite->name.c_str()), 12, false);
+	n++;
 
-	 gui_temp.y = 10 + SpriteGroupBoxRect.y + (n * 20);
+	gui_temp.y = 10 + SpriteGroupBoxRect.y + (n * 20);
 
-	 gui_temp.y = 14 + SpriteGroupBoxRect.y + (n * 20);
-	 GuiSpinner({ gui_temp.x, gui_temp.y, gui_temp.width, gui_temp.height }, "sprite x", &game_entity->sprite->x, 0, 2000, ToggleSpriteX); 
-	 n++;
-	 ToggleSpriteX = GuiToggle({ gui_temp.x + gui_temp.width + 2, gui_temp.y, 40, gui_temp.height }, "Edit", ToggleSpriteX);
-
-
-	 gui_temp.y = 12 + SpriteGroupBoxRect.y + (n * 20);
-	 GuiSpinner({ gui_temp.x, gui_temp.y, gui_temp.width, gui_temp.height }, "sprite y", &game_entity->sprite->y, 0, 2000, ToggleSpriteY);
-	 n++;
-	 ToggleSpriteY = GuiToggle({ gui_temp.x + gui_temp.width + 2, gui_temp.y, 40, gui_temp.height }, "Edit", ToggleSpriteY);
-
-	 gui_temp.y = 12 + SpriteGroupBoxRect.y + (n * 20);
-	 GuiSpinner({ gui_temp.x, gui_temp.y, gui_temp.width, gui_temp.height }, "sprite w", &game_entity->sprite->w, 0, 2000, false); n++;
-	 game_entity->sprite->w = GuiSliderBar({ gui_temp.x + 92, gui_temp.y,gui_temp.width,gui_temp.height }, "", TextFormat("%i", game_entity->sprite->w), game_entity->sprite->w, 0, 2000);
-
-	 gui_temp.y = 12 + SpriteGroupBoxRect.y + (n * 20);
-	 GuiSpinner({ gui_temp.x, gui_temp.y, gui_temp.width, gui_temp.height }, "sprite h", &game_entity->sprite->h, 0, 2000, false); n++;
-	 game_entity->sprite->h = GuiSliderBar({ gui_temp.x + 92, gui_temp.y,gui_temp.width,gui_temp.height }, "", TextFormat("%i", game_entity->sprite->h), game_entity->sprite->h, 0, 2000);
-
-	 gui_temp.y = 14 + SpriteGroupBoxRect.y + (n * 20);
-	 GuiSpinner({ gui_temp.x, gui_temp.y, gui_temp.width, gui_temp.height }, "offset_x", &game_entity->sprite->offset_x, -800, 2000, ToggleSpriteOffsetX);
-	 n++;
-	 ToggleSpriteOffsetX = GuiToggle({ gui_temp.x + gui_temp.width + 2, gui_temp.y, 40, gui_temp.height }, "Edit", ToggleSpriteOffsetX);
-
-	 gui_temp.y = 12 + SpriteGroupBoxRect.y + (n * 20);
-	 GuiSpinner({ gui_temp.x, gui_temp.y, gui_temp.width, gui_temp.height }, "offset_y", &game_entity->sprite->offset_y, -800, 2000, ToggleSpriteOffsetY);
-	 n++;
-	 ToggleSpriteOffsetY = GuiToggle({ gui_temp.x + gui_temp.width + 2, gui_temp.y, 40, gui_temp.height }, "Edit", ToggleSpriteOffsetY);
-
-	 gui_temp.y = 14 + SpriteGroupBoxRect.y + (n * 20);
-
-	 GUItempx = (int)game_entity->x;
-
-	 GUItempy = (int)game_entity->y;
-
-	 GuiSpinner({ gui_temp.x, gui_temp.y, gui_temp.width, gui_temp.height }, "entity x", &GUItempx, 0, 2000, ToggleSpriteX);
-	 n++;
-	 ToggleSpriteX = GuiToggle({ gui_temp.x + gui_temp.width + 2, gui_temp.y, 40, gui_temp.height }, "Edit", ToggleSpriteX);
-
-	 game_entity->x = GUItempx;
-
-	 gui_temp.y = 12 + SpriteGroupBoxRect.y + (n * 20);
-	 GuiSpinner({ gui_temp.x, gui_temp.y, gui_temp.width, gui_temp.height }, "entity y", &GUItempy, 0, 2000, ToggleSpriteY);
-	 n++;
-	 ToggleSpriteY = GuiToggle({ gui_temp.x + gui_temp.width + 2, gui_temp.y, 40, gui_temp.height }, "Edit", ToggleSpriteY);
-
-	 game_entity->y = GUItempy;
-
-	 gui_temp.y = 12 + SpriteGroupBoxRect.y + (n * 20);
-	 GuiLabel({ gui_temp.x - 40, gui_temp.y + 2, gui_temp.width, gui_temp.height }, "file img");
-	 if (GuiDropdownBox({ gui_temp.x, gui_temp.y + 2, gui_temp.width + 80, gui_temp.height }, all_png_list.c_str(), &game_entity->sprite->index, dropDown001EditMode)) {
-		 dropDown001EditMode = !dropDown001EditMode;
-	 }
-	 n++;
-
-	 gui_temp.y = 12 + SpriteGroupBoxRect.y + (n * 24);
-
-	 GuiGroupBox({ gui_temp.x, gui_temp.y , 100 , 100}, "Options");
+	gui_temp.y = 14 + SpriteGroupBoxRect.y + (n * 20);
+	GuiSpinner({ gui_temp.x, gui_temp.y, gui_temp.width, gui_temp.height }, "sprite x", &game_entity->sprite->x, 0, 2000, ToggleSpriteX);
+	n++;
+	ToggleSpriteX = GuiToggle({ gui_temp.x + gui_temp.width + 2, gui_temp.y, 40, gui_temp.height }, "Edit", ToggleSpriteX);
 
 
+	gui_temp.y = 12 + SpriteGroupBoxRect.y + (n * 20);
+	GuiSpinner({ gui_temp.x, gui_temp.y, gui_temp.width, gui_temp.height }, "sprite y", &game_entity->sprite->y, 0, 2000, ToggleSpriteY);
+	n++;
+	ToggleSpriteY = GuiToggle({ gui_temp.x + gui_temp.width + 2, gui_temp.y, 40, gui_temp.height }, "Edit", ToggleSpriteY);
 
-	 Rectangle OptionsGroupBoxRect = { (float)gamescreen_offset_x + 1280, (float)gamescreen_offset_y + 640, 280, 400 };
+	gui_temp.y = 12 + SpriteGroupBoxRect.y + (n * 20);
+	GuiSpinner({ gui_temp.x, gui_temp.y, gui_temp.width, gui_temp.height }, "sprite w", &game_entity->sprite->w, 0, 2000, false); n++;
+	game_entity->sprite->w = GuiSliderBar({ gui_temp.x + 92, gui_temp.y,gui_temp.width,gui_temp.height }, "", TextFormat("%i", game_entity->sprite->w), game_entity->sprite->w, 0, 2000);
 
-	 //
+	gui_temp.y = 12 + SpriteGroupBoxRect.y + (n * 20);
+	GuiSpinner({ gui_temp.x, gui_temp.y, gui_temp.width, gui_temp.height }, "sprite h", &game_entity->sprite->h, 0, 2000, false); n++;
+	game_entity->sprite->h = GuiSliderBar({ gui_temp.x + 92, gui_temp.y,gui_temp.width,gui_temp.height }, "", TextFormat("%i", game_entity->sprite->h), game_entity->sprite->h, 0, 2000);
 
-	 n = 0;
+	gui_temp.y = 14 + SpriteGroupBoxRect.y + (n * 20);
+	GuiSpinner({ gui_temp.x, gui_temp.y, gui_temp.width, gui_temp.height }, "offset_x", &game_entity->sprite->offset_x, -800, 2000, ToggleSpriteOffsetX);
+	n++;
+	ToggleSpriteOffsetX = GuiToggle({ gui_temp.x + gui_temp.width + 2, gui_temp.y, 40, gui_temp.height }, "Edit", ToggleSpriteOffsetX);
 
-	 gui_temp.y = OptionsGroupBoxRect.y + (n * 24);
-	 gui_temp.x = OptionsGroupBoxRect.x;
-	 //gui_temp.x = GameGui.x - 40;
+	gui_temp.y = 12 + SpriteGroupBoxRect.y + (n * 20);
+	GuiSpinner({ gui_temp.x, gui_temp.y, gui_temp.width, gui_temp.height }, "offset_y", &game_entity->sprite->offset_y, -800, 2000, ToggleSpriteOffsetY);
+	n++;
+	ToggleSpriteOffsetY = GuiToggle({ gui_temp.x + gui_temp.width + 2, gui_temp.y, 40, gui_temp.height }, "Edit", ToggleSpriteOffsetY);
 
-	 char str[12] = "Show Boxes";
+	gui_temp.y = 14 + SpriteGroupBoxRect.y + (n * 20);
 
-	 ToggleEntityBoxes = GuiToggle({  gui_temp.x + 2,  gui_temp.y, sizeof(str)/sizeof(str[0])*6 , gui_temp.height }, str, ToggleEntityBoxes);
+	GUItempx = (int)game_entity->x;
 
-	 n++;
+	GUItempy = (int)game_entity->y;
 
-	 char str2[12] = "Combat";
+	GuiSpinner({ gui_temp.x, gui_temp.y, gui_temp.width, gui_temp.height }, "entity x", &GUItempx, 0, 2000, ToggleSpriteX);
+	n++;
+	ToggleSpriteX = GuiToggle({ gui_temp.x + gui_temp.width + 2, gui_temp.y, 40, gui_temp.height }, "Edit", ToggleSpriteX);
 
-	 gui_temp.y = OptionsGroupBoxRect.y + (n * 24);
+	game_entity->x = GUItempx;
 
-	 combat = GuiToggle({ gui_temp.x + 2, gui_temp.y, sizeof(str2) / sizeof(str2[0]) * 6 , gui_temp.height }, str2, combat);
+	gui_temp.y = 12 + SpriteGroupBoxRect.y + (n * 20);
+	GuiSpinner({ gui_temp.x, gui_temp.y, gui_temp.width, gui_temp.height }, "entity y", &GUItempy, 0, 2000, ToggleSpriteY);
+	n++;
+	ToggleSpriteY = GuiToggle({ gui_temp.x + gui_temp.width + 2, gui_temp.y, 40, gui_temp.height }, "Edit", ToggleSpriteY);
 
-	 n++;
+	game_entity->y = GUItempy;
 
-	 char str3[12] = "Field up";
+	gui_temp.y = 12 + SpriteGroupBoxRect.y + (n * 20);
+	GuiLabel({ gui_temp.x - 40, gui_temp.y + 2, gui_temp.width, gui_temp.height }, "file img");
+	if (GuiDropdownBox({ gui_temp.x, gui_temp.y + 2, gui_temp.width + 80, gui_temp.height }, all_png_list.c_str(), &game_entity->sprite->index, dropDown001EditMode)) {
+		dropDown001EditMode = !dropDown001EditMode;
+	}
+	n++;
 
-	 gui_temp.y = OptionsGroupBoxRect.y + (n * 24);
+	gui_temp.y = 12 + SpriteGroupBoxRect.y + (n * 24);
 
-	 draw_fields = GuiToggle({ gui_temp.x + 2, gui_temp.y, sizeof(str3) / sizeof(str3[0]) * 6 , gui_temp.height }, str3, draw_fields);
- }
+	GuiGroupBox({ gui_temp.x, gui_temp.y , 100 , 100 }, "Options");
 
 
- static int current_selected = 0;
 
- static int init_done = 0;
+	Rectangle OptionsGroupBoxRect = { (float)gamescreen_offset_x + 1280, (float)gamescreen_offset_y + 640, 280, 400 };
 
-inline void RenderSelectedSprite() 
+	//
+
+	n = 0;
+
+	gui_temp.y = OptionsGroupBoxRect.y + (n * 24);
+	gui_temp.x = OptionsGroupBoxRect.x;
+	//gui_temp.x = GameGui.x - 40;
+
+	char str[12] = "Show Boxes";
+
+	ToggleEntityBoxes = GuiToggle({ gui_temp.x + 2,  gui_temp.y, sizeof(str) / sizeof(str[0]) * 6 , gui_temp.height }, str, ToggleEntityBoxes);
+
+	n++;
+
+	char str2[12] = "Combat";
+
+	gui_temp.y = OptionsGroupBoxRect.y + (n * 24);
+
+	combat = GuiToggle({ gui_temp.x + 2, gui_temp.y, sizeof(str2) / sizeof(str2[0]) * 6 , gui_temp.height }, str2, combat);
+
+	n++;
+
+	char str3[12] = "Field up";
+
+	gui_temp.y = OptionsGroupBoxRect.y + (n * 24);
+
+	draw_fields = GuiToggle({ gui_temp.x + 2, gui_temp.y, sizeof(str3) / sizeof(str3[0]) * 6 , gui_temp.height }, str3, draw_fields);
+}
+
+
+static int current_selected = 0;
+
+static int init_done = 0;
+
+inline void RenderSelectedSprite()
 {
 	int n = 0;
 	temp_sprite_rec.height = 60;
@@ -233,15 +230,15 @@ inline void RenderSelectedSprite()
 	temp_sprite_rec.y = gamescreen_offset_y + 400;
 
 
-	GuiSpinner({ temp_sprite_rec.x,temp_sprite_rec.y - 30, 100,20}, "sprite id", &selected_sprite, 1, sprite_list.size(), false);
-	
+	GuiSpinner({ temp_sprite_rec.x,temp_sprite_rec.y - 30, 100,20 }, "sprite id", &selected_sprite, 1, sprite_list.size(), false);
+
 	if (current_selected != selected_sprite)
 	{
 		current_selected = selected_sprite;
 		init_done = 0;
 	}
 
-	DrawTexturePro(getTexture(selected_sprite).tex, { 0, 0, (float)getTexture(selected_sprite).tex.width, (float)getTexture(selected_sprite).tex.height}, temp_sprite_rec, {0,0}, 0, WHITE);
+	DrawTexturePro(getTexture(selected_sprite).tex, { 0, 0, (float)getTexture(selected_sprite).tex.width, (float)getTexture(selected_sprite).tex.height }, temp_sprite_rec, { 0,0 }, 0, WHITE);
 
 	//ToggleSpriteX = GuiToggle({ gui_temp.x + gui_temp.width + 2, gui_temp.y, 40, gui_temp.height }, "Edit", ToggleSpriteX);
 
@@ -292,7 +289,7 @@ inline void RenderNewEntity()
 	}
 	else
 	{
-		temp_sprite_rec.y = GetMousePosition().y - (temp_sprite_rec.height ) + tile_height/2;
+		temp_sprite_rec.y = GetMousePosition().y - (temp_sprite_rec.height) + tile_height / 2;
 	}
 
 	if (temp_sprite_rec.width <= 64)
@@ -315,7 +312,7 @@ inline void RenderNewEntity()
 
 inline void AddNewEntity(int x, int y, int screen_x, int screen_y)
 {
-	new_e.ID = entity_list[entity_list.size()-1].ID + num_of_added;
+	new_e.ID = entity_list[entity_list.size() - 1].ID + num_of_added;
 
 	new_e.render_this = true;
 
@@ -358,12 +355,12 @@ inline void CreateNewEntity()
 
 			if (p.x != -1 && p.y != -1)
 			{
-				
+
 				//CURRENT_LAYER = 1;
 
 				cout << "This happens clicked" << endl;
 
-				AddNewEntity( p.x, p.y, p.screen_x, p.screen_y -(CURRENT_LAYER*(GAME_TILE_HEIGHT/2)));
+				AddNewEntity(p.x, p.y, p.screen_x, p.screen_y - (CURRENT_LAYER * (GAME_TILE_HEIGHT / 2)));
 
 				PLACING_ENTITY = false;
 			}
@@ -409,9 +406,9 @@ inline void DrawActionGui()
 		ActionButton[2] = GuiButtonEx(ActionMenuRects[3], "End", action_target_rect, KEY_X);
 
 		DrawRectangleLines(action_target_rect.x, action_target_rect.y, action_target_rect.width, action_target_rect.height, RED);
-	
+
 	}
-	else 
+	else
 	{
 
 		ActionButton[0] = GuiButtonEx(ActionMenuRects[1], "Move", action_target_rect, KEY_X);
@@ -501,14 +498,14 @@ inline void RenderLog()
 
 Rectangle DebugLogInfoRect = { 0 , 0 , 100, 16 };
 
-Rectangle DebugScrollBar = { 8 + 400, (float)gamescreen_offset_y+(float)GAMEWINDOW_HEIGHT - 200 - 16, 10, 16 * 11 };
+Rectangle DebugScrollBar = { 8 + 400, (float)gamescreen_offset_y + (float)GAMEWINDOW_HEIGHT - 200 - 16, 10, 16 * 11 };
 
 
 inline void RenderDebugLog()
 {
 	DebugLogInfoRect.x = 20 + 400;
 
-	DebugLogInfoRect.y = (float)gamescreen_offset_y+ GAMEWINDOW_HEIGHT - 200;
+	DebugLogInfoRect.y = (float)gamescreen_offset_y + GAMEWINDOW_HEIGHT - 200;
 
 	int rendernum = 0;
 

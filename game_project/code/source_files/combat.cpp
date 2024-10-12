@@ -8,24 +8,18 @@
 #include "../header_files/raylib.h"
 #include "../header_files/globals.h"
 #include "game_engine.cpp"
-#include "logic.cpp"
+
 
 
 using namespace std;
 
-static field position_field;
 
-static field spawn_field;
-
-static field enemy_move_field;
-
-static field enemy_move_field_two;
 
 
 /////----------------------------------------------------------------------------------------------------
 
 
-inline void setSquareField(field& fieldRef, int nx, int ny, enum Col tile_color)
+inline void setSquareField(field& fieldRef, int nx, int ny, int tile_color)
 {
 	int targetRange = fieldRef.range;
 
@@ -1094,7 +1088,7 @@ inline void setConeField(field& fieldRef, int nx, int ny, Direction dir)
 
 }
 
-inline void SetField(field& fieldRef, int nx, int ny, int field_type, enum Col tile_color)
+inline void SetField(field& fieldRef, int nx, int ny, int field_type, int tile_color)
 {
 	SetRenderField(&fieldRef, false);
 
@@ -1158,7 +1152,7 @@ inline void InitEnemyFields()
 	{
 		enemy_list[i].move_field.field_alpha = 0.5;
 
-		SetField(enemy_list[i].move_field, enemy_list[i].pEntity->x, enemy_list[i].pEntity->y, SQUARE, (Col)RED_TILE);
+		SetField(enemy_list[i].move_field, enemy_list[i].pEntity->x, enemy_list[i].pEntity->y, SQUARE, RED_TILE);
 
 		fields.push_back(&enemy_list[i].move_field);
 	}
@@ -1168,7 +1162,7 @@ inline void SetEnemyFields()
 {
 	for (size_t i = 0; i < enemy_list.size(); i++)
 	{
-		SetField(enemy_list[i].move_field, enemy_list[i].pEntity->x, enemy_list[i].pEntity->y, SQUARE, (Col)RED_TILE);
+		SetField(enemy_list[i].move_field, enemy_list[i].pEntity->x, enemy_list[i].pEntity->y, SQUARE, RED_TILE);
 
 	}
 }
@@ -1194,7 +1188,7 @@ inline void InitCombat()
 
 	position_field.range = 5;
 
-	SetField(position_field, 512, 512, NON_ISO_SQUARE, (Col)GREEN_TILE);
+	SetField(position_field, 512, 512, NON_ISO_SQUARE, GREEN_TILE);
 
 }
 
