@@ -35,13 +35,18 @@ float offset_y = 0;
 // Function Definitions
 //----------------------------------------------------------------------------------
 
-inline void Load() {
+inline void Load(game_state &GameState) {
   int sprite_count = 0;
+  int result;
+  // old png_list = GetPNG_FilesInDir(GAME_ASSET_PATH.c_str());
 
-  png_list = GetPNG_FilesInDir(GAME_ASSET_PATH.c_str());
+  result = GetPNG_FilesInDir(GAME_ASSET_PATH.c_str(), GameState.PNGList,
+                             GameState.AllPNGList);
 
   // Loads all png files into textures
-  if (!GAME_CreateTexturesFromImage()) {
+  if (!GAME_CreateTexturesFromImage(GameState.GameImageList, GameState.PNGList,
+                                    GameState.GameTextureList,
+                                    GAME_ASSET_PATH)) {
     printf("Failed to load GUI media!\n");
   } else {
   }
@@ -50,7 +55,7 @@ inline void Load() {
 
   if (sprite_count > 0) {
     printf("LoadSpriteData(sprite_count), sprite_count was %d\n", sprite_count);
-    LoadSpriteData(sprite_count);
+    LoadSpriteData(GameState, sprite_count);
   } else {
     printf("LoadSpriteData(sprite_count), sprite_count was %d\n", sprite_count);
   }
@@ -59,12 +64,12 @@ inline void Load() {
 
   if (entity_count > 0) {
     printf("LoadEntityData(entity_count), entity_count was %d\n", entity_count);
-    LoadEntityData(entity_count);
+    LoadEntityData(GameState, entity_count);
   } else {
     printf("LoadEntityData(entity_count), entity_count was %d\n", entity_count);
   }
 
-  SetSpriteTextures();
+  SetSpriteTextures(GameState.SpriteList, GameState.GameTextureList);
 
   if (ReadMapDataTiledMap(TILED_MAPS_PATH + "untitled.tmx")) {
     setMapCordsTiled();
@@ -81,24 +86,22 @@ inline void Load() {
 
   setPosCords();
 
-  setEntityCords(0);
-  setEntityCords(1);
-  setEntityCords(2);
+  setEntityCords(GameState.Map, GameState.EntityList, 0);
+  setEntityCords(GameState.Map, GameState.EntityList, 1);
+  setEntityCords(GameState.Map, GameState.EntityList, 2);
 
   // Loads entities seperate from game entities that need to be present on a map
-  setGuiEntities();
+  SetGuiEntities(GameState.EntityList);
 
-  setPlayer();
-
-  printf("Sprite string:%s\n", sprite_png_list.c_str());
+  setPlayer(GameState);
 
   printf("Load done\n");
 }
 
-inline void Init() {
+inline void Init(game_state &GameState) {
   player_entity_ID = 9;
 
-  Load();
+  Load(GameState);
 
   InitLog();
   InitDebugLog();
@@ -117,7 +120,7 @@ inline void Init() {
   objects_to_render.push_back(0);
 
   // Init this with the first entity, used to render entity info
-  game_entity = &entity_list[0];
+  game_entity = &GameState.EntityList[0];
 
   ////////////////////   TARGET //////////////////////////////////
 
@@ -129,8 +132,8 @@ inline void Init() {
 
   target_field.range = 4;
 
-  SetField(target_field, entity_list[0].x, entity_list[0].y, SQUARE,
-           GREEN_TILE);
+  SetField(GameState, target_field, GameState.EntityList[0].x,
+           GameState.EntityList[0].y, SQUARE, GREEN_TILE);
 
   fields.push_back(&target_field);
 
@@ -140,8 +143,8 @@ inline void Init() {
 
   attack_target_field.field_alpha = 0.5;
 
-  SetField(attack_target_field, entity_list[0].x, entity_list[0].y, SQUARE,
-           BLUE_TILE);
+  SetField(GameState, attack_target_field, GameState.EntityList[0].x,
+           GameState.EntityList[0].y, SQUARE, BLUE_TILE);
 
   fields.push_back(&attack_target_field);
 
@@ -149,7 +152,8 @@ inline void Init() {
 
   cout << "PLAYER this happens " << endl;
 
-  world_player.pEntity = &getEntityByID(player_entity_ID, map_entity_list);
+  world_player.pEntity =
+      &getEntityByID(player_entity_ID, GameState.Map.EntityList);
 
   world_player.move_range = 8;
 
@@ -177,15 +181,15 @@ inline void Init() {
 
   e2.move_field.range = 3;
 
-  e1.pEntity = &getEntityByID(24, map_entity_list);
+  e1.pEntity = &getEntityByID(24, GameState.Map.EntityList);
 
-  e2.pEntity = &getEntityByID(25, map_entity_list);
+  e2.pEntity = &getEntityByID(25, GameState.Map.EntityList);
 
   enemy_list.push_back(e1);
 
   enemy_list.push_back(e2);
 
-  InitEnemyFields();
+  InitEnemyFields(GameState);
 
   ////////////////////   LOG  //////////////////////////////////
 
@@ -220,11 +224,13 @@ inline void InitShaders() {
 }
 
 // Gameplay Screen Initialization logic
-inline void InitGameplayScreen(void) {
+inline void InitGameplayScreen(game_state &GameState) {
   framesCounter = 0;
   finishScreen = 0;
 
-  Init();
+  SetTargetFPS(TARGET_FPS);  // Set our game to run at 60 frames-per-second
+
+  Init(GameState);
 
   InitShaders();
 
@@ -234,24 +240,24 @@ inline void InitGameplayScreen(void) {
 }
 
 // Game logic
-inline void UpdateGameplayScreen(void) {
+inline void UpdateGameplayScreen(game_state &GameState) {
   static int UpdateGameplayScreen_runonce = 0;
 
   static int animating = 0;
 
-  SetEntityListEllipses(map_entity_list);
+  SetEntityListEllipses(GameState.Map.EntityList);
 
   if (moving != true && enemy_moving != true) {
-    CheckKeyboardInput();
+    CheckKeyboardInput(GameState);
     // UpdateDebugText();
 
-    for (size_t i = 0; i < map_entity_list.size(); i++) {
-
-      if (map_entity_list[i].ID == 1) {
+    for (size_t i = 0; i < GameState.Map.EntityList.size(); i++) {
+      if (GameState.Map.EntityList[i].ID == 1) {
         // if (({(float)world_player.pEntity->x, (float)world_player.pEntity->y,
         // (float)world_player.pEntity->w, (float)world_player.pEntity->h },
-        // 	                   {(float)(map_entity_list[i].x),(float)(map_entity_list[i].y),
-        // (float)(map_entity_list[i].w) / 2, (float)(map_entity_list[i].h) / 2
+        // 	                   {(float)(GameState.Map.EntityList[i].x),(float)(GameState.Map.EntityList[i].y),
+        // (float)(GameState.Map.EntityList[i].w) / 2,
+        // (float)(GameState.Map.EntityList[i].h) / 2
         // }))
         // {
         // 	cout << "collision sedric" << endl;
@@ -278,21 +284,21 @@ inline void UpdateGameplayScreen(void) {
       NewEntityButton = false;
     }
 
-    if (setMouseEntity(map_entity_list) == true) {
-    }
+    // if (setMouseEntity(GameState.Map.EntityList) == true) {
+    // }
 
-    CreateNewEntity();
+    CreateNewEntity(GameState.EntityList);
 
     MouseLogic();
 
-    CombatLogic();
+    CombatLogic(GameState);
 
     if (action_menu_up == true) {
-      ActionGuiLogic();
+      ActionGuiLogic(GameState);
     } else {
       target->render_this = true;
 
-      TargetLogic();
+      TargetLogic(GameState);
     }
 
     // render_entity_boxes = ToggleEntityBoxes;
@@ -312,7 +318,7 @@ inline void UpdateGameplayScreen(void) {
 }
 
 // Gameplay Screen Rendering
-inline void DrawGameplayScreen(void) {
+inline void DrawGameplayScreen(game_state &GameState) {
   static int DrawGameplayScreen_runonce = 0;
 
   if (DrawGameplayScreen_runonce == 0) {
@@ -329,17 +335,17 @@ inline void DrawGameplayScreen(void) {
     printf("This happens 1\n");
   }
 
-  RenderEntities(gui_entity_list, RENDER_INDEX);
+  RenderEntities(GameState, gui_entity_list, RENDER_INDEX);
 
-  RenderEntities(map_entity_list, RENDER_INDEX);
+  RenderEntities(GameState, GameState.Map.EntityList, RENDER_INDEX);
 
-  RenderEntities(new_entity_list, RENDER_INDEX);
+  RenderEntities(GameState, new_entity_list, RENDER_INDEX);
 
   if (DrawGameplayScreen_runonce == 0) {
     printf("This happens 2\n");
   }
 
-  RenderAllFields();
+  RenderAllFields(GameState);
 
   if (DrawGameplayScreen_runonce == 0) {
     printf("This happens 3\n");
@@ -347,11 +353,11 @@ inline void DrawGameplayScreen(void) {
 
   SortLayerRenderObjectList(render_list[RENDER_INDEX], SortedRenderObject_list);
 
-  RenderAllLayers(SortedRenderObject_list);
+  RenderAllLayers(GameState, SortedRenderObject_list);
 
-  DrawGui();
+  DrawGui(GameState);
 
-  RenderSelectedSprite();
+  RenderSelectedSprite(GameState);
 
   if (DrawGameplayScreen_runonce == 0) {
     printf("This happens 4\n");
@@ -362,13 +368,13 @@ inline void DrawGameplayScreen(void) {
   }
 
   if (PLACING_ENTITY == true) {
-    RenderNewEntity();
+    RenderNewEntity(GameState);
   }
 
   // RenderEntityBoxes(gui_entity_list);
-  RenderEntityBoxes(map_entity_list);
+  RenderEntityBoxes(GameState.Map.EntityList);
 
-  //RenderEntityBoxes(new_entity_list);
+  // RenderEntityBoxes(new_entity_list);
 
   // drawIsoTriangles(target);
 
@@ -393,13 +399,13 @@ inline void DrawGameplayScreen(void) {
 }
 
 // Unload logic
-inline void UnloadGameplayScreen(void) {
-  for (size_t i = 0; i < gui_texture_list.size(); i++) {
-    UnloadTexture(gui_texture_list[i].tex);
+inline void UnloadGameplayScreen(game_state &GameState) {
+  for (size_t i = 0; i < GameState.GameTextureList.size(); i++) {
+    UnloadTexture(GameState.GameTextureList[i].tex);
   }
 
   // TODO: Unload GAMEPLAY screen variables here!
 }
 
 // Gameplay Screen finish
-inline int FinishGameplayScreen(void) { return finishScreen; }
+inline int FinishGameplayScreen(game_state &GameState) { return finishScreen; }

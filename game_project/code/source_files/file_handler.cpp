@@ -1,1209 +1,982 @@
-#include <string>
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <string>
 
-#include "../header_files/raylib.h"
 #include "../header_files/globals.h"
+#include "../header_files/raylib.h"
 #include "game_engine.cpp"
 
 using namespace std;
 
+inline void ReadAllFilesInDir(const char* path) {
+  int count = 0;
 
-inline void ReadAllFilesInDir(const char* path)
-{
-	int count = 0;
+  char** DirectoryFiles;
 
-	char** DirectoryFiles;
+  char empty1[] = ".";
+  char empty2[] = "..";
 
-	char empty1[] = ".";
-	char empty2[] = "..";
+  if (DirectoryExists(path)) {
+    // printf("Directory exists\n");
 
-	if (DirectoryExists(path)) {
+    DirectoryFiles = GetDirectoryFiles(path, &count);
 
-		//printf("Directory exists\n");
+    // printf("%d\n", count);
 
+    for (size_t i = 0; i < count; i++) {
+      if ((strcmp(DirectoryFiles[i], empty1) == 0) ||
+          (strcmp(DirectoryFiles[i], empty2) == 0)) {
+        // Do nothing with . and .. paths
+      } else {
+        printf("%s\n", DirectoryFiles[i]);
+      }
+    }
 
-		DirectoryFiles = GetDirectoryFiles(path, &count);
+  } else {
+    printf("Directory does not exist\n");
+  }
 
-		//printf("%d\n", count);
-
-		for (size_t i = 0; i < count; i++)
-		{
-
-			if ((strcmp(DirectoryFiles[i], empty1) == 0) || (strcmp(DirectoryFiles[i], empty2) == 0))
-			{
-				// Do nothing with . and .. paths
-			}
-			else {
-
-				printf("%s\n", DirectoryFiles[i]);
-			}
-
-
-		}
-
-
-
-	}
-	else
-	{
-		printf("Directory does not exist\n");
-	}
-
-	ClearDirectoryFiles();
+  ClearDirectoryFiles();
 }
 
+inline int GetPNG_FilesInDir(const char* path, vector<string>& StringVector,
+                             string& StringList) {
+  int result = -1;
 
-inline vector <string> GetPNG_FilesInDir(const char* path)
-{
+  StringList = "";
 
-	vector <  string > png_list;
+  int count = 0;
 
-	all_png_list = "";
+  char** DirectoryFiles;
 
-	int count = 0;
+  char empty1[] = ".";
+  char empty2[] = "..";
 
-	char** DirectoryFiles;
+  if (DirectoryExists(path)) {
+    printf("Directory exists\n");
 
-	char empty1[] = ".";
-	char empty2[] = "..";
+    DirectoryFiles = GetDirectoryFiles(path, &count);
 
-	if (DirectoryExists(path)) {
+    // printf("%d\n", count);
 
-		//printf("Directory exists\n");
+    for (size_t i = 0; i < count; i++) {
+      if ((strcmp(DirectoryFiles[i], empty1) == 0) ||
+          (strcmp(DirectoryFiles[i], empty2) == 0)) {
+        // Do nothing with . and .. paths
+      } else {
+        if (IsFileExtension(DirectoryFiles[i], ".png")) {
+          StringVector.push_back(DirectoryFiles[i]);
 
+          if (!StringList.compare("")) {
+            StringList = StringList + DirectoryFiles[i];
+          } else {
+            StringList = StringList + ";" + DirectoryFiles[i];
+          }
 
-		DirectoryFiles = GetDirectoryFiles(path, &count);
+        } else {
+        }
+      }
+    }
+    result = 1;
+  } else {
+    printf("Directory does not exist\n");
+    result = 0;
+  }
 
-		//printf("%d\n", count);
-
-		for (size_t i = 0; i < count; i++)
-		{
-
-			if ((strcmp(DirectoryFiles[i], empty1) == 0) || (strcmp(DirectoryFiles[i], empty2) == 0))
-			{
-				// Do nothing with . and .. paths
-			}
-			else
-			{
-
-				if (IsFileExtension(DirectoryFiles[i], ".png")) {
-
-					png_list.push_back(DirectoryFiles[i]);
-
-
-					if (!all_png_list.compare(""))
-					{
-						all_png_list = all_png_list + DirectoryFiles[i];
-					}
-					else
-					{
-						all_png_list = all_png_list + ";" + DirectoryFiles[i];
-					}
-
-
-				}
-				else
-				{
-
-				}
-
-			}
-		}
-
-
-
-	}
-	else
-	{
-		printf("Directory does not exist\n");
-	}
-
-	ClearDirectoryFiles();
-
-	//printf("Png list: %s\n", all_png_list.c_str());
-
-	return png_list;
+  ClearDirectoryFiles();
+  return result;
 }
 
-inline void AddIntegerFromString(vector <string>* LinesInFile, string str)
-{
+inline void AddIntegerFromString(vector<string>* LinesInFile, string str) {
+  size_t i = 0;
 
-	size_t i = 0;
+  for (; i < str.length(); i++) {
+    if (isdigit(str[i])) break;
+  }
 
-	for (; i < str.length(); i++)
-	{
-		if (isdigit(str[i]))
-			break;
-	}
+  str = str.substr(i, (str.length() - 1) - i);
 
-	str = str.substr(i, (str.length() - 1) - i);
-
-	if (str != "") {
-		LinesInFile->push_back(str);
-	}
-	else {
-
-	}
-
+  if (str != "") {
+    LinesInFile->push_back(str);
+  } else {
+  }
 }
 
-inline int GetIntegerFromString(string str)
-{
+inline int GetIntegerFromString(string str) {
+  size_t i = 0;
 
-	size_t i = 0;
+  for (; i < str.length(); i++) {
+    if (isdigit(str[i])) break;
+  }
 
-	for (; i < str.length(); i++)
-	{
-		if (isdigit(str[i]))
-			break;
-	}
+  str = str.substr(i, (str.length() - 1) - i);
 
-	str = str.substr(i, (str.length() - 1) - i);
-
-	if (str != "") {
-		return stoi(str);
-	}
-	else {
-		return -1;
-	}
-
+  if (str != "") {
+    return stoi(str);
+  } else {
+    return -1;
+  }
 }
 
-inline int GetIntegerFromStringTwo(string str)
-{
+inline int GetIntegerFromStringTwo(string str) {
+  size_t i = 0;
 
-	size_t i = 0;
+  for (; i < str.length(); i++) {
+    if (isdigit(str[i])) break;
+  }
 
-	for (; i < str.length(); i++)
-	{
-		if (isdigit(str[i]))
-			break;
-	}
+  str = str.substr(i, (str.length() - 1) - i);
 
-	str = str.substr(i, (str.length() - 1) - i);
-
-	if (str != "") {
-		return stoi(str);
-	}
-	else {
-		return -1;
-	}
-
+  if (str != "") {
+    return stoi(str);
+  } else {
+    return -1;
+  }
 }
 
-inline string GetDataFromReadline(string line)
-{
+inline string GetDataFromReadline(string line) {
+  // entity sprite w:	[64] <-- example this functions reads and returns what
+  // is inside []
 
-	// entity sprite w:	[64] <-- example this functions reads and returns what is inside []
+  string start = "[";
 
-	string start = "[";
+  string end = "]";
 
-	string end = "]";
+  size_t start_at = line.find(start);
 
-	size_t start_at = line.find(start);
+  if (start_at != string::npos) {
+    // cout << "[ occurrence is " << start_at << endl;
+  } else {
+    start_at = -1;
+  }
 
-	if (start_at != string::npos) {
-		//cout << "[ occurrence is " << start_at << endl;
-	}
-	else {
-		start_at = -1;
-	}
+  size_t end_at = line.find(end);
 
-	size_t end_at = line.find(end);
+  if (end_at != string::npos) {
+    // cout << "] occurrence is " << end_at << endl;
+  } else {
+    end_at = 0;
+  }
 
-	if (end_at != string::npos) {
-		//cout << "] occurrence is " << end_at << endl;
-	}
-	else {
-		end_at = 0;
-	}
+  if (line != "") {
+    line = line.substr(start_at + 1, (end_at - 1 - start_at));
+  }
 
-	if (line != "") {
-		line = line.substr(start_at + 1, (end_at - 1 - start_at));
-	}
-
-
-	return line;
-
+  return line;
 }
 
-inline string GetDataFromReadlineTwo(string line)
-{
+inline string GetDataFromReadlineTwo(string line) {
+  // entity sprite w:	[64] <-- example this functions reads and returns what
+  // is inside []
 
-	// entity sprite w:	[64] <-- example this functions reads and returns what is inside []
+  string start = "[";
 
-	string start = "[";
+  string end = "]";
 
-	string end = "]";
+  size_t start_at = line.find(start);
 
-	size_t start_at = line.find(start);
+  if (start_at != string::npos) {
+    // cout << "[ occurrence is " << start_at << endl;
+  } else {
+    start_at = -1;
+  }
 
-	if (start_at != string::npos) {
-		//cout << "[ occurrence is " << start_at << endl;
-	}
-	else {
-		start_at = -1;
-	}
+  size_t end_at = line.find(end);
 
-	size_t end_at = line.find(end);
+  if (end_at != string::npos) {
+    // cout << "] occurrence is " << end_at << endl;
+  } else {
+    end_at = 0;
+  }
 
-	if (end_at != string::npos) {
-		//cout << "] occurrence is " << end_at << endl;
-	}
-	else {
-		end_at = 0;
-	}
+  if (line != "") {
+    line = line.substr(start_at + 1, (end_at - 1 - start_at));
+  }
 
-	if (line != "") {
-		line = line.substr(start_at + 1, (end_at - 1 - start_at));
-	}
-
-
-	return line;
-
+  return line;
 }
 
-inline string GetDataFromReadlineThree(string line, int layer)
-{
-	global_variable int row = 0;
+inline string GetDataFromReadlineThree(string line, int layer) {
+  global_variable int row = 0;
 
-	// entity sprite w:	[64] <-- example this functions reads and returns what is inside []
+  // entity sprite w:	[64] <-- example this functions reads and returns what
+  // is inside []
 
-	size_t loop;
+  size_t loop;
 
-	string temp = "";
+  string temp = "";
 
-	string start = "[";
+  string start = "[";
 
-	string end = "]";
+  string end = "]";
 
-	size_t start_at = line.find(start);
+  size_t start_at = line.find(start);
 
-	//line.find_last_of(start);
+  // line.find_last_of(start);
 
-	if (start_at != string::npos) {
-		//cout << "[ occurrence is " << start_at << endl;
-	}
-	else {
+  if (start_at != string::npos) {
+    // cout << "[ occurrence is " << start_at << endl;
+  } else {
+    start_at = -1;
+  }
 
-		start_at = -1;
-	}
+  size_t end_at = line.find(end);
 
-	size_t end_at = line.find(end);
+  if (end_at != string::npos) {
+    // cout << "] occurrence is " << end_at << endl;
+  } else {
+    end_at = 0;
+  }
 
-	if (end_at != string::npos) {
-		//cout << "] occurrence is " << end_at << endl;
-	}
-	else {
-		end_at = 0;
-	}
+  if (line != "" && start_at != -1) {
+    // cout << "line size " << line.size() << endl;
 
-	if (line != "" && start_at != -1) {
+    loop = (line.size() - start_at) / (end_at - start_at + 1);
 
-		//cout << "line size " << line.size() << endl;
+    // cout << "loop " << loop << endl;
 
-		loop = (line.size() - start_at) / (end_at - start_at + 1);
+    string_cords[row][0] = (line.substr(start_at + 1, (end_at - 1 - start_at)));
 
-		//cout << "loop " << loop << endl;
+    cords[row][0][layer] = stoi(string_cords[row][0]);
 
-		string_cords[row][0] = (line.substr(start_at + 1, (end_at - 1 - start_at)));
+    temp = line.substr((end_at + 1), line.size());
 
-		cords[row][0][layer] = stoi(string_cords[row][0]);
+    for (size_t i = 1; i < loop; i++) {
+      start_at = temp.find(start);
 
-		temp = line.substr((end_at + 1), line.size());
+      // line.find_last_of(start);
 
+      if (start_at != string::npos) {
+        // cout << "[ occurrence is " << start_at << endl;
+      } else {
+        start_at = -1;
+      }
 
-		for (size_t i = 1; i < loop; i++)
-		{
+      end_at = temp.find(end);
 
-			start_at = temp.find(start);
+      if (end_at != string::npos) {
+        // cout << "] occurrence is " << end_at << endl;
+      } else {
+        end_at = 0;
+      }
 
-			//line.find_last_of(start);
+      string_cords[row][i] =
+          (temp.substr(start_at + 1, (end_at - 1 - start_at)));
 
-			if (start_at != string::npos) {
-				//cout << "[ occurrence is " << start_at << endl;
-			}
-			else {
+      cords[row][i][layer] = stoi(string_cords[row][i]);
 
-				start_at = -1;
-			}
+      temp = temp.substr((end_at + 1), temp.size());
+    }
 
-			end_at = temp.find(end);
+    row++;
+  }
 
-			if (end_at != string::npos) {
-				//cout << "] occurrence is " << end_at << endl;
-			}
-			else {
-				end_at = 0;
-			}
-
-			string_cords[row][i] = (temp.substr(start_at + 1, (end_at - 1 - start_at)));
-
-			cords[row][i][layer] = stoi(string_cords[row][i]);
-
-			temp = temp.substr((end_at + 1), temp.size());
-
-		}
-
-		row++;
-	}
-
-
-	return line;
-
+  return line;
 }
 
+inline string GetDataFromReadlineTiledMap(string line, int layer) {
+  // entity sprite w:	[64] <-- example this functions reads and returns what
+  // is inside []
 
-inline string GetDataFromReadlineTiledMap(string line, int layer)
-{
-	// entity sprite w:	[64] <-- example this functions reads and returns what is inside []
+  size_t loop;
 
-	size_t loop;
+  string temp = "";
 
-	string temp = "";
+  string start = "";
 
-	string start = "";
+  string end = ",";
 
-	string end = ",";
+  size_t start_at = line.find(start);
 
-	size_t start_at = line.find(start);
+  // line.find_last_of(start);
 
-	//line.find_last_of(start);
+  if (start_at != string::npos) {
+  } else {
+    start_at = -1;
+  }
 
-	if (start_at != string::npos) {
-	}
-	else {
+  size_t end_at = line.find(end);
 
-		start_at = -1;
-	}
+  if (end_at != string::npos) {
+  } else {
+    end_at = 0;
+  }
 
-	size_t end_at = line.find(end);
+  if (line != "" && start_at != -1) {
+    // cout << "line size " << line.size() << endl;
 
-	if (end_at != string::npos) {
-	}
-	else {
-		end_at = 0;
-	}
+    loop = (line.size() - start_at) / (end_at - start_at + 1);
 
-	if (line != "" && start_at != -1) {
+    string_cords[row][0] = (line.substr(start_at, (end_at - start_at)));
 
-		//cout << "line size " << line.size() << endl;
+    // cout << " | " << string_cords[row][0] << " | ";
 
-		loop = (line.size() - start_at) / (end_at - start_at + 1);
+    cords[row][0][layer] = stoi(string_cords[row][0]);
 
-		string_cords[row][0] = (line.substr(start_at, (end_at - start_at)));
+    temp = line.substr((end_at + 1), line.size());
 
-		//cout << " | " << string_cords[row][0] << " | ";
+    for (size_t i = 1; i < 19; i++) {
+      start_at = temp.find(start);
 
-		cords[row][0][layer] = stoi(string_cords[row][0]);
+      // line.find_last_of(start);
 
-		temp = line.substr((end_at + 1), line.size());
+      if (start_at != string::npos) {
+        // cout << "[ occurrence is " << start_at << endl;
+      } else {
+        start_at = -1;
+      }
 
-		for (size_t i = 1; i < 19; i++)
-		{
-			start_at = temp.find(start);
+      end_at = temp.find(end);
 
-			//line.find_last_of(start);
+      if (end_at != string::npos) {
+        // cout << "] occurrence is " << end_at << endl;
+      } else {
+        end_at = 0;
+      }
 
-			if (start_at != string::npos) {
-				//cout << "[ occurrence is " << start_at << endl;
-			}
-			else {
+      string_cords[row][i] = (temp.substr(start_at, (end_at - start_at)));
 
-				start_at = -1;
-			}
+      // cout << " | " << string_cords[row][i] << " | ";
 
-			end_at = temp.find(end);
+      cords[row][i][layer] = stoi(string_cords[row][i]);
 
-			if (end_at != string::npos) {
-				//cout << "] occurrence is " << end_at << endl;
-			}
-			else {
-				end_at = 0;
-			}
+      temp = temp.substr((end_at + 1), temp.size());
+    }
 
-			string_cords[row][i] = (temp.substr(start_at, (end_at - start_at)));
+    cords[row][19][layer] = stoi(temp);
 
-			//cout << " | " << string_cords[row][i] << " | ";
+    cout << "layer: " << layer << endl;
 
-			cords[row][i][layer] = stoi(string_cords[row][i]);
-
-			temp = temp.substr((end_at + 1), temp.size());
-
-		}
-
-		cords[row][19][layer] = stoi(temp);
-
-		cout << "layer: "<<layer<< endl;
-
-		row++;
-	}
-	return line;
-
+    row++;
+  }
+  return line;
 }
 
+inline string GetPropertyNameFromReadline(string line) {
+  // entity sprite w:	[64] <-- example this functions reads and returns
+  // "entity sprite w:"
 
+  string end = ":";
 
-inline string GetPropertyNameFromReadline(string line)
-{
+  size_t start_at = -1;
 
-	// entity sprite w:	[64] <-- example this functions reads and returns "entity sprite w:"
+  size_t end_at = line.find(end);
 
-	string end = ":";
+  if (end_at != string::npos) {
+    // cout << "] occurrence is " << end_at << endl;
+  } else {
+    end_at = 0;
+  }
 
-	size_t start_at = -1;
+  if (line != "") {
+    line = line.substr(start_at + 1, (end_at - 1 - start_at));
+  }
 
-
-	size_t end_at = line.find(end);
-
-	if (end_at != string::npos) {
-		//cout << "] occurrence is " << end_at << endl;
-	}
-	else {
-		end_at = 0;
-	}
-
-	if (line != "") {
-		line = line.substr(start_at + 1, (end_at - 1 - start_at));
-	}
-
-
-	return line;
-
+  return line;
 }
 
-inline void setSprite(entity* e, int ID) {
+inline void setSprite(vector<sprite>& sprite_list, entity* e, int ID) {
+  //	printf("Searching for: %d \n", ID);
+  for (size_t i = 0; i < sprite_list.size(); i++) {
+    // printf("Compare: %d vs %d \n", sprite_list[i].ID, ID);
 
-	//	printf("Searching for: %d \n", ID);
-	for (size_t i = 0; i < sprite_list.size(); i++)
-	{
-		//printf("Compare: %d vs %d \n", sprite_list[i].ID, ID);
+    if (sprite_list[i].ID == ID) {
+      e->sprite = &sprite_list[i];
 
-		if (sprite_list[i].ID == ID)
-		{
-			e->sprite = &sprite_list[i];
-
-			//	printf("Match! %s\n", sprite_list[i].img.c_str());
-			break;
-		}
-		else
-		{
-			//	printf("Didn't find: %d \n", ID);
-		}
-	}
-
-
-
+      //	printf("Match! %s\n", sprite_list[i].img.c_str());
+      break;
+    } else {
+      //	printf("Didn't find: %d \n", ID);
+    }
+  }
 }
 
-inline void LoadSpriteData(int sprite_count) {
+inline void LoadSpriteData(game_state & GameState, int sprite_count) {
+  //------
+  // entity sprite ID : [0]
+  // entity sprite filename : []
+  // entity sprite x : [0]
+  // entity sprite y : [0]
+  // entity sprite w : [64]
+  // entity sprite h : [32
+  //------
 
-	//------
-	//entity sprite ID : [0]
-	//entity sprite filename : []
-	//entity sprite x : [0]
-	//entity sprite y : [0]
-	//entity sprite w : [64]
-	//entity sprite h : [32
-	//------	
+  // strcpy(temp.sprite.img, &tmp_str[0]);
+  // temp.sprite.img = &tmp_str[0];
+  // printf("Loadentity: %s\n", temp.sprite.img);
 
-	//strcpy(temp.sprite.img, &tmp_str[0]);
-	//temp.sprite.img = &tmp_str[0];
-	//printf("Loadentity: %s\n", temp.sprite.img);
+  sprite temp;
+  int index = 0;
+  size_t i = 1;
 
+  string tmp_str = "";
 
-	sprite temp;
-	int index = 0;
-	size_t i = 1;
+  for (; i <= sprite_count; i++) {
+    tmp_str = GetDataFromReadline(sprite_lines[index]);
+    temp.ID = atoi(tmp_str.c_str());
+    index++;
 
-	string tmp_str = "";
+    tmp_str = GetDataFromReadline(sprite_lines[index]);
+    temp.name = tmp_str;
+    index++;
 
-	for (; i <= sprite_count; i++)
-	{
+    tmp_str = GetDataFromReadline(sprite_lines[index]);
+    temp.img = tmp_str;
+    index++;
 
-		tmp_str = GetDataFromReadline(sprite_lines[index]);
-		temp.ID = atoi(tmp_str.c_str());
-		index++;
+    tmp_str = GetDataFromReadline(sprite_lines[index]);
+    temp.x = atoi(tmp_str.c_str());
+    index++;
 
-		tmp_str = GetDataFromReadline(sprite_lines[index]);
-		temp.name = tmp_str;
-		index++;
+    tmp_str = GetDataFromReadline(sprite_lines[index]);
+    temp.y = atoi(tmp_str.c_str());
+    index++;
 
+    tmp_str = GetDataFromReadline(sprite_lines[index]);
+    temp.w = atoi(tmp_str.c_str());
+    index++;
 
-		tmp_str = GetDataFromReadline(sprite_lines[index]);
-		temp.img = tmp_str;
-		index++;
+    tmp_str = GetDataFromReadline(sprite_lines[index]);
+    temp.h = atoi(tmp_str.c_str());
+    index++;
 
-		if (!sprite_png_list.compare(""))
-		{
-			sprite_png_list = sprite_png_list + tmp_str;
+    tmp_str = GetDataFromReadline(sprite_lines[index]);
+    temp.offset_x = atoi(tmp_str.c_str());
+    index++;
 
-		}
-		else
-		{
-			sprite_png_list = sprite_png_list + ";" + tmp_str;
-		}
+    tmp_str = GetDataFromReadline(sprite_lines[index]);
+    temp.offset_y = atoi(tmp_str.c_str());
+    index++;
 
-		tmp_str = GetDataFromReadline(sprite_lines[index]);
-		temp.x = atoi(tmp_str.c_str());
-		index++;
-
-		tmp_str = GetDataFromReadline(sprite_lines[index]);
-		temp.y = atoi(tmp_str.c_str());
-		index++;
-
-		tmp_str = GetDataFromReadline(sprite_lines[index]);
-		temp.w = atoi(tmp_str.c_str());
-		index++;
-
-		tmp_str = GetDataFromReadline(sprite_lines[index]);
-		temp.h = atoi(tmp_str.c_str());
-		index++;
-
-		tmp_str = GetDataFromReadline(sprite_lines[index]);
-		temp.offset_x = atoi(tmp_str.c_str());
-		index++;
-
-		tmp_str = GetDataFromReadline(sprite_lines[index]);
-		temp.offset_y = atoi(tmp_str.c_str());
-		index++;
-
-		sprite_list.push_back(temp);
-
-	}
-	cout << "this happend 1" << endl;
+    GameState.SpriteList.push_back(temp);
+  }
+  cout << "this happend 1" << endl;
 }
 
-inline void LoadEntityData(int entity_count) {
+inline void LoadEntityData(game_state & GameState, int entity_count) {
+  //------
+  // entity sprite ID : [0]
+  // entity sprite filename : []
+  // entity sprite x : [0]
+  // entity sprite y : [0]
+  // entity sprite w : [64]
+  // entity sprite h : [32
+  //------
 
-	//------
-	//entity sprite ID : [0]
-	//entity sprite filename : []
-	//entity sprite x : [0]
-	//entity sprite y : [0]
-	//entity sprite w : [64]
-	//entity sprite h : [32
-	//------	
+  // strcpy(temp.sprite.img, &tmp_str[0]);
+  // temp.sprite.img = &tmp_str[0];
+  // printf("Loadentity: %s\n", temp.sprite.img);
 
-	//strcpy(temp.sprite.img, &tmp_str[0]);
-	//temp.sprite.img = &tmp_str[0];
-	//printf("Loadentity: %s\n", temp.sprite.img);
+  entity temp;
 
-	entity temp;
+  int index = 0;
+  size_t i = 1;
 
-	int index = 0;
-	size_t i = 1;
+  string tmp_str = "";
+  int tempSpriteID;
 
-	string tmp_str = "";
-	int tempSpriteID;
+  for (; i <= entity_count; i++) {
+    tmp_str = GetDataFromReadline(entity_lines[index]);
+    temp.ID = atoi(tmp_str.c_str());  // entity ID : [n]
+    index++;
 
-	for (; i <= entity_count; i++)
-	{
+    // tmp_str = GetDataFromReadline(entity_lines[index]);
+    // temp.x = atoi(tmp_str.c_str());;
+    // index++;
 
-		tmp_str = GetDataFromReadline(entity_lines[index]);
-		temp.ID = atoi(tmp_str.c_str()); // entity ID : [n]
-		index++;
+    // tmp_str = GetDataFromReadline(entity_lines[index]);
+    // temp.y = atoi(tmp_str.c_str());
+    // index++;
 
-		//tmp_str = GetDataFromReadline(entity_lines[index]);
-		//temp.x = atoi(tmp_str.c_str());;
-		//index++;
+    tmp_str = GetDataFromReadline(entity_lines[index]);
+    temp.w = atoi(tmp_str.c_str());  // entity w : [n]
+    index++;
 
-		//tmp_str = GetDataFromReadline(entity_lines[index]);
-		//temp.y = atoi(tmp_str.c_str());
-		//index++;
+    tmp_str = GetDataFromReadline(entity_lines[index]);
+    temp.h = atoi(tmp_str.c_str());  // entity h : [n]
+    index++;
 
-		tmp_str = GetDataFromReadline(entity_lines[index]);
-		temp.w = atoi(tmp_str.c_str()); // entity w : [n]
-		index++;
+    tmp_str = GetDataFromReadline(entity_lines[index]);
+    tempSpriteID = atoi(tmp_str.c_str());  // entity sprite ID : [n]
 
-		tmp_str = GetDataFromReadline(entity_lines[index]);
-		temp.h = atoi(tmp_str.c_str()); // entity h : [n]
-		index++;
+    setSprite(GameState.SpriteList,&temp, tempSpriteID);
 
-		tmp_str = GetDataFromReadline(entity_lines[index]);
-		tempSpriteID = atoi(tmp_str.c_str()); // entity sprite ID : [n]
+    index++;
 
-		setSprite(&temp, tempSpriteID);
+    temp.entity_tile = {(float)temp.x, (float)temp.y, (float)tile_width,
+                        (float)tile_height};
 
-		index++;
-
-		temp.entity_tile = { (float)temp.x,(float)temp.y, (float)tile_width, (float)tile_height };
-
-		entity_list.push_back(temp);
-	}
+    GameState.EntityList.push_back(temp);
+  }
 }
 
 inline int ReadEntityData(string path) {
+  int temp_entity_count = 0;
 
-	int temp_entity_count = 0;
+  entity_lines.clear();
 
-	entity_lines.clear();
+  string entity_divider = "------";
 
-	string entity_divider = "------";
+  string comment_token = "#";
 
-	string comment_token = "#";
+  string line;
 
-	string line;
+  int divider_count = 0;
 
-	int divider_count = 0;
+  ifstream myfile(path);
+  if (myfile.is_open()) {
+    while (getline(myfile, line)) {
+      if (line.find(comment_token) == string::npos) {
+        if (line.find(entity_divider) == string::npos) {
+          entity_lines.push_back(line);
 
-	ifstream myfile(path);
-	if (myfile.is_open())
-	{
-		while (getline(myfile, line))
-		{
-			if (line.find(comment_token) == string::npos) {
+        } else {
+          divider_count++;
+        }
+      } else {
+        //	cout << line << endl;
+      }
+    }
 
-				if (line.find(entity_divider) == string::npos) {
+    myfile.close();
+  } else {
+    printf("Unable to open file\n");
+  }
 
-					entity_lines.push_back(line);
+  temp_entity_count = divider_count / 2;
 
-				}
-				else
-				{
-					divider_count++;
-				}
-			}
-			else
-			{
-				//	cout << line << endl;
-			}
-		}
-
-		myfile.close();
-	}
-	else
-	{
-		printf("Unable to open file\n");
-	}
-
-	temp_entity_count = divider_count / 2;
-
-	return temp_entity_count;
+  return temp_entity_count;
 }
 
 inline bool ReadMapData(string path) {
+  // string map_path = path + "map1.txt";
 
-	//string map_path = path + "map1.txt";
+  bool success = false;
 
-	bool success = false;
+  string entity_divider = "------";
 
-	string entity_divider = "------";
+  string comment_token = "#";
 
-	string comment_token = "#";
+  string line;
 
-	string line;
+  int divider_count = 0;
 
-	int divider_count = 0;
+  map_lines.clear();
 
-	map_lines.clear();
+  ifstream myfile(path);
+  if (myfile.is_open()) {
+    while (getline(myfile, line)) {
+      if (line.find(comment_token) == string::npos) {
+        if (line.find(entity_divider) == string::npos) {
+          map_lines.push_back(line);
+        } else {
+          divider_count++;
+        }
+      } else {
+        //	cout << line << endl;
+      }
+    }
 
-	ifstream myfile(path);
-	if (myfile.is_open())
-	{
-		while (getline(myfile, line))
-		{
-			if (line.find(comment_token) == string::npos)
-			{
-				if (line.find(entity_divider) == string::npos)
-				{
-					map_lines.push_back(line);
-				}
-				else
-				{
-					divider_count++;
-				}
-			}
-			else
-			{
-				//	cout << line << endl;
-			}
-		}
+    myfile.close();
+    success = true;
+  } else {
+    printf("Unable to open file\n");
+  }
 
-		myfile.close();
-		success = true;
-	}
-	else
-	{
-		printf("Unable to open file\n");
-	}
+  for (size_t i = 0; i < map_lines.size(); i++) {
+    cout << map_lines[i] << endl;
+  }
 
-	for (size_t i = 0; i < map_lines.size(); i++)
-	{
-		cout << map_lines[i] << endl;
-	}
-
-	return success;
+  return success;
 }
 
 inline bool ReadMapDataTiledMap(string path) {
+  // string map_path = path + "map1.txt";
 
-	//string map_path = path + "map1.txt";
+  bool success = false;
 
-	bool success = false;
+  string entity_divider = "------";
 
-	string entity_divider = "------";
+  string comment_token = "<";
 
-	string comment_token = "<";
+  string line;
 
-	string line;
+  string eof = "</map>";
 
-	string eof = "</map>";
+  int divider_count = 0;
 
-	int divider_count = 0;
+  int line_count = 0;
 
-	int line_count = 0;
+  map_tiled_lines.clear();
 
-	map_tiled_lines.clear();
+  ifstream myfile(path);
+  if (myfile.is_open()) {
+    while (getline(myfile, line)) {
+      if (line.find(eof) != string::npos) {
+        break;
+      }
 
-	ifstream myfile(path);
-	if (myfile.is_open())
-	{
-		while (getline(myfile, line))
-		{
-			if (line.find(eof) != string::npos) {
-				break;
-			}
+      if (line.find(comment_token) == string::npos) {
+        // if (line.find(entity_divider) == string::npos)
+        // {
+        map_tiled_lines.push_back(line);
+        line_count++;
+        // }
+        // else
+        // {
+        // 	divider_count++;
+        // }
+      } else {
+        //	cout << line << endl;
+      }
+    }
 
-			if (line.find(comment_token) == string::npos)
-			{
-				// if (line.find(entity_divider) == string::npos)
-				// {
-				map_tiled_lines.push_back(line);
-				line_count++;
-				// }
-				// else 
-				// {
-				// 	divider_count++;
-				// }
-			}
-			else
-			{
-				//	cout << line << endl;
-			}
-		}
+    myfile.close();
+    success = true;
+  } else {
+    printf("Unable to open file\n");
+  }
 
-		myfile.close();
-		success = true;
-	}
-	else
-	{
-		printf("Unable to open file\n");
-	}
+  cout << "lines: " << map_tiled_lines.size() << endl;
+  for (size_t i = 0; i < map_tiled_lines.size(); i++) {
+    if (i % Y_TILES == 0 && i != 0) {
+      cout << endl;
+    }
 
-	cout << "lines: " << map_tiled_lines.size() << endl;
-	for (size_t i = 0; i < map_tiled_lines.size(); i++)
-	{
-				if(i % Y_TILES == 0 && i != 0)
-		{ cout << endl;}
+    cout << map_tiled_lines[i] << endl;
+  }
 
-		cout << map_tiled_lines[i] << endl;
-
-
-	}
-
-	return success;
+  return success;
 }
 
-
-inline void setMapCords(int layer)
-{
-	for (size_t i = 0; i < map_lines.size(); i++)
-	{
-		//cout << "Data: " << GetDataFromReadlineTwo(map_lines[i]) << endl;
-		GetDataFromReadlineThree(map_lines[i], layer);
-
-	}
+inline void setMapCords(int layer) {
+  for (size_t i = 0; i < map_lines.size(); i++) {
+    // cout << "Data: " << GetDataFromReadlineTwo(map_lines[i]) << endl;
+    GetDataFromReadlineThree(map_lines[i], layer);
+  }
 }
 
-inline void setMapCordsTiled()
-{
-	int layer = 0;
+inline void setMapCordsTiled() {
+  int layer = 0;
 
-	row = 0;
+  row = 0;
 
-	for (size_t i = 0; i < map_tiled_lines.size(); i++)
-	{
+  for (size_t i = 0; i < map_tiled_lines.size(); i++) {
+    if (i % Y_TILES == 0 && i != 0) {
+      cout << "layer: " << layer << endl;
+      cout << "lines: " << map_tiled_lines.size() << endl;
+      cout << "layer switch: " << i << endl;
+      layer++;
+      row = 0;
+    }
 
-		if(i % Y_TILES == 0 && i != 0)
-		{
-			cout << "layer: " << layer << endl;
-			cout << "lines: " <<  map_tiled_lines.size() << endl;
-			cout << "layer switch: " << i << endl;
-			layer++;
-			row = 0;
-		}
+    GetDataFromReadlineTiledMap(map_tiled_lines[i], layer);
+  }
+}
+inline void setEntityCords(map & Map, vector<entity> & entity_list ,int layer) {
+  cout << "Testing setEntityCords" << endl;
 
-		GetDataFromReadlineTiledMap(map_tiled_lines[i],layer);
-		
-	}
+  entity temp;
 
+  for (size_t i = 0; i < Y_TILES; i++) {
+    for (size_t j = 0; j < X_TILES; j++) {
+      for (size_t k = 0; k < entity_list.size(); k++) {
+        if (entity_list[k].ID == cords[i][j][layer]) {
+          temp.ID = entity_list[k].ID;
+          if (i % 2 == 0) {
+            temp.x = (j * GAME_TILE_WIDTH);
+            temp.y = (i * (GAME_TILE_HEIGHT / 2));
+          } else {
+            temp.x = (j * GAME_TILE_WIDTH) + (GAME_TILE_WIDTH / 2);
+            temp.y = (i * (GAME_TILE_HEIGHT / 2));
+          }
+
+          temp.y = temp.y;
+
+          temp.w = entity_list[k].w;
+          temp.h = entity_list[k].h;
+          temp.entity_tile = entity_list[k].entity_tile;
+          temp.sprite = entity_list[k].sprite;
+
+          temp.layer = layer;
+
+          Map.EntityList.push_back(temp);
+        }
+      }
+    }
+  }
 }
 
-inline void setEntityCords(int layer)
-{
-	cout << "Testing setEntityCords" << endl;
+inline void setPosCords() {
+  cout << "Testing setPosCords" << endl;
 
-	entity temp;
-
-	for (size_t i = 0; i < Y_TILES; i++)
-	{
-		for (size_t j = 0; j < X_TILES; j++)
-		{
-
-			for (size_t k = 0; k < entity_list.size(); k++)
-			{
-				if (entity_list[k].ID == cords[i][j][layer])
-				{
-					temp.ID = entity_list[k].ID;
-					if (i % 2 == 0)
-					{
-						temp.x = (j * GAME_TILE_WIDTH);
-						temp.y = (i * (GAME_TILE_HEIGHT / 2));
-					}
-					else
-					{
-						temp.x = (j * GAME_TILE_WIDTH) + (GAME_TILE_WIDTH / 2);
-						temp.y = (i * (GAME_TILE_HEIGHT / 2));
-					}
-
-					temp.y = temp.y;
-
-					temp.w = entity_list[k].w;
-					temp.h = entity_list[k].h;
-					temp.entity_tile = entity_list[k].entity_tile;
-					temp.sprite = entity_list[k].sprite;
-
-					temp.layer = layer;
-
-					map_entity_list.push_back(temp);
-				}
-			}
-
-
-		}
-	}
+  for (size_t i = 0; i < Y_TILES; i++) {
+    for (size_t j = 0; j < X_TILES; j++) {
+      if (i % 2 == 0) {
+        pos_cords[i][j].x = (j * 64);
+        pos_cords[i][j].y = (i * 16);
+      } else {
+        pos_cords[i][j].x = (j * 64) + 32;
+        pos_cords[i][j].y = (i * 16);
+      }
+    }
+  }
 }
 
+inline void SetGuiEntities( vector<entity> & entity_list) {
+  entity temp;
 
-inline void setPosCords()
-{
-	cout << "Testing setPosCords" << endl;
+  for (size_t k = 0; k < entity_list.size(); k++) {
+    // if (sprite_list[k].ID == 999) // Background
+    //{
+    //	cout << "ID == 29 found, background set, setGuiEntities" << endl;
+    //
+    //	temp.ID = 999;
+    //	temp.x = 0;
+    //	temp.y = 0;
+    //	temp.w = sprite_list[k].w;
+    //	temp.h = sprite_list[k].h;
+    //	//temp.entity_tile = entity_list[k].entity_tile;
+    //	temp.sprite = &sprite_list[k];
 
-	for (size_t i = 0; i < Y_TILES; i++)
-	{
-		for (size_t j = 0; j < X_TILES; j++)
-		{
-			if (i % 2 == 0)
-			{
-				pos_cords[i][j].x = (j * 64);
-				pos_cords[i][j].y = (i * 16);
-			}
-			else
-			{
-				pos_cords[i][j].x = (j * 64) + 32;
-				pos_cords[i][j].y = (i * 16);
-			}
-		}
-	}
+    //	gui_entity_list.push_back(temp);
+    //}
+
+    if (entity_list[k].ID == 7) {
+      temp.ID = entity_list[k].ID;
+      temp.x = 64;
+      temp.y = 32;
+      temp.w = entity_list[k].w;
+      temp.h = entity_list[k].h;
+      temp.entity_tile = entity_list[k].entity_tile;
+      temp.sprite = entity_list[k].sprite;
+
+      gui_entity_list.push_back(temp);
+
+      cout << "target found, setGuiEntities" << endl;
+    }
+
+    if (entity_list[k].ID == 2)  // Grid
+    {
+      temp.ID = entity_list[k].ID;
+      temp.x = 0;
+      temp.y = 0;
+      temp.w = entity_list[k].w;
+      temp.h = entity_list[k].h;
+      temp.entity_tile = entity_list[k].entity_tile;
+      temp.sprite = entity_list[k].sprite;
+
+      gui_entity_list.push_back(temp);
+
+      cout << "ID == 2 found, Grid set, setGuiEntities" << endl;
+    }
+
+    // cout << " " << k << " ";
+  }
+
+  // cout << " " << endl;
 }
 
+inline void setPlayer(game_state & GameState) {
+  entity temp;
 
+  cout << "setPlayer start " << endl;
 
-inline void setGuiEntities()
-{
-	entity temp;
+  temp.ID = 9;
+  temp.x = 64;
+  temp.y = 64;
 
+  temp.w = 48;
+  temp.h = 64;
+  temp.entity_tile = {temp.x, temp.y, (float)GAME_TILE_WIDTH,
+                      (float)GAME_TILE_HEIGHT};
 
-	for (size_t k = 0; k < entity_list.size(); k++)
-	{
-		//if (sprite_list[k].ID == 999) // Background
-		//{
-		//	cout << "ID == 29 found, background set, setGuiEntities" << endl;
-		//	
-		//	temp.ID = 999;
-		//	temp.x = 0;
-		//	temp.y = 0;
-		//	temp.w = sprite_list[k].w;
-		//	temp.h = sprite_list[k].h;
-		//	//temp.entity_tile = entity_list[k].entity_tile;
-		//	temp.sprite = &sprite_list[k];
+  setSprite(GameState.SpriteList,&temp, 67);
 
-		//	gui_entity_list.push_back(temp);
-		//}
+  GameState.Map.EntityList.push_back(temp);
 
-		if (entity_list[k].ID == 7)
-		{
+  // game_entity_list.push_back(&temp);
 
-			temp.ID = entity_list[k].ID;
-			temp.x = 64;
-			temp.y = 32;
-			temp.w = entity_list[k].w;
-			temp.h = entity_list[k].h;
-			temp.entity_tile = entity_list[k].entity_tile;
-			temp.sprite = entity_list[k].sprite;
+  // entity ID : [9] "Julius"
+  // entity w : [48]
+  // entity h : [64]
+  // entity sprite ID : [67]
 
-			gui_entity_list.push_back(temp);
+  // for (size_t k = 0; k < GameState.Map.EntityList.size(); k++)
+  // {
+  // 	cout << "setPlayer: " << GameState.Map.EntityList[k].ID << endl;
 
-			cout << "target found, setGuiEntities" << endl;
-		}
+  // 	if (GameState.Map.EntityList[k].ID == player_entity_ID )
+  // 	{
 
-		if (entity_list[k].ID == 2) // Grid
-		{
+  // 		cout << "true setPlayer: "<< GameState.Map.EntityList[k].ID << endl;
 
-			temp.ID = entity_list[k].ID;
-			temp.x = 0;
-			temp.y = 0;
-			temp.w = entity_list[k].w;
-			temp.h = entity_list[k].h;
-			temp.entity_tile = entity_list[k].entity_tile;
-			temp.sprite = entity_list[k].sprite;
+  // 		game_entity_list.push_back(&GameState.Map.EntityList[k]);
 
-			gui_entity_list.push_back(temp);
-
-			cout << "ID == 2 found, Grid set, setGuiEntities" << endl;
-		}
-
-		//cout << " " << k << " ";
-	}
-
-	//cout << " " << endl;
+  // 		GameState.Map.EntityList[k].render_this = true;
+  // 	}
+  // }
 }
-
-
-inline void setPlayer()
-{
-	entity temp;
-
-	cout << "setPlayer start " << endl;
-
-	temp.ID = 9;
-	temp.x = 64;
-	temp.y = 64;
-
-	temp.w = 48;
-	temp.h = 64;
-	temp.entity_tile = { temp.x,temp.y,(float)GAME_TILE_WIDTH, (float)GAME_TILE_HEIGHT };
-
-	setSprite(&temp, 67);
-
-	map_entity_list.push_back(temp);
-
-	//game_entity_list.push_back(&temp);
-
-	//entity ID : [9] "Julius"
-	//entity w : [48]
-	//entity h : [64]
-	//entity sprite ID : [67]
-
-	// for (size_t k = 0; k < map_entity_list.size(); k++)
-	// {
-	// 	cout << "setPlayer: " << map_entity_list[k].ID << endl;
-
-	// 	if (map_entity_list[k].ID == player_entity_ID )
-	// 	{
-
-
-	// 		cout << "true setPlayer: "<< map_entity_list[k].ID << endl;
-
-	// 		game_entity_list.push_back(&map_entity_list[k]);
-
-	// 		map_entity_list[k].render_this = true;
-	// 	}
-	// }
-
-
-}
-
 
 inline int ReadSpriteData(string path) {
+  sprite_lines.clear();
 
-	sprite_lines.clear();
+  int sprite_count = -1;
 
-	int sprite_count = -1;
+  string entity_divider = "------";
 
-	string entity_divider = "------";
+  string comment_token = "#";
 
-	string comment_token = "#";
+  string line;
 
-	string line;
+  int divider_count = 0;
 
-	int divider_count = 0;
+  ifstream myfile(path);
 
-	ifstream myfile(path);
+  if (myfile.is_open()) {
+    while (getline(myfile, line)) {
+      if (line.find(comment_token) == string::npos) {
+        if (line.find(entity_divider) == string::npos) {
+          sprite_lines.push_back(line);
+        } else {
+          divider_count++;
+        }
+      } else {
+        //	cout << line << endl;
+      }
+    }
 
-	if (myfile.is_open())
-	{
-		while (getline(myfile, line))
-		{
-			if (line.find(comment_token) == string::npos) {
+    myfile.close();
+  } else {
+    printf("Unable to open file\n");
+  }
 
-				if (line.find(entity_divider) == string::npos) {
+  sprite_count = divider_count / 2;
 
-					sprite_lines.push_back(line);
-				}
-				else
-				{
-					divider_count++;
-				}
-			}
-			else
-			{
-				//	cout << line << endl;
-			}
-		}
-
-		myfile.close();
-	}
-	else
-	{
-		printf("Unable to open file\n");
-	}
-
-	sprite_count = divider_count / 2;
-
-	return sprite_count;
+  return sprite_count;
 }
 
+inline int WriteEntityData( vector<entity> & entity_list,string path) {
+  ofstream myfile(path);
 
+  if (myfile.is_open()) {
+    for (size_t i = 0; i < entity_list.size(); i++) {
+      myfile << "------"
+             << "\n";
+      myfile << "entity ID : [" << entity_list[i].ID << "]"
+             << "\n";
+      myfile << "entity x : [" << entity_list[i].x << "]"
+             << "\n";
+      myfile << "entity y : [" << entity_list[i].y << "]"
+             << "\n";
+      myfile << "entity w : [" << entity_list[i].w << "]"
+             << "\n";
+      myfile << "entity h : [" << entity_list[i].h << "]"
+             << "\n";
 
-inline int WriteEntityData(string path) {
+      myfile << "entity sprite ID : [" << entity_list[i].sprite->ID << "]"
+             << "\n";
+      //		myfile << "entity sprite filename : [" <<
+      // entity_list[i].sprite.img << "]" << "\n"; 		myfile <<
+      // "entity sprite x :
+      //[" << entity_list[i].sprite.x << "]" << "\n"; 		myfile <<
+      //"entity sprite y : [" << entity_list[i].sprite.y << "]" << "\n";
+      // myfile << "entity sprite w : [" << entity_list[i].sprite.w << "]" <<
+      // "\n"; 		myfile << "entity sprite h : [" <<
+      // entity_list[i].sprite.h << "]" << "\n";
 
-	ofstream myfile(path);
+      myfile << "------"
+             << "\n";
+    }
 
-
-	if (myfile.is_open())
-	{
-
-
-		for (size_t i = 0; i < entity_list.size(); i++)
-		{
-
-			myfile << "------" << "\n";
-			myfile << "entity ID : [" << entity_list[i].ID << "]" << "\n";
-			myfile << "entity x : [" << entity_list[i].x << "]" << "\n";
-			myfile << "entity y : [" << entity_list[i].y << "]" << "\n";
-			myfile << "entity w : [" << entity_list[i].w << "]" << "\n";
-			myfile << "entity h : [" << entity_list[i].h << "]" << "\n";
-
-			myfile << "entity sprite ID : [" << entity_list[i].sprite->ID << "]" << "\n";
-			//		myfile << "entity sprite filename : [" << entity_list[i].sprite.img << "]" << "\n";
-			//		myfile << "entity sprite x : [" << entity_list[i].sprite.x << "]" << "\n";
-			//		myfile << "entity sprite y : [" << entity_list[i].sprite.y << "]" << "\n";
-			//		myfile << "entity sprite w : [" << entity_list[i].sprite.w << "]" << "\n";
-			//		myfile << "entity sprite h : [" << entity_list[i].sprite.h << "]" << "\n";
-
-			myfile << "------" << "\n";
-
-		}
-
-
-
-
-		myfile.close();
-		return 1;
-	}
-	else cout << "Unable to open file";
-	return 0;
-
+    myfile.close();
+    return 1;
+  } else
+    cout << "Unable to open file";
+  return 0;
 }
 
-inline int WriteSpriteData(string path) {
+inline int WriteSpriteData(string path, vector<sprite>& sprite_list) {
+  ofstream myfile(path);
 
-	ofstream myfile(path);
+  if (myfile.is_open()) {
+    for (size_t i = 0; i < sprite_list.size(); i++) {
+      myfile << "------"
+             << "\n";
+      myfile << "sprite ID : [" << sprite_list[i].ID << "]"
+             << "\n";
+      myfile << "sprite name : [" << sprite_list[i].name << "]"
+             << "\n";
+      myfile << "sprite filename : [" << sprite_list[i].img << "]"
+             << "\n";
+      myfile << "sprite x : [" << sprite_list[i].x << "]"
+             << "\n";
+      myfile << "sprite y : [" << sprite_list[i].y << "]"
+             << "\n";
+      myfile << "sprite w : [" << sprite_list[i].w << "]"
+             << "\n";
+      myfile << "sprite h : [" << sprite_list[i].h << "]"
+             << "\n";
+      myfile << "sprite offset_x: [" << sprite_list[i].offset_x << "]"
+             << "\n";
+      myfile << "sprite offset_y: [" << sprite_list[i].offset_y << "]"
+             << "\n";
 
+      myfile << "------"
+             << "\n";
+    }
 
-	if (myfile.is_open())
-	{
-
-
-		for (size_t i = 0; i < sprite_list.size(); i++)
-		{
-
-			myfile << "------" << "\n";
-			myfile << "sprite ID : [" << sprite_list[i].ID << "]" << "\n";
-			myfile << "sprite name : [" << sprite_list[i].name << "]" << "\n";
-			myfile << "sprite filename : [" << sprite_list[i].img << "]" << "\n";
-			myfile << "sprite x : [" << sprite_list[i].x << "]" << "\n";
-			myfile << "sprite y : [" << sprite_list[i].y << "]" << "\n";
-			myfile << "sprite w : [" << sprite_list[i].w << "]" << "\n";
-			myfile << "sprite h : [" << sprite_list[i].h << "]" << "\n";
-			myfile << "sprite offset_x: [" << sprite_list[i].offset_x << "]" << "\n";
-			myfile << "sprite offset_y: [" << sprite_list[i].offset_y << "]" << "\n";
-
-			myfile << "------" << "\n";
-
-		}
-
-
-
-
-		myfile.close();
-		return 1;
-	}
-	else cout << "Unable to open file";
-	return 0;
-
+    myfile.close();
+    return 1;
+  } else
+    cout << "Unable to open file";
+  return 0;
 }
 
+inline int WriteSpriteDataRaw(string file_path, vector<string> png_list,
+                              vector<texture>& texture_list) {
+  ofstream myfile(file_path);
 
+  if (DEBUG_PRINT) {
+    for (size_t i = 0; i < texture_list.size(); i++) {
+      for (size_t j = 0; j < texture_list.size(); j++) {
+        if (texture_list[j].path.find(png_list[i]) != std::string::npos) {
+          cout << "WriteSpriteDataRaw 2:" << texture_list[j].path << endl;
+        }
+      }
+    }
+  }
 
+  if (myfile.is_open()) {
+    for (size_t i = 0; i < png_list.size(); i++) {
+      myfile << "------"
+             << "\n";
+      myfile << "sprite ID : [" << i + 1 << "]"
+             << "\n";
+      myfile << "sprite name : ["
+             << png_list[i].substr(0, png_list[i].length() - 4) << "]"
+             << "\n";
+      myfile << "sprite filename : [" << png_list[i] << "]"
+             << "\n";
+      myfile << "sprite x : [" << 0 << "]"
+             << "\n";
+      myfile << "sprite y : [" << 0 << "]"
+             << "\n";
+      myfile << "sprite w : [" << texture_list[i].tex.width << "]"
+             << "\n";
+      myfile << "sprite h : [" << texture_list[i].tex.height << "]"
+             << "\n";
+      myfile << "sprite offset_x: [" << 0 << "]"
+             << "\n";
+      myfile << "sprite offset_y: [" << 0 << "]"
+             << "\n";
+      myfile << "------"
+             << "\n";
+    }
 
-inline int WriteSpriteDataRaw(string path) {
-
-	ofstream myfile(path);
-
-	for (size_t i = 0; i < gui_texture_list.size(); i++)
-	{
-		for (size_t j = 0; j < gui_texture_list.size(); j++)
-		{
-			if (gui_texture_list[j].path.find(png_list[i]) != std::string::npos)
-			{
-				cout << "2:" << gui_texture_list[j].path << endl;
-			}
-		}
-
-	}
-
-
-
-
-
-	if (myfile.is_open())
-	{
-
-
-		for (size_t i = 0; i < png_list.size(); i++)
-		{
-
-			//for (size_t j = 0; j < gui_texture_list.size(); j++)
-			//{
-				//if (gui_texture_list[j].path.find(png_list[i]) == 0) 
-				//{
-			myfile << "------" << "\n";
-			myfile << "sprite ID : [" << i + 1 << "]" << "\n";
-			myfile << "sprite name : [" << png_list[i].substr(0, png_list[i].length() - 4) << "]" << "\n";
-			myfile << "sprite filename : [" << png_list[i] << "]" << "\n";
-
-			myfile << "sprite x : [" << 0 << "]" << "\n";
-			myfile << "sprite y : [" << 0 << "]" << "\n";
-			myfile << "sprite w : [" << gui_texture_list[i].tex.width << "]" << "\n";
-			myfile << "sprite h : [" << gui_texture_list[i].tex.height << "]" << "\n";
-			myfile << "sprite offset_x: [" << 0 << "]" << "\n";
-			myfile << "sprite offset_y: [" << 0 << "]" << "\n";
-
-			myfile << "------" << "\n";
-
-			//	}
-			//}			
-		}
-
-
-		myfile.close();
-		return 1;
-	}
-	else cout << "Unable to open file";
-	return 0;
-
+    myfile.close();
+    return 1;
+  } else
+    cout << "Unable to open file";
+  return 0;
 }

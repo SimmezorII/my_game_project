@@ -69,11 +69,7 @@ global_variable enum {
   YELLOW_TILE = 4
 } Col;
 
-global_variable int currentScreen = 0;
-
-// global_variable SDL_Window* game_window = NULL;
-//
-// global_variable SDL_Renderer* GAME_RENDERER = NULL;
+global_variable bool DEBUG_PRINT = false;
 
 global_variable int TARGET_FPS = 120;
 
@@ -98,39 +94,32 @@ global_variable string MAPS_PATH = "resources\\assets\\textfiles\\";
 
 global_variable string TILED_MAPS_PATH = "resources\\assets\\game\\tsx\\";
 
-// global_variable TTF_Font *GAME_FONT = NULL;
-
 global_variable int FONT_SIZE = 10;
 
-// global_variable SDL_Color TEXT_COLOR;
+// old global_variable vector<string> png_list;
 
-global_variable vector<string> png_list;
+// old global_variable vector<string> gui_png_list;
 
-global_variable vector<string> gui_png_list;
+// old global_variable string all_png_list;
 
-global_variable string all_png_list;
+// old global_variable string sprite_png_list;
 
-global_variable string sprite_png_list;
 
-global_variable win32_window_dimension window;
+//old global_variable vector<texture> gui_texture_list;
 
-global_variable vector<texture> entity_texture_list;
+// old global_variable vector<Image> game_image_list;
 
-global_variable vector<texture> gui_texture_list;
+// old global_variable vector<Image> game_imagecopy_list;
 
-global_variable vector<Image> game_image_list;
+// old global_variable vector<texture> text_texture_list;
 
-global_variable vector<Image> game_imagecopy_list;
+// old global_variable vector<sprite> sprite_list;
 
-global_variable vector<texture> text_texture_list;
-
-global_variable vector<sprite> sprite_list;
-
-global_variable vector<entity> entity_list;
-
+// old global_variable vector<entity> entity_list;
+ 
 global_variable vector<entity> gui_entity_list;
 
-global_variable vector<entity> map_entity_list;
+//global_variable vector<entity> GameState.Map.EntityList;
 
 global_variable vector<entity> new_entity_list;
 

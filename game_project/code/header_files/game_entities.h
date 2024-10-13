@@ -5,9 +5,11 @@
 
 ======================================================================== */
 #include <string>
+#include <vector>
 
 #include "globals.h"
 
+using namespace std;
 
 struct win32_window_dimension {
   int Width;
@@ -40,12 +42,6 @@ struct text {
   color txt_color;
   //	texture tex;
   //	std::string txt;
-};
-
-struct gui {
-  float x;
-  float y;
-  bool visable;
 };
 
 struct sprite {
@@ -97,7 +93,6 @@ struct ellipse {
            1.0;
   }
 };
-
 
 struct entity {
   int ID;
@@ -208,8 +203,6 @@ struct tile_triangles {
   int tri_4_line_3_y;
 };
 
-
-
 struct field {
   int range;
   int type;
@@ -265,6 +258,40 @@ struct Render_List {
   std::vector<RenderObject *> List;
 
   bool render_this = false;
+};
+
+struct gui {
+  float x;
+  float y;
+  bool visable;
+
+  vector<entity> EntityList;
+};
+
+struct map 
+{
+    vector<entity> EntityList;
+};
+
+struct game_state {
+  // List of .png files loaded for the game
+  vector<string> PNGList;
+
+  // List of .png files loaded for the game as long string
+  string AllPNGList;
+
+  vector<texture> GameTextureList;
+
+  vector<Image> GameImageList;
+
+  vector<sprite> SpriteList;
+
+  vector<entity> EntityList;
+
+  gui Gui;
+
+  map Map;
+
 };
 
 #define GAME_H

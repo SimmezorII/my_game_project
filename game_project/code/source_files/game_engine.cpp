@@ -56,7 +56,8 @@ inline texture myLoadTexture(std::string path) {
   return myTemp;
 }
 
-inline texture myLoadTextureFromImage(std::string path) {
+inline texture myLoadTextureFromImage(vector<Image>& image_list,
+                                      std::string path) {
   texture myTemp = {0, 0, 0, 0};
 
   Image imOrigin = LoadImage(path.c_str());  // Loaded in CPU memory (RAM)
@@ -71,8 +72,7 @@ inline texture myLoadTextureFromImage(std::string path) {
 
   Image imCopy = ImageCopy(imOrigin);
 
-  game_image_list.push_back(imOrigin);
-  game_imagecopy_list.push_back(imCopy);
+  image_list.push_back(imOrigin);
 
   temp = LoadTextureFromImage(imOrigin);
   if (temp.id != 0) {
@@ -80,7 +80,7 @@ inline texture myLoadTextureFromImage(std::string path) {
     myTemp.w = temp.width;
     myTemp.h = temp.height;
     myTemp.path = path;
-    myTemp.img_array_index = game_image_list.size() - 1;
+    myTemp.img_array_index = image_list.size() - 1;
   } else {
     printf("Unable to create texture from %s\n", path.c_str());
   }
@@ -115,12 +115,12 @@ inline void AddText(std::string msg, int x, int y) {
   // text_list.push_back(txt);
 }
 
-inline int GetIndexForTexture(string pngname) {
+inline int GetIndexForTexture(string pngname, vector<string>& PNGList) {
   // return -1 if no texture found;
   int index = -1;
 
-  for (size_t i = 0; i < png_list.size(); i++) {
-    if (!png_list[i].find(pngname)) {
+  for (size_t i = 0; i < PNGList.size(); i++) {
+    if (!PNGList[i].find(pngname)) {
       index = i;
       break;
     }
@@ -135,88 +135,90 @@ inline bool LoadFont(Font font) {
   return success;
 }
 
-inline bool GUI_CreateTextures() {
-  // Loading success flag
+inline bool GUI_CreateTextures(vector<string>& png_list,
+                               vector<texture>& texture_list) {
   bool success = true;
 
   for (size_t i = 0; i < png_list.size(); i++) {
     texture temp = myLoadTexture(GUI_ASSET_PATH + png_list[i]);
 
-    gui_texture_list.push_back(temp);
+    texture_list.push_back(temp);
   }
 
-  cout << "entity texture list: " << gui_texture_list.size() << endl;
-
+  if (DEBUG_PRINT) {
+    cout << "entity texture list: " << texture_list.size() << endl;
+  }
   return success;
 }
 
-inline bool GAME_CreateTextures() {
-  // Loading success flag
+inline bool GAME_CreateTextures(vector<string>& png_list,
+                                vector<texture>& texture_list) {
   bool success = true;
 
   for (size_t i = 0; i < png_list.size(); i++) {
     texture temp = myLoadTexture(GAME_ASSET_PATH + png_list[i]);
 
-    gui_texture_list.push_back(temp);
+    texture_list.push_back(temp);
   }
-  cout << "entity texture list: " << gui_texture_list.size() << endl;
-
+  if (DEBUG_PRINT) {
+    cout << "entity texture list: " << texture_list.size() << endl;
+  }
   return success;
 }
 
-inline bool GAME_CreateTexturesFromImage() {
-  // Loading success flag
+inline bool GAME_CreateTexturesFromImage(vector<Image>& image_list,
+                                         vector<string>& png_list,
+                                         vector<texture>& texture_list,
+                                         string& asset_path) {
   bool success = true;
 
   for (size_t i = 0; i < png_list.size(); i++) {
-    texture temp = myLoadTextureFromImage(GAME_ASSET_PATH + png_list[i]);
+    if (DEBUG_PRINT) {
+      cout << "Reading " << png_list[i] << endl;
+    }
+    texture temp = myLoadTextureFromImage(image_list, asset_path + png_list[i]);
 
-    gui_texture_list.push_back(temp);
+    texture_list.push_back(temp);
   }
-  cout << "entity texture list: " << gui_texture_list.size() << endl;
-
+  if (DEBUG_PRINT) {
+    cout << "entity texture list: " << texture_list.size() << endl;
+  }
   return success;
 }
 
-inline void SetSpriteTextures() {
+inline void SetSpriteTextures(vector<sprite>& sprite_list,
+                              vector<texture>& texture_list) {
   for (size_t n = 0; n < sprite_list.size(); n++) {
-    for (size_t i = 0; i < gui_texture_list.size(); i++) {
-      if (gui_texture_list[i].path.find(sprite_list[n].img) !=
-          std::string::npos) {
+    for (size_t i = 0; i < texture_list.size(); i++) {
+      if (texture_list[i].path.find(sprite_list[n].img) != std::string::npos) {
         sprite_list[n].index = i;
         break;
       } else {
-        // sprite_list[n].index = 0;
       }
     }
   }
 }
 
-inline void setSprite(entity& e, string sprite_name) {
+inline void setSprite(vector<sprite>& sprite_list, entity& e,
+                      string sprite_name) {
   for (size_t i = 0; i < sprite_list.size(); i++) {
     if (sprite_name.compare(sprite_list[i].name) == 0) {
-      // cout << "Sprite found " << sprite_list[i].img << endl;
-
       e.sprite = &sprite_list[i];
     }
   }
 }
-inline void setSprite(entity& e, int sprite_ID) {
+inline void setSprite(vector<sprite>& sprite_list, entity& e, int sprite_ID) {
   for (size_t i = 0; i < sprite_list.size(); i++) {
     if (sprite_list[i].ID == sprite_ID) {
-      // cout << "Sprite found " << sprite_list[i].img << endl;
-
       e.sprite = &sprite_list[i];
       break;
     }
   }
 }
 
-inline sprite& getSprite(string sprite_name) {
+inline sprite& getSprite(vector<sprite>& sprite_list, string sprite_name) {
   for (size_t i = 0; i < sprite_list.size(); i++) {
     if (sprite_name.compare(sprite_list[i].name) == 0) {
-      cout << "getEnityByID entity found " << entity_list[i].ID << endl;
-
       return sprite_list[i];
       break;
     }
@@ -228,7 +230,7 @@ inline sprite& getSprite(string sprite_name) {
   return sprite_list[0];
 }
 
-inline sprite& getSprite(int sprite_ID) {
+inline sprite& getSprite(vector<sprite>& sprite_list, int sprite_ID) {
   for (size_t i = 0; i < sprite_list.size(); i++) {
     if (sprite_list[i].ID == sprite_ID) {
       // cout << "Sprite found " << sprite_list[i].img << endl;
@@ -296,11 +298,11 @@ inline entity& getEntityByPosition(int pos_x, int pos_y,
 inline entity& getEntityByID(int entity_ID, vector<entity>& entities) {
   for (size_t i = 0; i < entities.size(); i++) {
     if (entities[i].ID == entity_ID) {
-      cout << "getEnityByID entity found " << entity_list[i].ID << endl;
-
       return entities[i];
     }
   }
+
+  cout << "getEntityByID entity not found " << entity_ID << endl;
 
   return entities[0];
 }
@@ -308,13 +310,11 @@ inline entity& getEntityByID(int entity_ID, vector<entity>& entities) {
 inline entity& getEntityByID(string sprite_name, vector<entity>& entities) {
   for (size_t i = 0; i < entities.size(); i++) {
     if (sprite_name.compare(entities[i].sprite->name) == 0) {
-      cout << "getEnityByID entity found " << entity_list[i].ID << endl;
-
       return entities[i];
     }
   }
 
-  cout << "getEnityByID entity not found " << entity_list[0].ID << endl;
+  cout << "getEntityByID entity not found, sprite by name:" << sprite_name << endl;
 
   return entities[0];
 }
@@ -324,17 +324,17 @@ inline entity* getEntityByID(int entity_ID, vector<entity*> entities) {
 
   for (size_t i = 0; i < entities.size(); i++) {
     if (entities[i]->ID == entity_ID) {
-      cout << "getEnityByID entity found " << entities[i]->ID << endl;
+      cout << "getEntityByID entity found " << entities[i]->ID << endl;
 
       return entities[i];
     } else {
-      cout << "getEnityByID else entity found " << entities[i]->ID << endl;
+      cout << "getEntityByID else entity found " << entities[i]->ID << endl;
     }
   }
 
   // Log(entities[0]->sprite->name);
 
-  cout << "getEnityByID entity not found, instead set to first with ID: "
+  cout << "getEntityByID entity not found, instead set to first with ID: "
        << entities[0]->ID << endl;
 
   return entities[0];
@@ -347,18 +347,6 @@ Rectangle& getEntityRect(entity& e) {
                    (float)(e.y + e.sprite->offset_y), (float)e.w, (float)e.h};
 
   return tempcheckrect;
-}
-
-inline entity& getEntityByID(int entity_ID) {
-  for (size_t i = 0; i < entity_list.size(); i++) {
-    if (entity_list[i].ID == entity_ID) {
-      // cout << "entity found " << entity_list[i].ID << endl;
-
-      return entity_list[i];
-    }
-  }
-
-  return entity_list[0];
 }
 
 Rectangle recSprite2;
@@ -410,7 +398,8 @@ inline void calcDrawLayer(int layer, vector<pos>& poslayer) {
 
 static int added_once = 0;
 
-inline void RenderEntities(vector<entity>& entities, int render_list_index) {
+inline void RenderEntities(game_state& GameState, vector<entity>& entities,
+                           int render_list_index) {
   int templayer = 0;
 
   int lowerlayer = 0;
@@ -450,16 +439,18 @@ inline void RenderEntities(vector<entity>& entities, int render_list_index) {
     }
 
     AllRenderObjects[i + objects_to_render[render_list_index]]
-                    [render_list_index] = {
-                        getTexture(entities[i].sprite->ID).tex,
-                        recSprite2,
-                        recEntity2,
-                        {0, 0},
-                        0,
-                        WHITE,
-                        templayer,
-                        entities[i].render_this,
-                        entities[i].use_shader};
+                    [render_list_index] = {getTexture(GameState.SpriteList,
+                                                      GameState.GameTextureList,
+                                                      entities[i].sprite->ID)
+                                               .tex,
+                                           recSprite2,
+                                           recEntity2,
+                                           {0, 0},
+                                           0,
+                                           WHITE,
+                                           templayer,
+                                           entities[i].render_this,
+                                           entities[i].use_shader};
 
     if (render_list[render_list_index].List.size() <
         entities.size() + objects_to_render[render_list_index]) {
@@ -553,14 +544,11 @@ inline void RenderEntityBoxes(vector<entity>& entities) {
         int mouse_x = GetMouseX();
         int mouse_y = GetMouseY();
 
-
-
         for (size_t i = 0; i < ellipses_point.size(); i++) {
           DrawRectangle(gamescreen_offset_x + ellipses_point[i].x,
                         gamescreen_offset_y + ellipses_point[i].y, 1, 1, BLACK);
         }
       }
-
 
       // if (a[0]) {
       //   cout << "player up" << countercoll << endl;
@@ -1146,7 +1134,7 @@ inline bool CheckCollisionRects(Rectangle a, Rectangle b) {
   return true;
 }
 
-inline bool CheckCollisionMouseEntity() {
+inline bool CheckCollisionMouseEntity( vector<entity> &entity_list) {
   bool ret = false;
 
   float mouseX = GetMouseX();  // Returns mouse position X
@@ -1230,7 +1218,7 @@ inline void setActionMenu() {
   action_target->y = ActionMenuRects[currentbutton_index].y;
 }
 
-inline bool setMouseEntity() {
+inline bool setMouseEntity( vector<entity> entity_list) {
   bool ret = false;
 
   float mouseX = GetMouseX();
@@ -1299,7 +1287,7 @@ inline void SetRenderField(field* fieldRef, bool render) {
   }
 }
 
-inline void RenderAllFields() {
+inline void RenderAllFields(game_state& GameState) {
   int render_list_index = 0;
   int diff = 0;
 
@@ -1323,7 +1311,10 @@ inline void RenderAllFields() {
 
       AllRenderObjects[i + objects_to_render[render_list_index]]
                       [render_list_index] = {
-                          getTexture(fields[n]->tiles[i].sprite->ID).tex,
+                          getTexture(GameState.SpriteList,
+                                     GameState.GameTextureList,
+                                     fields[n]->tiles[i].sprite->ID)
+                              .tex,
                           recSprite,
                           recEntity,
                           vec,
@@ -1535,7 +1526,7 @@ inline void SortLayerRenderObjectList(Render_List& render_list,
   }
 }
 
-inline void RenderAllLayers() {
+inline void RenderAllLayers(game_state& GameState) {
   float offset_x = 0;
   float offset_y = 0;
 
@@ -1554,13 +1545,12 @@ inline void RenderAllLayers() {
         if (SortedRenderObject_list[i]->dest.width < 500) {
           offset_x = (SortedRenderObject_list[i]->dest.width - tile_width) / 2;
         }
-
         if (SortedRenderObject_list[i]->dest.height < 500) {
           offset_y = SortedRenderObject_list[i]->dest.height - (tile_height);
         }
 
         if (SortedRenderObject_list[i]->texture.id ==
-            getSprite(GRID_SPRITE_ID).tex_ID) {
+            getSprite(GameState.SpriteList, GRID_SPRITE_ID).tex_ID) {
           offset_x = 0;
 
           offset_y = 0;
@@ -1586,7 +1576,8 @@ inline void RenderAllLayers() {
   DebugLog("render_count: ", render_count);
 }
 
-inline void RenderAllLayers(vector<RenderObject*>& RenderObjectList) {
+inline void RenderAllLayers(game_state& GameState,
+                            vector<RenderObject*>& RenderObjectList) {
   float offset_x = 0;
   float offset_y = 0;
 
@@ -1611,7 +1602,7 @@ inline void RenderAllLayers(vector<RenderObject*>& RenderObjectList) {
         }
 
         if (RenderObjectList[i]->texture.id ==
-            getSprite(GRID_SPRITE_ID).tex_ID) {
+            getSprite(GameState.SpriteList, GRID_SPRITE_ID).tex_ID) {
           offset_x = 0;
 
           offset_y = 0;
@@ -1687,14 +1678,16 @@ void CycleColoredTiles(entity* target, vector<tile>& colored_tiles) {
 /////-------------------------------------------------  ColorFieldTile
 ///-------------------------------------------
 
-inline void SetFieldTileColors(field& fieldRef, int Sprite_ID) {
+inline void SetFieldTileColors(field& fieldRef, vector<sprite>& sprite_list,
+                               int Sprite_ID) {
   for (size_t i = 0; i < fieldRef.sum_of_field_tiles; i++) {
-    target_field.tiles[i].sprite = &getSprite(Sprite_ID);
+    target_field.tiles[i].sprite = &getSprite(sprite_list, Sprite_ID);
   }
 }
 
 inline bool ColorFieldTileEntityList(vector<tile>& colored_tiles,
                                      field* fieldRef, vector<combatant>& list,
+                                     vector<sprite>& sprite_list,
                                      int iTileColor) {
   bool colored_tile = false;
 
@@ -1722,7 +1715,7 @@ inline bool ColorFieldTileEntityList(vector<tile>& colored_tiles,
                      (float)(temp2.y - 1 + (tile_height / 2)), 2, 2},
                     {(float)(temp1.x - 1 + (tile_width / 2)),
                      (float)(temp1.y - 1 + (tile_height / 2)), 2, 2})) {
-              fieldRef->tiles[j].sprite = &getSprite(iTileColor);
+              fieldRef->tiles[j].sprite = &getSprite(sprite_list, iTileColor);
 
               colored_tiles.push_back(fieldRef->tiles[j]);
 
@@ -1761,11 +1754,11 @@ inline bool ColorFieldTileEntityList(vector<tile>& colored_tiles,
                      (float)(temp2.y - 1 + (tile_height / 2)), 2, 2},
                     {(float)(temp1.x - 1 + (tile_width / 2)),
                      (float)(temp1.y - 1 + (tile_height / 2)), 2, 2})) {
-              fieldRef->tiles[j].sprite = &getSprite(iTileColor);
+              fieldRef->tiles[j].sprite = &getSprite(sprite_list, iTileColor);
 
               if (fieldRef->tiles[j].x == colored_tiles[i].x &&
                   fieldRef->tiles[j].y == colored_tiles[i].y) {
-                colored_tiles[i].sprite = &getSprite(iTileColor);
+                colored_tiles[i].sprite = &getSprite(sprite_list, iTileColor);
               } else {
                 colored_tiles.push_back(fieldRef->tiles[j]);
               }
@@ -1793,6 +1786,7 @@ inline bool ColorFieldTileEntityList(vector<tile>& colored_tiles,
 inline bool ColorFieldTileEntityList(vector<tile>& colored_tiles,
                                      field* fieldRef,
                                      vector<entity>& entity_list,
+                                     vector<sprite>& sprite_list,
                                      int iTileColor) {
   bool colored_tile = false;
 
@@ -1823,7 +1817,8 @@ inline bool ColorFieldTileEntityList(vector<tile>& colored_tiles,
                     {(float)(temp1.x - 1 + (tile_width / 2)),
                      (float)(temp1.y - 1 + (tile_height / 2)), 2, 2})) {
               if (last_tile.x != temp2.x || last_tile.y != temp2.y) {
-                fieldRef->tiles[j].sprite = &getSprite(iTileColor);  // red tile
+                fieldRef->tiles[j].sprite =
+                    &getSprite(sprite_list, iTileColor);  // red tile
 
                 colored_enemy_tiles.push_back(fieldRef->tiles[j]);
 
@@ -1849,7 +1844,8 @@ inline bool ColorFieldTileEntityList(vector<tile>& colored_tiles,
   return colored_tile;
 }
 
-inline bool ColorFieldTile(field& fieldRef, entity* target) {
+inline bool ColorFieldTile(field& fieldRef, vector<sprite>& sprite_list,
+                           entity* target) {
   bool colored_tile = false;
 
   temp2 = {(float)target->x, (float)target->y, (float)target->w,
@@ -1864,7 +1860,7 @@ inline bool ColorFieldTile(field& fieldRef, entity* target) {
                            {(float)(temp1.x - 1 + (tile_width / 2)),
                             (float)(temp1.y - 1 + (tile_height / 2)), 2, 2})) {
       if (last_tile.x != temp2.x || last_tile.y != temp2.y) {
-        fieldRef.tiles[i].sprite = &getSprite(YELLOW_TILE);  // red tile
+        fieldRef.tiles[i].sprite = &getSprite(sprite_list, YELLOW_TILE);
         fieldRef.tiles[i].render = true;
         colored_moved_tiles.push_back(fieldRef.tiles[i]);
 
@@ -1884,7 +1880,8 @@ inline bool ColorFieldTile(field& fieldRef, entity* target) {
   return colored_tile;
 }
 
-inline void ResetMovedTilesColor(field& fieldRef, int Sprite_ID) {
+inline void ResetMovedTilesColor(field& fieldRef, vector<sprite>& sprite_list,
+                                 int Sprite_ID) {
   for (size_t i = 0; i < fieldRef.sum_of_field_tiles; i++) {
     for (size_t j = 0; j < colored_moved_tiles.size(); j++) {
       // cout << "same2" << endl;
@@ -1892,7 +1889,7 @@ inline void ResetMovedTilesColor(field& fieldRef, int Sprite_ID) {
       if (fieldRef.tiles[i].x == colored_moved_tiles[j].x &&
           fieldRef.tiles[i].y == colored_moved_tiles[j].y) {
         // cout << "same3" << endl;
-        fieldRef.tiles[i].sprite = &getSprite(Sprite_ID);
+        fieldRef.tiles[i].sprite = &getSprite(sprite_list, Sprite_ID);
         fieldRef.tiles[i].render = true;
       }
     }
@@ -1913,7 +1910,8 @@ inline bool IsInArray(int* Array, int Size, int number) {
   return result;
 }
 
-inline void randomSpawnTile(field& fieldRef, field& spawn_field) {
+inline void randomSpawnTile(vector<sprite>& sprite_list, field& fieldRef,
+                            field& spawn_field) {
   int numOfTiles = 10;
   int randomTilesIndex[124];
 
@@ -1968,7 +1966,7 @@ inline void randomSpawnTile(field& fieldRef, field& spawn_field) {
       tempvar = fieldRef.tiles[randomTilesIndex[i]].y;
       spawn_field.tiles[i].y = tempvar;
 
-      spawn_field.tiles[i].sprite = &getSprite(BLUE_TILE);
+      spawn_field.tiles[i].sprite = &getSprite(sprite_list, BLUE_TILE);
     }
 
     cout << endl;

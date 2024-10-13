@@ -79,9 +79,9 @@ inline void SetEntityListEllipses(vector<entity>& entities) {
   }
 }
 
-inline void CalculateDamageEnemy(Rectangle& temp_target) {
+inline void CalculateDamageEnemy(map &Map,Rectangle& temp_target) {
   entity& entity_ref =
-      getEntityByPosition(temp_target.x, temp_target.y, map_entity_list);
+      getEntityByPosition(temp_target.x, temp_target.y, Map.EntityList);
   entity_ref.entity_stats.current_hp--;
 }
 
@@ -429,7 +429,7 @@ inline void EnemyLogic() {
   game_turn++;
 }
 
-inline void CheckKeyboardInput() {
+inline void CheckKeyboardInput(game_state& GameState) {
   if (IsKeyPressed(KEY_Z)) {
     cout << "CheckKeyboardInput Z PRESSED" << endl;
     Z_pressed_count++;
@@ -445,8 +445,8 @@ inline void CheckKeyboardInput() {
   if (IsKeyPressed(KEY_L)) {
     cout << "L PRESSED" << endl;
 
-    for (size_t i = 0; i < map_entity_list.size(); i++) {
-      map_entity_list[i].layer = 1;
+    for (size_t i = 0; i < GameState.Map.EntityList.size(); i++) {
+      GameState.Map.EntityList[i].layer = 1;
     }
     cout << endl;
   }
@@ -476,7 +476,7 @@ inline void CheckKeyboardInput() {
 
     // cout << "objects_to_render: " << objects_to_render[0] << endl;
     // cout << "gui_entity_list: " << gui_entity_list.size() << endl;
-    // cout << "map_entity_list: " << map_entity_list.size() << endl;
+    // cout << "GameState.Map.EntityList: " << GameState.Map.EntityList.size() << endl;
 
     // cout << "target_field.sum_of_field_tiles " <<
     // target_field.sum_of_field_tiles << endl;
@@ -491,8 +491,8 @@ inline void CheckKeyboardInput() {
     // cout << "SortedRenderObject_list.size(): " <<
     // SortedRenderObject_list.size() << endl;
 
-    for (size_t i = 0; i < map_entity_list.size(); i++) {
-      map_entity_list[i].layer = 0;
+    for (size_t i = 0; i < GameState.Map.EntityList.size(); i++) {
+      GameState.Map.EntityList[i].layer = 0;
     }
     cout << endl;
   }
@@ -512,7 +512,8 @@ inline void CheckKeyboardInput() {
 
   if (IsKeyPressed(KEY_F5)) {
     cout << "WriteSpriteDataRaw" << endl;
-    WriteSpriteDataRaw(MAPS_PATH + "game_sprite_data_raw.txt");
+    WriteSpriteDataRaw(MAPS_PATH + "game_sprite_data_raw.txt",
+                       GameState.PNGList, GameState.GameTextureList);
   }
 }
 
@@ -583,12 +584,13 @@ inline bool CheckColoredMoveTileCollission(Rectangle& temptarget) {
 
 //}
 
-inline void AttackLogic() {
+inline void AttackLogic(game_state& GameState) {
   Rectangle temp_target = {target->x, target->y, target->w, target->h};
 
   if (combatant_selected >= 0) {
     if (ColorFieldTileEntityList(colored_enemy_tiles, &attack_target_field,
-                                 enemy_list, GREEN_TILE)) {
+                                 enemy_list, GameState.SpriteList,
+                                 GREEN_TILE)) {
       DebugLog("AttackField Collision", (int)colored_enemy_tiles.size());
     } else {
       DebugLog("AttackField Collision", (int)colored_enemy_tiles.size());
@@ -604,7 +606,7 @@ inline void AttackLogic() {
         if ((IsKeyPressed(KEY_X) && !IsKeyPressed(KEY_Z))) {
           cout << "Attack collision and x pressed" << endl;
 
-          CalculateDamageEnemy(temp_target);
+          CalculateDamageEnemy(GameState.Map ,temp_target);
 
           attacking = false;
 
@@ -644,7 +646,7 @@ inline void UpdateGameTurn() {
   }
 }
 
-void InitMoveLogic() {
+void InitMoveLogic(game_state& GameState) {
   move_field_up = true;
   action_menu_up = false;
 
@@ -652,7 +654,8 @@ void InitMoveLogic() {
 
   UpdateTargetFieldRange();
 
-  SetField(target_field, combatant_list[combatant_selected].pEntity->x,
+  SetField(GameState, target_field,
+           combatant_list[combatant_selected].pEntity->x,
            combatant_list[combatant_selected].pEntity->y, SQUARE, GREEN_TILE);
 
   // cout << "target_field " << target_field.sum_of_field_tiles << endl;
@@ -666,7 +669,7 @@ void InitMoveLogic() {
   target_field.render_field = true;
 }
 
-void InitAttackLogic() {
+void InitAttackLogic(game_state& GameState) {
   Log("ATTACK!");
   enemy_colored = false;
   entity_checked = 0;
@@ -674,7 +677,8 @@ void InitAttackLogic() {
   attack_target_field.range =
       8;  // combatant_list[combatant_selected].attack_range;
 
-  SetField(attack_target_field, combatant_list[combatant_selected].pEntity->x,
+  SetField(GameState, attack_target_field,
+           combatant_list[combatant_selected].pEntity->x,
            combatant_list[combatant_selected].pEntity->y, SQUARE, BLUE_TILE);
 
   attack_target_field.render_field = true;
@@ -684,7 +688,10 @@ void InitAttackLogic() {
   attacking = true;
 }
 
-inline void MovePressed() { InitMoveLogic(); }
+inline void MovePressed(game_state& GameState) {
+  /// Init move logic
+  InitMoveLogic(GameState);
+}
 
 inline void ReadyPressed() {
   X_pressed_count = 0;
@@ -721,9 +728,12 @@ inline void EndPressed() {
       combatant_list[combatant_selected].current_movecount;
 }
 
-inline void AttackPressed() { InitAttackLogic(); }
+inline void AttackPressed(game_state& GameState) {
+  // Init Attack Logic
+  InitAttackLogic(GameState);
+}
 
-inline void ActionGuiLogic() {
+inline void ActionGuiLogic(game_state& GameState) {
   if (precombat == true) {
     if (ActionButton[0] == true) {
       Log("Ready");
@@ -739,7 +749,7 @@ inline void ActionGuiLogic() {
             combatant_list[combatant_selected].move_range) {
       Log("Move");
 
-      MovePressed();
+      MovePressed(GameState);
 
       ActionButton[0] = false;
     }
@@ -748,7 +758,7 @@ inline void ActionGuiLogic() {
         X_pressed_count > 1) {
       printf("Attack\n");
 
-      AttackPressed();
+      AttackPressed(GameState);
 
       ActionButton[1] = false;
     }
@@ -801,15 +811,15 @@ inline void ActionGuiLogic() {
   }
 }
 
-inline void MoveLogic() {
+inline void MoveLogic(game_state& GameState) {
   if (move_field_up == true) {
     temptarget = {(float)target->x, (float)target->y, (float)target->w,
                   (float)target->h};
 
     ColorFieldTileEntityList(colored_enemy_tiles, &target_field,
-                             map_entity_list, RED_TILE);
+                             GameState.Map.EntityList, GameState.SpriteList, RED_TILE);
 
-    ColorFieldTile(target_field, target);
+    ColorFieldTile(target_field, GameState.SpriteList, target);
 
     // if ((GetTime() - last) > input_delay) // Needed to limit target
     // movespeed
@@ -938,7 +948,7 @@ inline void MoveLogic() {
 
         target->y = combatant_list[combatant_selected].pEntity->y;
 
-        ResetMovedTilesColor(target_field, 2);
+        ResetMovedTilesColor(target_field, GameState.SpriteList, 2);
 
         colored_moved_tiles.clear();
 
@@ -977,7 +987,7 @@ inline void MoveLogic() {
         target->y = combatant_list[combatant_selected].pEntity->y;
 
         if (move_list.empty() == false) {
-          ResetMovedTilesColor(target_field, 2);
+          ResetMovedTilesColor(target_field, GameState.SpriteList, 2);
         }
 
         colored_moved_tiles.clear();
@@ -1032,7 +1042,7 @@ inline void CheckEnemy() {
   }
 }
 
-inline void TargetLogic() {
+inline void TargetLogic(game_state& GameState) {
   temptarget = {0, 0, 0, 0};
 
   for (size_t i = 0; i < combatant_list.size(); i++) {
@@ -1047,7 +1057,7 @@ inline void TargetLogic() {
         cout << "First Press X " << X_pressed_count << endl;
 
         cout << "Collision" << endl;
-        SetField(target_field, target->x, target->y, 0, GREEN_TILE);
+        SetField(GameState, target_field, target->x, target->y, 0, GREEN_TILE);
 
         // field_up = true;
 
@@ -1074,9 +1084,9 @@ inline void TargetLogic() {
   }
 
   if (move_field_up == true) {
-    MoveLogic();
+    MoveLogic(GameState);
   } else if (attacking == true) {
-    AttackLogic();
+    AttackLogic(GameState);
   } else  // Not on a movefield
   {
     if (action_menu_up != true) {
@@ -1115,29 +1125,28 @@ inline void MoveUnit() {
   if (action_menu_up != true) {
     if ((GetTime() - last) > 0.1)  // Needed to limit target movespeed
     {
- 
       last = (float)GetTime();
 
       SetEllipsesColPointArray(world_player.pEntity->el, ellipses_point);
 
-      for (size_t i = 0; i < map_entity_list.size(); i++) {
-        //     if (map_entity_list[i] != world_player.pEntity->ID) {
-        //       GetEllipsesColPoint(collision_arry, map_entity_list[i].el,
-        //                           ellipses_point);
-        //     }
+      // for (size_t i = 0; i < GameState.Map.EntityList.size(); i++) {
+      //   //     if (GameState.Map.EntityList[i] != world_player.pEntity->ID) {
+      //   //       GetEllipsesColPoint(collision_arry, GameState.Map.EntityList[i].el,
+      //   //                           ellipses_point);
+      //   //     }
 
-        //     for (size_t i = 0; i < collision_arry.size(); i++) {
-        //       if (collision_arry[i]) {
-        //         cout << "true"
-        //              << " ";
-        //       } else {
-        //         cout << "false"
-        //              << " ";
-        //       }
-        //     }
+      //   //     for (size_t i = 0; i < collision_arry.size(); i++) {
+      //   //       if (collision_arry[i]) {
+      //   //         cout << "true"
+      //   //              << " ";
+      //   //       } else {
+      //   //         cout << "false"
+      //   //              << " ";
+      //   //       }
+      //   //     }
 
-        //     cout << endl;
-      }
+      //   //     cout << endl;
+      // }
 
       if (IsKeyDown(KEY_W)) {
         // if (CheckCollisionRecs(
@@ -1263,11 +1272,12 @@ inline void MouseLogic() {
   }
 }
 
-inline void EditorGuiLogic() {
+inline void EditorGuiLogic(game_state& GameState) {
   if (SaveButton001 == true) {
     printf("Saved entitiy data\n");
 
-    WriteEntityData(GAME_ASSET_PATH + "game_entity_data.txt");
+    WriteEntityData(GameState.EntityList,
+                    GAME_ASSET_PATH + "game_entity_data.txt");
 
     SaveButton001 = false;
   }
@@ -1275,7 +1285,8 @@ inline void EditorGuiLogic() {
   if (SaveButton002 == true) {
     printf("Saved Sprite data\n");
 
-    WriteSpriteData(GAME_ASSET_PATH + "game_sprite_data.txt");
+    WriteSpriteData(GAME_ASSET_PATH + "game_sprite_data.txt",
+                    GameState.SpriteList);
 
     SaveButton002 = false;
   }
@@ -1289,12 +1300,12 @@ inline void EditorGuiLogic() {
 
 bool run_init = false;
 
-inline void CombatLogic() {
+inline void CombatLogic(game_state& GameState) {
   if (combat == true) {
     UpdateGameTurn();
 
     if (run_init == false) {
-      InitCombat();
+      InitCombat(GameState);
 
       run_init = true;
 
@@ -1313,7 +1324,7 @@ inline void CombatLogic() {
     }
 
     if (PLAYER_TURN == true) {
-      SetEnemyFields();
+      SetEnemyFields(GameState);
 
       if (toggle_enemy_movefields == true) {
         SetRenderEnemyFields(true);
