@@ -14,104 +14,104 @@
 
 using namespace std;
 
-inline void Log(string text, float value)
+inline void Log( string text, float value)
 {
-	if (currentline_log != 0)
+	if (GAME_LOG.CurrentLineLog != 0)
 	{
-		if (log_lines[currentline_log - 1].find(text) != 0)
+		if (GAME_LOG.LogLines[GAME_LOG.CurrentLineLog - 1].find(text) != 0)
 		{
 			//log_lines[currentline] = text;
 			//currentline++;
 		}
 
-		log_lines[currentline_log] = text;
-		log_lines[currentline_log].append(to_string(value));
+		GAME_LOG.LogLines[GAME_LOG.CurrentLineLog] = text;
+		GAME_LOG.LogLines[GAME_LOG.CurrentLineLog].append(to_string(value));
 
-		currentline_log++;
+		GAME_LOG.CurrentLineLog++;
 	}
 	else
 	{
-		log_lines[currentline_log] = text;
-		log_lines[currentline_log].append(to_string(value));
+		GAME_LOG.LogLines[GAME_LOG.CurrentLineLog] = text;
+		GAME_LOG.LogLines[GAME_LOG.CurrentLineLog].append(to_string(value));
 
-		currentline_log++;
+		GAME_LOG.CurrentLineLog++;
 	}
 
 
-	if (currentline_log >= 100)
+	if (GAME_LOG.CurrentLineLog >= 100)
 	{
-		logreset++;
-		currentline_log = 0;
+		GAME_LOG.LogReset++;
+		GAME_LOG.CurrentLineLog = 0;
 	}
 
-	//tempint = currentline_log;
+	//tempint = GAME_LOG.CurrentLineLog;
 }
 
 
 inline void Log(string text, int value)
 {
-	if (currentline_log != 0)
+	if (GAME_LOG.CurrentLineLog != 0)
 	{
-		if (log_lines[currentline_log - 1].find(text) != 0)
+		if (	GAME_LOG.LogLines[GAME_LOG.CurrentLineLog - 1].find(text) != 0)
 		{
 			//log_lines[currentline] = text;
 			//currentline++;
 		}
 
-		log_lines[currentline_log] = text;
-		log_lines[currentline_log].append(to_string(value));
+			GAME_LOG.LogLines[GAME_LOG.CurrentLineLog] = text;
+			GAME_LOG.LogLines[GAME_LOG.CurrentLineLog].append(to_string(value));
 
-		currentline_log++;
+		GAME_LOG.CurrentLineLog++;
 	}
 	else
 	{
-		log_lines[currentline_log] = text;
-		log_lines[currentline_log].append(to_string(value));
+			GAME_LOG.LogLines[GAME_LOG.CurrentLineLog] = text;
+			GAME_LOG.LogLines[GAME_LOG.CurrentLineLog].append(to_string(value));
 
-		currentline_log++;
+		GAME_LOG.CurrentLineLog++;
 	}
 
 
-	if (currentline_log >= 100)
+	if (GAME_LOG.CurrentLineLog >= 100)
 	{
-		logreset++;
-		currentline_log = 0;
+		GAME_LOG.LogReset++;
+		GAME_LOG.CurrentLineLog = 0;
 	}
 
-	//tempint = currentline_log;
+	//tempint = GAME_LOG.CurrentLineLog;
 }
 
-inline void Log(string text)
+inline void Log( string text)
 {
-	if (currentline_log != 0)
+	if (GAME_LOG.CurrentLineLog != 0)
 	{
-		if (log_lines[currentline_log - 1].find(text) != 0)
+		if (GAME_LOG.LogLines[GAME_LOG.CurrentLineLog - 1].find(text) != 0)
 		{
 			//log_lines[currentline] = text;
 			//currentline++;
 		}
 
-		log_lines[currentline_log] = text;
+		GAME_LOG.LogLines[GAME_LOG.CurrentLineLog] = text;
 
 
-		currentline_log++;
+		GAME_LOG.CurrentLineLog++;
 	}
 	else
 	{
-		log_lines[currentline_log] = text;
+		GAME_LOG.LogLines[GAME_LOG.CurrentLineLog] = text;
 
 
-		currentline_log++;
+		GAME_LOG.CurrentLineLog++;
 	}
 
 
-	if (currentline_log >= 100)
+	if (GAME_LOG.CurrentLineLog >= 100)
 	{
-		logreset++;
-		currentline_log = 0;
+		GAME_LOG.LogReset++;
+		GAME_LOG.CurrentLineLog = 0;
 	}
 
-	//tempint = currentline_log;
+	//tempint = GAME_LOG.CurrentLineLog;
 }
 
 
@@ -121,11 +121,11 @@ inline void DebugLog(string text)
 	bool stringfound = false;
 	int tempindex = -1;
 
-	if (currentline_debuglog != 0)
+	if (GAME_LOG.CurrentLineDebuglog != 0)
 	{
-		for (size_t i = 0; i < currentline_debuglog; i++)
+		for (size_t i = 0; i < GAME_LOG.CurrentLineDebuglog; i++)
 		{
-			if (debuglog_lines[i].find(text) == 0)
+			if (GAME_LOG.DebugLogLines[i].find(text) == 0)
 			{
 				stringfound = true;
 				tempindex = i;
@@ -136,19 +136,19 @@ inline void DebugLog(string text)
 
 		if (stringfound == true)
 		{
-			debuglog_lines[tempindex] = text;
+			GAME_LOG.DebugLogLines[tempindex] = text;
 		}
 		else
 		{
-			debuglog_lines[currentline_debuglog] = text;
-			currentline_debuglog++;
+			GAME_LOG.DebugLogLines[GAME_LOG.CurrentLineDebuglog] = text;
+			GAME_LOG.CurrentLineDebuglog++;
 		}
 
 	}
 	else
 	{
-		debuglog_lines[currentline_debuglog] = text;
-		currentline_debuglog++;
+		GAME_LOG.DebugLogLines[GAME_LOG.CurrentLineDebuglog] = text;
+		GAME_LOG.CurrentLineDebuglog++;
 	}
 
 
@@ -159,11 +159,11 @@ inline void DebugLog(string text, float value)
 	bool stringfound = false;
 	int tempindex = -1;
 
-	if (currentline_debuglog != 0)
+	if (GAME_LOG.CurrentLineDebuglog != 0)
 	{
-		for (size_t i = 0; i < currentline_debuglog; i++)
+		for (size_t i = 0; i < GAME_LOG.CurrentLineDebuglog; i++)
 		{
-			if (debuglog_lines[i].find(text) == 0)
+			if (GAME_LOG.DebugLogLines[i].find(text) == 0)
 			{
 				stringfound = true;
 				tempindex = i;
@@ -174,22 +174,22 @@ inline void DebugLog(string text, float value)
 
 		if (stringfound == true)
 		{
-			debuglog_lines[tempindex] = text;
-			debuglog_lines[tempindex].append(to_string(value));
+			GAME_LOG.DebugLogLines[tempindex] = text;
+			GAME_LOG.DebugLogLines[tempindex].append(to_string(value));
 		}
 		else
 		{
-			debuglog_lines[currentline_debuglog] = text;
-			debuglog_lines[currentline_debuglog].append(to_string(value));
-			currentline_debuglog++;
+			GAME_LOG.DebugLogLines[GAME_LOG.CurrentLineDebuglog] = text;
+			GAME_LOG.DebugLogLines[GAME_LOG.CurrentLineDebuglog].append(to_string(value));
+			GAME_LOG.CurrentLineDebuglog++;
 		}
 
 	}
 	else
 	{
-		debuglog_lines[currentline_debuglog] = text;
-		debuglog_lines[currentline_debuglog].append(to_string(value));
-		currentline_debuglog++;
+		GAME_LOG.DebugLogLines[GAME_LOG.CurrentLineDebuglog] = text;
+		GAME_LOG.DebugLogLines[GAME_LOG.CurrentLineDebuglog].append(to_string(value));
+		GAME_LOG.CurrentLineDebuglog++;
 	}
 
 
@@ -201,11 +201,11 @@ inline void DebugLog(string text, int value)
 	bool stringfound = false;
 	int tempindex = -1;
 
-	if (currentline_debuglog != 0)
+	if (GAME_LOG.CurrentLineDebuglog != 0)
 	{
-		for (size_t i = 0; i < currentline_debuglog; i++)
+		for (size_t i = 0; i < GAME_LOG.CurrentLineDebuglog; i++)
 		{
-			if (debuglog_lines[i].find(text) == 0)
+			if (GAME_LOG.DebugLogLines[i].find(text) == 0)
 			{
 				stringfound = true;
 				tempindex = i;
@@ -216,22 +216,22 @@ inline void DebugLog(string text, int value)
 
 		if (stringfound == true)
 		{
-			debuglog_lines[tempindex] = text;
-			debuglog_lines[tempindex].append(to_string(value));
+			GAME_LOG.DebugLogLines[tempindex] = text;
+			GAME_LOG.DebugLogLines[tempindex].append(to_string(value));
 		}
 		else
 		{
-			debuglog_lines[currentline_debuglog] = text;
-			debuglog_lines[currentline_debuglog].append(to_string(value));
-			currentline_debuglog++;
+			GAME_LOG.DebugLogLines[GAME_LOG.CurrentLineDebuglog] = text;
+			GAME_LOG.DebugLogLines[GAME_LOG.CurrentLineDebuglog].append(to_string(value));
+			GAME_LOG.CurrentLineDebuglog++;
 		}
 
 	}
 	else
 	{
-		debuglog_lines[currentline_debuglog] = text;
-		debuglog_lines[currentline_debuglog].append(to_string(value));
-		currentline_debuglog++;
+		GAME_LOG.DebugLogLines[GAME_LOG.CurrentLineDebuglog] = text;
+		GAME_LOG.DebugLogLines[GAME_LOG.CurrentLineDebuglog].append(to_string(value));
+		GAME_LOG.CurrentLineDebuglog++;
 	}
 
 
@@ -252,11 +252,11 @@ inline void DebugLog(string text, bool bValue)
 		value = 0;
 	}
 
-	if (currentline_debuglog != 0)
+	if (GAME_LOG.CurrentLineDebuglog != 0)
 	{
-		for (size_t i = 0; i < currentline_debuglog; i++)
+		for (size_t i = 0; i < GAME_LOG.CurrentLineDebuglog; i++)
 		{
-			if (debuglog_lines[i].find(text) == 0)
+			if (GAME_LOG.DebugLogLines[i].find(text) == 0)
 			{
 				stringfound = true;
 				tempindex = i;
@@ -267,22 +267,22 @@ inline void DebugLog(string text, bool bValue)
 
 		if (stringfound == true)
 		{
-			debuglog_lines[tempindex] = text;
-			debuglog_lines[tempindex].append(to_string(value));
+			GAME_LOG.DebugLogLines[tempindex] = text;
+			GAME_LOG.DebugLogLines[tempindex].append(to_string(value));
 		}
 		else
 		{
-			debuglog_lines[currentline_debuglog] = text;
-			debuglog_lines[currentline_debuglog].append(to_string(value));
-			currentline_debuglog++;
+			GAME_LOG.DebugLogLines[GAME_LOG.CurrentLineDebuglog] = text;
+			GAME_LOG.DebugLogLines[GAME_LOG.CurrentLineDebuglog].append(to_string(value));
+			GAME_LOG.CurrentLineDebuglog++;
 		}
 
 	}
 	else
 	{
-		debuglog_lines[currentline_debuglog] = text;
-		debuglog_lines[currentline_debuglog].append(to_string(value));
-		currentline_debuglog++;
+		GAME_LOG.DebugLogLines[GAME_LOG.CurrentLineDebuglog] = text;
+		GAME_LOG.DebugLogLines[GAME_LOG.CurrentLineDebuglog].append(to_string(value));
+		GAME_LOG.CurrentLineDebuglog++;
 	}
 
 

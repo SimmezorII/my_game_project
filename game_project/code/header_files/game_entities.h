@@ -63,12 +63,7 @@ struct sprite {
   std::string img;
 };
 
-struct stats {
-  float max_hp;
-  float current_hp;
-  float defence;
-  float attack;
-};
+
 
 struct point {
   int x;
@@ -103,6 +98,8 @@ struct entity {
 
   sprite *sprite;
 
+  float alpha = 1;
+
   Rectangle entity_tile = {x, y, w, h};
 
   Rectangle offset_rect;
@@ -115,9 +112,8 @@ struct entity {
 
   int layer = 0;
 
-  stats entity_stats = {200, 200, 20, 20};
-
   ellipse el;
+  int coll_check_type = 0;
 };
 
 struct pos {
@@ -203,6 +199,18 @@ struct tile_triangles {
   int tri_4_line_3_y;
 };
 
+struct target {
+  entity *pEntity;
+
+  bool is_on_move_field = false;
+  bool is_attacking = false;
+
+  int right_vel = 0;
+  int left_vel = 0;
+  int up_vel = 0;
+  int down_vel = 0;
+};
+
 struct field {
   int range;
   int type;
@@ -219,6 +227,20 @@ struct field {
   bool render_field = false;
 
   float field_alpha = 1;
+
+  vector<tile> track_tiles;
+
+  vector<tile> collision_tiles;
+
+  int last_tile_x = -10000;
+  int last_tile_y = -10000;
+};
+
+struct stats {
+  float MaxHP = 0;
+  float CurrentHP = 0;
+  float Attack = 0;
+  float Defence = 0;
 };
 
 struct combatant {
@@ -233,6 +255,15 @@ struct combatant {
   std::vector<int> movelist;
 
   field move_field;
+  field attack_field;
+  field position_field;
+
+  stats Stats = {200, 200, 20, 20};
+
+  bool EllipsePointsCollisions[8] = {false, false, false, false, false, false, false, false};
+  vector<point> EllipsePoints;
+
+
 };
 
 struct enemy {
@@ -246,7 +277,9 @@ struct RenderObject {
   Rectangle dest;
   Vector2 origin;
   float rotation;
+
   Color tint;
+
   int layer = -1;
   bool render_this = false;
   bool use_shader = false;
@@ -260,6 +293,18 @@ struct Render_List {
   bool render_this = false;
 };
 
+struct game_log {
+  int LogScrollCounter = 99;
+  int CurrentLineLog = 0;
+  int DebugLogScrollCounter = 99;
+  int CurrentLineDebuglog = 0;
+  int LogReset = 0;
+
+  vector<string> DebugInfoLines;
+  vector<string> LogLines;
+  vector<string> DebugLogLines;
+};
+
 struct gui {
   float x;
   float y;
@@ -268,12 +313,76 @@ struct gui {
   vector<entity> EntityList;
 };
 
-struct map 
-{
-    vector<entity> EntityList;
+struct menu {
+  int X_COUNT = 0;
+  int Z_COUNT = 0;
+
+  int MOVE_COUNT = 1;
+
+  vector<Rectangle> MenuRects;
+
+  bool is_menu_up = false;
+
+  bool is_pre_state = false;
+
+  int MaxButtons;
+  int TopButtonIndex = 1;
+  int CurrentButtonIndex = 1;
+
+  Rectangle MenuTarget;
+};
+
+struct map {
+  vector<entity> EntityList;
+
+  // vector<tile> ColoredMovedTiles;
+
+  vector<combatant> CombatantList;
+  vector<combatant> EnemyList;
+
+  int CurrentRow = 0;
+  int CurrentLayer = 0;
+
+  int Cords[40][20][10];
+  string StringCords[40][20];
+  pos PosCords[40][20];
+};
+
+struct resource {
+  vector<string> SpriteLines;
+  vector<string> EntityLines;
+
+  // Unused
+  vector<string> MapLines;
+
+  vector<string> MapLinesTiledFormat;
+
+  vector<string> DebugInfoLines;
+};
+
+struct editor {
+  int NumOfAdded = 1;
+  entity *GameEntity;
 };
 
 struct game_state {
+  int GAME_TURN = 0;
+  bool PLAYER_TURN = true;
+
+  int RENDER_INDEX = 0;
+
+  bool InitCombat = false;
+
+  bool AnimatingMovement = false;
+  bool AnimatingEnemyMovement = false;
+
+  int CurrentLayerList[4000];
+
+  int ObjectsToRender[10];
+
+  resource Resources;
+  vector<int> MoveList;
+
   // List of .png files loaded for the game
   vector<string> PNGList;
 
@@ -281,17 +390,29 @@ struct game_state {
   string AllPNGList;
 
   vector<texture> GameTextureList;
-
   vector<Image> GameImageList;
-
   vector<sprite> SpriteList;
-
   vector<entity> EntityList;
 
+  vector<Render_List> RenderList;
+
+  RenderObject AllRenderObjects[2048][4];
+
+  vector<RenderObject *> SortedRenderObjectList;
+
+  combatant WorldPlayer;
+  combatant &CombatantSelected = WorldPlayer;
+
+  vector<field *> FieldList;
+
+  target Target;
+
   gui Gui;
-
   map Map;
+  menu ActionMenu;
 
+  // Editor related functions
+  editor Editor;
 };
 
 #define GAME_H

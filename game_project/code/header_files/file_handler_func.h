@@ -44,7 +44,7 @@ inline int WriteEntityDataSingle(entity e, string path) {
   return 0;
 }
 
-inline int WriteUpdatedMap(string path) {
+inline int WriteUpdatedMap(map &Map,string path) {
   // ofstream myfile(path, std::ios::app); // adds edits to existing file
 
   ofstream myfile(path);
@@ -59,18 +59,18 @@ inline int WriteUpdatedMap(string path) {
 
     for (size_t i = 0; i < Y_TILES; i++) {
       for (size_t j = 0; j < 20; j++) {
-        if (to_string(cords[i][j][CURRENT_LAYER]).size() == 1) {
+        if (to_string(Map.Cords[i][j][Map.CurrentLayer]).size() == 1) {
           temp = "00";
-          temp.append(to_string(cords[i][j][CURRENT_LAYER]));
+          temp.append(to_string(Map.Cords[i][j][Map.CurrentLayer]));
 
           myfile << "[" << temp << "]";
-        } else if ((to_string(cords[i][j][CURRENT_LAYER]).size() == 2)) {
+        } else if ((to_string(Map.Cords[i][j][Map.CurrentLayer]).size() == 2)) {
           temp = "0";
-          temp.append(to_string(cords[i][j][CURRENT_LAYER]));
+          temp.append(to_string(Map.Cords[i][j][Map.CurrentLayer]));
 
           myfile << "[" << temp << "]";
         } else {
-          myfile << "[" << cords[i][j][CURRENT_LAYER] << "]";
+          myfile << "[" << Map.Cords[i][j][Map.CurrentLayer] << "]";
         }
       }
 

@@ -49,8 +49,6 @@ bool moved_target = false;
 
 static double last = 0;
 
-static double last2 = 0;
-
 bool collision = false;
 
 Rectangle temptarget;
@@ -68,6 +66,17 @@ static MyRNG rng;
 
 //========================================================================
 
+inline void ToggleMoveFields(game_state& GameState) {
+  if (DEBUG_TOGGLE_ENEMY_MOVE_FIELDS == true) {
+    DEBUG_TOGGLE_ENEMY_MOVE_FIELDS = false;
+
+    SetRenderEnemyFields(GameState.Map.EnemyList, false);
+  } else {
+    SetRenderEnemyFields(GameState.Map.EnemyList, true);
+    DEBUG_TOGGLE_ENEMY_MOVE_FIELDS = true;
+  }
+}
+
 inline void SetEntityListEllipses(vector<entity>& entities) {
   for (size_t i = 0; i < entities.size(); i++) {
     entities[i].el.center.x = entities[i].x + entities[i].entity_tile.width / 2;
@@ -79,54 +88,69 @@ inline void SetEntityListEllipses(vector<entity>& entities) {
   }
 }
 
-inline void CalculateDamageEnemy(map &Map,Rectangle& temp_target) {
-  entity& entity_ref =
-      getEntityByPosition(temp_target.x, temp_target.y, Map.EntityList);
-  entity_ref.entity_stats.current_hp--;
-}
+inline void CalculateDamageEnemy(game_state& GameState, Rectangle& ColRect) {
+  for (size_t i = 0; i < GameState.Map.EnemyList.size(); i++) {
+    /* code */
 
-inline void UpdateTargetFieldRange() {
-  if (target_field.range >= 1 &&
-      combatant_list[combatant_selected].current_movecount != 0) {
-    target_field.range =
-        combatant_list[combatant_selected].move_range -
-        (combatant_list[combatant_selected].current_movecount - 1);
+    if (GameState.Map.EnemyList[i].pEntity->x == ColRect.x &&
+        GameState.Map.EnemyList[i].pEntity->y == ColRect.y) {
+      GameState.Map.EnemyList[i].Stats.CurrentHP--;
 
-    if (target_field.range <= 0) {
-      target_field.range = 1;
+      Log("HIT");
+    } else {
+      Log("NO HIT");
     }
-  } else {
-    target_field.range = 1;
   }
 }
 
-inline void ResetFieldVariables() {
-  move_field_up = false;
+inline int GetMoveFieldRange(combatant* combatant) {
+  int temp = 1;
 
-  colored_moved_tiles.clear();
-  colored_enemy_tiles.clear();
+  cout << "combatant->current_movecount " << combatant->current_movecount
+       << endl;
+  cout << "combatant->move_range " << combatant->move_range << endl;
+
+  if (combatant->current_movecount != 0) {
+    temp = combatant->move_range - (combatant->current_movecount - 1);
+
+    if (temp <= 0) {
+      temp = 1;
+    }
+  } else {
+    combatant->current_movecount = 1;
+    temp = combatant->move_range;
+  }
+
+  return temp;
+}
+
+inline void ResetFieldVariables(combatant* Combatant) {
+  Combatant->move_field.track_tiles.clear();
+  Combatant->move_field.collision_tiles.clear();
+
+  Combatant->move_field.last_tile_x = -10000;
+  Combatant->move_field.last_tile_y = -10000;
+
+  Combatant->move_field.render_field = false;
+  SetRenderField(&Combatant->move_field, false);
+
   enemy_colored = false;
   entity_checked = 0;
-  attack_target_field.render_field = false;
-
-  X_pressed_count = 0;
-  Z_pressed_count = 0;
-
-  last_tile = {-100, -100, 0, 0};
-
-  target_field.render_field = false;
-  SetRenderField(&target_field, false);
-  UpdateTargetFieldRange();
+  Combatant->attack_field.render_field = false;
 }
 
 inline void EntityMoveLogic(combatant& pEnemy, combatant& pPlayer,
                             bool towards) {
   bool moved = false;
 
+  int right_vel = (GAME_TILE_WIDTH / 2);
+  int left_vel = -(GAME_TILE_WIDTH / 2);
+  int up_vel = -(GAME_TILE_HEIGHT / 2);
+  int down_vel = (GAME_TILE_HEIGHT / 2);
+
   int random = 0;
 
   Log("Random:", random);
-
   float diff_x;
   float diff_y;
 
@@ -410,45 +434,48 @@ inline void EntityMoveLogic(combatant& pEnemy, combatant& pPlayer,
   }
 }
 
-inline void EnemyLogic() {
+inline void EnemyLogic(game_state& GameState) {
   Log("Enemy Passed, turn ended");
 
-  SetRenderEnemyFields(false);
+  SetRenderEnemyFields(GameState.Map.EnemyList, false);
 
   // enemy_list[0].movelist.push_back(1);
 
-  EntityMoveLogic(enemy_list[1], combatant_list[0], false);
+  EntityMoveLogic(GameState.Map.EnemyList[0], GameState.Map.CombatantList[0],
+                  false);
 
-  for (size_t i = 0; i < enemy_list.size(); i++) {
-    if (!enemy_list[i].movelist.empty()) {
-      enemy_moving = true;
+  for (size_t i = 0; i < GameState.Map.EnemyList.size(); i++) {
+    if (!GameState.Map.EnemyList[i].movelist.empty()) {
+      GameState.AnimatingEnemyMovement = true;
     }
   }
 
-  PLAYER_TURN = true;
-  game_turn++;
+  GameState.PLAYER_TURN = true;
+  GameState.GAME_TURN++;
 }
 
 inline void CheckKeyboardInput(game_state& GameState) {
   if (IsKeyPressed(KEY_Z)) {
     cout << "CheckKeyboardInput Z PRESSED" << endl;
-    Z_pressed_count++;
+    GameState.ActionMenu.Z_COUNT++;
   }
 
   if (IsKeyPressed(KEY_X)) {
     cout << "X PRESSED" << endl;
-    X_pressed_count++;
-
-    // printf("%d", GetRandomValue(0, 99));
+    GameState.ActionMenu.X_COUNT++;
   }
 
   if (IsKeyPressed(KEY_L)) {
     cout << "L PRESSED" << endl;
 
     for (size_t i = 0; i < GameState.Map.EntityList.size(); i++) {
-      GameState.Map.EntityList[i].layer = 1;
-    }
-    cout << endl;
+      if (GameState.Map.EntityList[i].layer != 0 )
+      {
+        GameState.Map.EntityList[i].alpha = 0.2;
+
+      }
+
+  }
   }
 
   if (IsKeyPressed(KEY_K)) {
@@ -476,17 +503,11 @@ inline void CheckKeyboardInput(game_state& GameState) {
 
     // cout << "objects_to_render: " << objects_to_render[0] << endl;
     // cout << "gui_entity_list: " << gui_entity_list.size() << endl;
-    // cout << "GameState.Map.EntityList: " << GameState.Map.EntityList.size() << endl;
+    // cout << "GameState.Map.EntityList: " << GameState.Map.EntityList.size()
+    // << endl;
 
     // cout << "target_field.sum_of_field_tiles " <<
     // target_field.sum_of_field_tiles << endl;
-
-    cout << "render_list[0].List.size(): " << render_list[0].List.size()
-         << endl;
-    cout << "render_list[1].List.size(): " << render_list[1].List.size()
-         << endl;
-
-    cout << "new_entity_list.size: " << new_entity_list.size() << endl;
 
     // cout << "SortedRenderObject_list.size(): " <<
     // SortedRenderObject_list.size() << endl;
@@ -499,15 +520,8 @@ inline void CheckKeyboardInput(game_state& GameState) {
 
   if (IsKeyPressed(KEY_TAB)) {
     cout << "TAB PRESSED" << endl;
-    if (toggle_enemy_movefields == true) {
-      toggle_enemy_movefields = false;
-      cout << "toggle_enemy_movefields  false" << endl;
 
-      SetRenderEnemyFields(false);
-    } else {
-      toggle_enemy_movefields = true;
-      cout << "toggle_enemy_movefields  true" << endl;
-    }
+    ToggleMoveFields(GameState);
   }
 
   if (IsKeyPressed(KEY_F5)) {
@@ -525,10 +539,11 @@ inline bool CheckColoredTileCollission(vector<tile>& colored_tiles,
     for (size_t i = 0; i < colored_tiles.size(); i++) {
       // Check if any tile has already been crossed
       if (CheckCollisionRecs(
-              {(float)(temptarget.x - 1 + (tile_width / 2)),
-               (float)(temptarget.y - 1 + (tile_height / 2)), 2, 2},
-              {(float)(colored_tiles[i].x - 1 + (tile_width / 2)),
-               (float)(colored_tiles[i].y - 1 + (tile_height / 2)), 2, 2})) {
+              {(float)(temptarget.x - 1 + (GAME_TILE_WIDTH / 2)),
+               (float)(temptarget.y - 1 + (GAME_TILE_HEIGHT / 2)), 2, 2},
+              {(float)(colored_tiles[i].x - 1 + (GAME_TILE_WIDTH / 2)),
+               (float)(colored_tiles[i].y - 1 + (GAME_TILE_HEIGHT / 2)), 2,
+               2})) {
         // if (last_tile.x != temptarget.x || last_tile.y != temptarget.y)
 
         col = true;
@@ -547,22 +562,21 @@ inline bool CheckColoredTileCollission(vector<tile>& colored_tiles,
   return col;
 }
 
-inline bool CheckColoredMoveTileCollission(Rectangle& temptarget) {
+inline bool CheckColoredTrackTileCollission(field& ref_field,
+                                            Rectangle& temptarget) {
   bool collission = false;
 
-  if (colored_moved_tiles.empty() != true) {
-    DebugLog("colored_moved_tiles.size()", (int)colored_moved_tiles.size());
+  if (ref_field.track_tiles.empty() != true) {
+    DebugLog(" ref_field.size()", (int)ref_field.track_tiles.size());
 
-    for (size_t i = 0; i < colored_moved_tiles.size() - 1; i++) {
+    for (size_t i = 0; i < ref_field.track_tiles.size() - 1; i++) {
       // Check if any tile has already been crossed
       if (CheckCollisionRecs(
-              {(float)(temptarget.x - 1 + (tile_width / 2)),
-               (float)(temptarget.y - 1 + (tile_height / 2)), 2, 2},
-              {(float)(colored_moved_tiles[i].x - 1 + (tile_width / 2)),
-               (float)(colored_moved_tiles[i].y - 1 + (tile_height / 2)), 2,
-               2})) {
-        // if (last_tile.x != temptarget.x || last_tile.y != temptarget.y)
-
+              {(float)(temptarget.x - 1 + (GAME_TILE_WIDTH / 2)),
+               (float)(temptarget.y - 1 + (GAME_TILE_HEIGHT / 2)), 2, 2},
+              {(float)(ref_field.track_tiles[i].x - 1 + (GAME_TILE_WIDTH / 2)),
+               (float)(ref_field.track_tiles[i].y - 1 + (GAME_TILE_HEIGHT / 2)),
+               2, 2})) {
         collission = true;
 
         DebugLog("Colored tile ", (int)i);
@@ -585,36 +599,49 @@ inline bool CheckColoredMoveTileCollission(Rectangle& temptarget) {
 //}
 
 inline void AttackLogic(game_state& GameState) {
-  Rectangle temp_target = {target->x, target->y, target->w, target->h};
+  Rectangle temp_target = {
+      GameState.Target.pEntity->x, GameState.Target.pEntity->y,
+      GameState.Target.pEntity->w, GameState.Target.pEntity->h};
 
-  if (combatant_selected >= 0) {
-    if (ColorFieldTileEntityList(colored_enemy_tiles, &attack_target_field,
-                                 enemy_list, GameState.SpriteList,
-                                 GREEN_TILE)) {
-      DebugLog("AttackField Collision", (int)colored_enemy_tiles.size());
-    } else {
-      DebugLog("AttackField Collision", (int)colored_enemy_tiles.size());
-    }
+  if (ColorFieldCollisionTileEntityList(
+          &GameState.CombatantSelected.attack_field, GameState.Map.EnemyList,
+          GameState.Map.CombatantList, GameState.SpriteList, GREEN_TILE)) {
+    DebugLog(
+        "AttackField Collision",
+        (int)GameState.CombatantSelected.attack_field.collision_tiles.size());
+  } else {
+    DebugLog("No Collision");
+  }
 
-    if (colored_enemy_tiles.empty() != true) {
-      target->x = colored_enemy_tiles[0].x;
-      target->y = colored_enemy_tiles[0].y;
+  if (GameState.CombatantSelected.attack_field.collision_tiles.empty() !=
+      true) {
+    GameState.Target.pEntity->x =
+        GameState.CombatantSelected.attack_field.collision_tiles[0].x;
+    GameState.Target.pEntity->y =
+        GameState.CombatantSelected.attack_field.collision_tiles[0].y;
 
-      CycleColoredTiles(target, colored_enemy_tiles);
+    CycleColoredTiles(GameState.Target.pEntity,
+                      GameState.CombatantSelected.attack_field.collision_tiles);
 
-      if (CheckColoredTileCollission(colored_enemy_tiles, temp_target)) {
-        if ((IsKeyPressed(KEY_X) && !IsKeyPressed(KEY_Z))) {
-          cout << "Attack collision and x pressed" << endl;
+    if (CheckColoredTileCollission(
+            GameState.CombatantSelected.attack_field.collision_tiles,
+            temp_target)) {
+      if ((IsKeyPressed(KEY_X) && !IsKeyPressed(KEY_Z))) {
+        cout << "Attack collision and x pressed" << endl;
 
-          CalculateDamageEnemy(GameState.Map ,temp_target);
+        CalculateDamageEnemy(GameState, temp_target);
 
-          attacking = false;
+        ResetFieldVariables(&GameState.CombatantSelected);
 
-          ResetFieldVariables();
+        GameState.Target.is_on_move_field = false;
 
-          target->x = combatant_list[combatant_selected].pEntity->x;
-          target->y = combatant_list[combatant_selected].pEntity->y;
-        }
+        GameState.Target.pEntity->x = GameState.CombatantSelected.pEntity->x;
+        GameState.Target.pEntity->y = GameState.CombatantSelected.pEntity->y;
+
+        GameState.ActionMenu.X_COUNT = 0;
+        GameState.ActionMenu.Z_COUNT = 0;
+
+        GameState.Target.is_attacking = false;
       }
     }
   }
@@ -622,110 +649,160 @@ inline void AttackLogic(game_state& GameState) {
   if ((IsKeyPressed(KEY_Z) && !IsKeyPressed(KEY_X))) {
     cout << "Attack z pressed" << endl;
 
-    ResetFieldVariables();
+    ResetFieldVariables(&GameState.CombatantSelected);
 
-    target->x = combatant_list[combatant_selected].pEntity->x;
-    target->y = combatant_list[combatant_selected].pEntity->y;
+    GameState.Target.is_on_move_field = false;
 
-    attacking = false;
+    GameState.Target.pEntity->x = GameState.CombatantSelected.pEntity->x;
+    GameState.Target.pEntity->y = GameState.CombatantSelected.pEntity->y;
+
+    GameState.Target.is_attacking = false;
+
+    GameState.ActionMenu.X_COUNT = 0;
+    GameState.ActionMenu.Z_COUNT = 0;
   }
 }
 
 int static previous_turn = 1;
 bool static previous_state = false;
 
-inline void UpdateGameTurn() {
-  if (PLAYER_TURN != previous_state) {
-    previous_state = PLAYER_TURN;
+inline void UpdateGameTurn(game_state& GameState) {
+  if (GameState.PLAYER_TURN != previous_state) {
+    previous_state = GameState.PLAYER_TURN;
 
-    if (game_turn == previous_turn) {
-      Log("Game Turn ", game_turn);
+    if (GameState.GAME_TURN == previous_turn) {
+      Log("Game Turn ", GameState.GAME_TURN);
 
-      previous_turn = game_turn + 1;
+      previous_turn = GameState.GAME_TURN + 1;
     }
   }
 }
 
 void InitMoveLogic(game_state& GameState) {
-  move_field_up = true;
-  action_menu_up = false;
+  bool field_found = false;
 
-  target_field.render_field = false;
+  GameState.Target.is_on_move_field = true;
+  GameState.ActionMenu.is_menu_up = false;
 
-  UpdateTargetFieldRange();
+  GameState.CombatantSelected.move_field.range =
+      GetMoveFieldRange(&GameState.CombatantSelected);
 
-  SetField(GameState, target_field,
-           combatant_list[combatant_selected].pEntity->x,
-           combatant_list[combatant_selected].pEntity->y, SQUARE, GREEN_TILE);
+  GameState.CombatantSelected.move_field.track_tiles.clear();
+  GameState.CombatantSelected.move_field.track_tiles.clear();
 
-  // cout << "target_field " << target_field.sum_of_field_tiles << endl;
-
-  colored_enemy_tiles.clear();
-  colored_moved_tiles.clear();
+  GameState.CombatantSelected.attack_field.collision_tiles.clear();
+  GameState.CombatantSelected.attack_field.collision_tiles.clear();
 
   enemy_colored = false;
   entity_checked = 0;
 
-  target_field.render_field = true;
+  GameState.CombatantSelected.move_field.render_field = true;
+
+  for (size_t i = 0; i < GameState.FieldList.size(); i++) {
+    if (GameState.FieldList[i] == &GameState.CombatantSelected.move_field) {
+      GameState.FieldList[i]->range =
+          GetMoveFieldRange(&GameState.CombatantSelected);
+
+      SetField(GameState, *GameState.FieldList[i],
+               GameState.CombatantSelected.pEntity->x,
+               GameState.CombatantSelected.pEntity->y, SQUARE, GREEN_TILE);
+
+      field_found = true;
+      cout << "field_found" << endl;
+
+      break;
+    }
+  }
+
+  if (field_found == false) {
+    SetField(GameState, GameState.CombatantSelected.move_field,
+             GameState.CombatantSelected.pEntity->x,
+             GameState.CombatantSelected.pEntity->y, SQUARE, GREEN_TILE);
+
+    GameState.FieldList.push_back(&GameState.CombatantSelected.move_field);
+
+    cout << "not field_found" << endl;
+  }
 }
 
 void InitAttackLogic(game_state& GameState) {
   Log("ATTACK!");
+
+  bool field_found = false;
+
+  GameState.ActionMenu.is_menu_up = false;
+  GameState.Target.is_attacking = true;
+
   enemy_colored = false;
   entity_checked = 0;
 
-  attack_target_field.range =
-      8;  // combatant_list[combatant_selected].attack_range;
+  GameState.CombatantSelected.attack_field.render_field = true;
 
-  SetField(GameState, attack_target_field,
-           combatant_list[combatant_selected].pEntity->x,
-           combatant_list[combatant_selected].pEntity->y, SQUARE, BLUE_TILE);
+  GameState.CombatantSelected.attack_field.range =
+      GameState.CombatantSelected.attack_range;
 
-  attack_target_field.render_field = true;
-  SetRenderField(&attack_target_field, attack_target_field.render_field);
-  action_menu_up = false;
+  for (size_t i = 0; i < GameState.FieldList.size(); i++) {
+    if (GameState.FieldList[i] == &GameState.CombatantSelected.attack_field) {
+      SetField(GameState, *GameState.FieldList[i],
+               GameState.CombatantSelected.pEntity->x,
+               GameState.CombatantSelected.pEntity->y, SQUARE, BLUE_TILE);
 
-  attacking = true;
+      field_found = true;
+      break;
+    }
+  }
+
+  if (field_found == false) {
+    SetField(GameState, GameState.CombatantSelected.attack_field,
+             GameState.CombatantSelected.pEntity->x,
+             GameState.CombatantSelected.pEntity->y, SQUARE, BLUE_TILE);
+
+    GameState.FieldList.push_back(&GameState.CombatantSelected.attack_field);
+  }
+
+  GameState.CombatantSelected.attack_field.render_field = true;
+  SetRenderField(&GameState.CombatantSelected.attack_field,
+                 GameState.CombatantSelected.attack_field.render_field);
 }
 
 inline void MovePressed(game_state& GameState) {
   /// Init move logic
+
   InitMoveLogic(GameState);
 }
 
-inline void ReadyPressed() {
-  X_pressed_count = 0;
+inline void ReadyPressed(game_state& GameState) {
+  GameState.ActionMenu.is_pre_state = false;
+  GameState.ActionMenu.X_COUNT = 0;
 
-  precombat = false;
+  GameState.Target.pEntity->x = GameState.CombatantSelected.pEntity->x;
+  GameState.Target.pEntity->y = GameState.CombatantSelected.pEntity->y;
 
-  target->x = combatant_list[combatant_selected].pEntity->x;
-  target->y = combatant_list[combatant_selected].pEntity->y;
+  GameState.CombatantSelected.position_field.render_field = false;
+  SetRenderField(&GameState.CombatantSelected.position_field, false);
 
-  position_field.render_field = false;
-  SetRenderField(&position_field, false);
+  GameState.ActionMenu.is_menu_up = false;
 
-  action_menu_up = false;
-
-  PLAYER_TURN = true;
+  GameState.PLAYER_TURN = true;
 }
 
-inline void EndPressed() {
-  X_pressed_count = 0;
-  Z_pressed_count = 0;
+inline void EndPressed(game_state& GameState) {
+  GameState.ActionMenu.X_COUNT = 0;
+  GameState.ActionMenu.Z_COUNT = 0;
 
-  position_field.render_field = false;
-  SetRenderField(&position_field, false);
+  GameState.CombatantSelected.position_field.render_field = false;
+  SetRenderField(&GameState.CombatantSelected.position_field, false);
 
-  action_menu_up = false;
+  GameState.ActionMenu.is_menu_up = false;
 
-  PLAYER_TURN = false;
+  GameState.PLAYER_TURN = false;
 
-  Log("Player ended turn ", game_turn);
+  Log("Player ended turn ", GameState.GAME_TURN);
 
-  combatant_list[combatant_selected].current_movecount = 1;
+  GameState.CombatantSelected.current_movecount = 1;
 
-  temp_movecount[combatant_selected] =
-      combatant_list[combatant_selected].current_movecount;
+  GameState.ActionMenu.MOVE_COUNT =
+      GameState.CombatantSelected.current_movecount;
 }
 
 inline void AttackPressed(game_state& GameState) {
@@ -734,19 +811,18 @@ inline void AttackPressed(game_state& GameState) {
 }
 
 inline void ActionGuiLogic(game_state& GameState) {
-  if (precombat == true) {
+  if (GameState.ActionMenu.is_pre_state == true) {
     if (ActionButton[0] == true) {
       Log("Ready");
 
-      ReadyPressed();
-
+      ReadyPressed(GameState);
       ActionButton[0] = false;
     }
   } else {
-    if (ActionButton[0] == true && action_menu_up == true &&
-        X_pressed_count > 1 &&
-        combatant_list[combatant_selected].current_movecount <
-            combatant_list[combatant_selected].move_range) {
+    if (ActionButton[0] == true && GameState.ActionMenu.is_menu_up == true &&
+        GameState.ActionMenu.X_COUNT > 1 &&
+        GameState.CombatantSelected.current_movecount <
+            GameState.CombatantSelected.move_range) {
       Log("Move");
 
       MovePressed(GameState);
@@ -754,278 +830,286 @@ inline void ActionGuiLogic(game_state& GameState) {
       ActionButton[0] = false;
     }
 
-    if (ActionButton[1] == true && action_menu_up == true &&
-        X_pressed_count > 1) {
-      printf("Attack\n");
+    if (ActionButton[1] == true && GameState.ActionMenu.is_menu_up == true &&
+        GameState.ActionMenu.X_COUNT > 1) {
+      Log("Attack\n");
 
       AttackPressed(GameState);
 
       ActionButton[1] = false;
     }
 
-    if (ActionButton[2] == true && action_menu_up == true &&
-        X_pressed_count > 1) {
-      printf("END\n");
+    if (ActionButton[2] == true && GameState.ActionMenu.is_menu_up == true &&
+        GameState.ActionMenu.X_COUNT > 1) {
+      Log("END\n");
 
-      EndPressed();
+      EndPressed(GameState);
 
       ActionButton[2] = false;
     }
   }
 
   if (IsKeyPressed(KEY_UP)) {
-    if (currentbutton_index != top_button_index) {
-      currentbutton_index--;
+    if (GameState.ActionMenu.CurrentButtonIndex !=
+        GameState.ActionMenu.TopButtonIndex) {
+      GameState.ActionMenu.CurrentButtonIndex--;
     } else {
-      currentbutton_index = ActionMenuRects.size() - 1;
+      GameState.ActionMenu.CurrentButtonIndex =
+          GameState.ActionMenu.MenuRects.size() - 1;
     }
 
-    action_target->y = ActionMenuRects[currentbutton_index].y;
+    GameState.ActionMenu.MenuTarget.y =
+        GameState.ActionMenu.MenuRects[GameState.ActionMenu.CurrentButtonIndex]
+            .y;
   }
 
   if (IsKeyPressed(KEY_DOWN)) {
-    if (currentbutton_index != ActionMenuRects.size() - 1) {
-      currentbutton_index++;
+    if (GameState.ActionMenu.CurrentButtonIndex !=
+        GameState.ActionMenu.MenuRects.size() - 1) {
+      GameState.ActionMenu.CurrentButtonIndex++;
     } else {
-      currentbutton_index = top_button_index;
+      GameState.ActionMenu.CurrentButtonIndex =
+          GameState.ActionMenu.TopButtonIndex;
     }
 
-    action_target->y = ActionMenuRects[currentbutton_index].y;
+    GameState.ActionMenu.MenuTarget.y =
+        GameState.ActionMenu.MenuRects[GameState.ActionMenu.CurrentButtonIndex]
+            .y;
   }
 
   if (IsKeyPressed(KEY_LEFT)) {
-    // action_target->x = action_target->x + left_vel;
   }
   if (IsKeyPressed(KEY_RIGHT)) {
-    // action_target->x = action_target->x + right_vel;
   }
 
   if (IsKeyPressed(KEY_Z)) {
     cout << "ActionGuiLogic Z PRESSED" << endl;
 
-    Z_pressed_count++;
+    GameState.ActionMenu.Z_COUNT++;
 
-    X_pressed_count = 0;
+    GameState.ActionMenu.X_COUNT = 0;
 
-    action_menu_up = false;
+    GameState.ActionMenu.is_menu_up = false;
   }
 }
 
 inline void MoveLogic(game_state& GameState) {
-  if (move_field_up == true) {
-    temptarget = {(float)target->x, (float)target->y, (float)target->w,
-                  (float)target->h};
+  temptarget = {
+      (float)GameState.Target.pEntity->x, (float)GameState.Target.pEntity->y,
+      (float)GameState.Target.pEntity->w, (float)GameState.Target.pEntity->h};
 
-    ColorFieldTileEntityList(colored_enemy_tiles, &target_field,
-                             GameState.Map.EntityList, GameState.SpriteList, RED_TILE);
+  ColorFieldCollisionTileEntityList(
+      GameState.CombatantSelected.move_field, GameState.Map.EntityList,
+      GameState.Map.CombatantList, GameState.SpriteList, RED_TILE);
 
-    ColorFieldTile(target_field, GameState.SpriteList, target);
+  ColorFieldTrackTile(GameState.CombatantSelected.move_field,
+                      GameState.SpriteList, GameState.Target.pEntity,
+                      YELLOW_TILE);
 
-    // if ((GetTime() - last) > input_delay) // Needed to limit target
-    // movespeed
-    //{
-    //	last = (float)GetTime();
+  // if ((GetTime() - last) > input_delay) // Needed to limit target
+  // movespeed
+  //{
+  //	last = (float)GetTime();
 
-    if (combatant_list[combatant_selected].current_movecount <
-            combatant_list[combatant_selected].move_range &&
-        !moving && on_field == true) {
-      if (IsKeyPressed(KEY_UP) && !IsKeyPressed(KEY_DOWN) &&
-          !IsKeyPressed(KEY_LEFT) && !IsKeyPressed(KEY_RIGHT)) {
-        temptarget.y = temptarget.y + up_vel;
-        temptarget.x = temptarget.x + left_vel;
+  if (GameState.CombatantSelected.current_movecount <
+          GameState.CombatantSelected.move_range &&
+      !GameState.AnimatingMovement && on_field == true) {
+    if (IsKeyPressed(KEY_UP) && !IsKeyPressed(KEY_DOWN) &&
+        !IsKeyPressed(KEY_LEFT) && !IsKeyPressed(KEY_RIGHT)) {
+      temptarget.y = temptarget.y + GameState.Target.up_vel;
+      temptarget.x = temptarget.x + GameState.Target.left_vel;
 
-        moved_target = true;
+      moved_target = true;
 
-        combatant_list[combatant_selected].current_movecount++;
-        DebugLog("Up", combatant_list[combatant_selected].current_movecount);
-        move_list.push_back(UP);
-      }
-
-      if (IsKeyPressed(KEY_DOWN) && !IsKeyPressed(KEY_UP) &&
-          !IsKeyPressed(KEY_LEFT) && !IsKeyPressed(KEY_RIGHT)) {
-        temptarget.y = temptarget.y + down_vel;
-        temptarget.x = temptarget.x + right_vel;
-
-        moved_target = true;
-
-        combatant_list[combatant_selected].current_movecount++;
-        DebugLog("Down", combatant_list[combatant_selected].current_movecount);
-        move_list.push_back(DOWN);
-      }
-      if (IsKeyPressed(KEY_LEFT) && !IsKeyPressed(KEY_DOWN) &&
-          !IsKeyPressed(KEY_UP) && !IsKeyPressed(KEY_RIGHT)) {
-        temptarget.y = temptarget.y + down_vel;
-        temptarget.x = temptarget.x + left_vel;
-
-        moved_target = true;
-
-        combatant_list[combatant_selected].current_movecount++;
-        DebugLog("Left", combatant_list[combatant_selected].current_movecount);
-        move_list.push_back(LEFT);
-      }
-      if (IsKeyPressed(KEY_RIGHT) && !IsKeyPressed(KEY_DOWN) &&
-          !IsKeyPressed(KEY_UP) && !IsKeyPressed(KEY_LEFT)) {
-        temptarget.y = temptarget.y + up_vel;
-        temptarget.x = temptarget.x + right_vel;
-
-        moved_target = true;
-
-        combatant_list[combatant_selected].current_movecount++;
-        DebugLog("Right", combatant_list[combatant_selected].current_movecount);
-        move_list.push_back(RIGHT);
-      }
+      GameState.CombatantSelected.current_movecount++;
+      DebugLog("Up", GameState.CombatantSelected.current_movecount);
+      GameState.MoveList.push_back(UP);
     }
 
-    //	for (size_t i = 0; i < target_field.sum_of_field_tiles; i++)
-    //	{
-    if (CheckCollisionRecs({(float)temptarget.x, (float)temptarget.y,
-                            (float)temptarget.width, (float)temptarget.height},
-                           {(float)target_field.x, (float)target_field.y,
-                            (float)target_field.w, (float)target_field.h})) {
-      DebugLog("Field Collision", 0);
+    if (IsKeyPressed(KEY_DOWN) && !IsKeyPressed(KEY_UP) &&
+        !IsKeyPressed(KEY_LEFT) && !IsKeyPressed(KEY_RIGHT)) {
+      temptarget.y = temptarget.y + GameState.Target.down_vel;
+      temptarget.x = temptarget.x + GameState.Target.right_vel;
 
-      on_field = true;
+      moved_target = true;
 
-      // break;
+      GameState.CombatantSelected.current_movecount++;
+      DebugLog("Down", GameState.CombatantSelected.current_movecount);
+      GameState.MoveList.push_back(DOWN);
+    }
+    if (IsKeyPressed(KEY_LEFT) && !IsKeyPressed(KEY_DOWN) &&
+        !IsKeyPressed(KEY_UP) && !IsKeyPressed(KEY_RIGHT)) {
+      temptarget.y = temptarget.y + GameState.Target.down_vel;
+      temptarget.x = temptarget.x + GameState.Target.left_vel;
+
+      moved_target = true;
+
+      GameState.CombatantSelected.current_movecount++;
+      DebugLog("Left", GameState.CombatantSelected.current_movecount);
+      GameState.MoveList.push_back(LEFT);
+    }
+    if (IsKeyPressed(KEY_RIGHT) && !IsKeyPressed(KEY_DOWN) &&
+        !IsKeyPressed(KEY_UP) && !IsKeyPressed(KEY_LEFT)) {
+      temptarget.y = temptarget.y + GameState.Target.up_vel;
+      temptarget.x = temptarget.x + GameState.Target.right_vel;
+
+      moved_target = true;
+
+      GameState.CombatantSelected.current_movecount++;
+      DebugLog("Right", GameState.CombatantSelected.current_movecount);
+      GameState.MoveList.push_back(RIGHT);
+    }
+  }
+
+  //	for (size_t i = 0; i < target_field.sum_of_field_tiles; i++)
+  //	{
+  if (CheckCollisionRecs({(float)temptarget.x, (float)temptarget.y,
+                          (float)temptarget.width, (float)temptarget.height},
+                         {(float)GameState.CombatantSelected.move_field.x,
+                          (float)GameState.CombatantSelected.move_field.y,
+                          (float)GameState.CombatantSelected.move_field.w,
+                          (float)GameState.CombatantSelected.move_field.h})) {
+    DebugLog("Field Collision", 0);
+
+    on_field = true;
+
+    // break;
+  } else {
+    DebugLog("Field Collision", 1);
+
+    if (GameState.CombatantSelected.current_movecount > 0) {
+      GameState.CombatantSelected.current_movecount--;
+    }
+
+    if (GameState.MoveList.empty() != true) {
+      GameState.MoveList.pop_back();
+    }
+
+    on_field = false;
+    // break;
+  }
+  //	}
+
+  if (moved_target == true) {
+    if (CheckColoredTileCollission(
+            GameState.CombatantSelected.move_field.collision_tiles,
+            temptarget) ||
+        CheckColoredTrackTileCollission(GameState.CombatantSelected.move_field,
+                                        temptarget)) {
+      moved_target = false;
+
+      if (GameState.CombatantSelected.current_movecount > 0) {
+        GameState.CombatantSelected.current_movecount--;
+      }
+
+      if (GameState.MoveList.empty() != true) {
+        GameState.MoveList.pop_back();
+
+        collision = true;
+      }
+    }
+  }
+
+  if ((IsKeyPressed(KEY_X) && !IsKeyPressed(KEY_Z)) &&
+      GameState.ActionMenu.X_COUNT != 1 && !GameState.AnimatingMovement) {
+    if (GameState.MoveList.empty() != true) {
+      GameState.AnimatingMovement = true;
+      moved_target = false;
+      GameState.ActionMenu.MOVE_COUNT =
+          GameState.CombatantSelected.current_movecount;
+      Log("current_movecount ", GameState.ActionMenu.MOVE_COUNT);
+
+      DebugLog("Movecount: ", GameState.CombatantSelected.current_movecount);
+      ResetFieldVariables(&GameState.CombatantSelected);
+
+      GameState.Target.is_on_move_field = false;
+
+      GameState.ActionMenu.X_COUNT = 0;
+      GameState.ActionMenu.Z_COUNT = 0;
+
     } else {
-      DebugLog("Field Collision", 1);
-
-      if (combatant_list[combatant_selected].current_movecount > 0) {
-        combatant_list[combatant_selected].current_movecount--;
-      }
-
-      if (move_list.empty() != true) {
-        move_list.pop_back();
-      }
-
-      on_field = false;
-      // break;
+      Log("GameState.Map.MoveList.empty() == true :",
+          GameState.ActionMenu.MOVE_COUNT);
     }
-    //	}
+  }
 
-    if (moved_target == true) {
-      if (CheckColoredTileCollission(colored_enemy_tiles, temptarget) ||
-          CheckColoredMoveTileCollission(temptarget)) {
-        moved_target = false;
+  if ((IsKeyPressed(KEY_Z) && !IsKeyPressed(KEY_X)) &&
+      !GameState.AnimatingMovement) {
+    if (GameState.ActionMenu.Z_COUNT == 1 && moved_target == true) {
+      GameState.Target.pEntity->x = GameState.CombatantSelected.pEntity->x;
+      GameState.Target.pEntity->y = GameState.CombatantSelected.pEntity->y;
 
-        if (combatant_list[combatant_selected].current_movecount > 0) {
-          combatant_list[combatant_selected].current_movecount--;
-        }
+      ResetTrackTilesColor(GameState.CombatantSelected.move_field,
+                           GameState.SpriteList, GREEN_TILE);
 
-        if (move_list.empty() != true) {
-          move_list.pop_back();
+      GameState.CombatantSelected.move_field.track_tiles.clear();
 
-          collision = true;
-        }
-      }
+      GameState.CombatantSelected.current_movecount =
+          GameState.ActionMenu.MOVE_COUNT;
+
+      moved_target = false;
+
+      GameState.MoveList.clear();
+
+      GameState.ActionMenu.Z_COUNT = 0;
     }
 
-    if ((IsKeyPressed(KEY_X) && !IsKeyPressed(KEY_Z)) &&
-        move_field_up == true && X_pressed_count != 1 && !moving) {
-      // cout << "Second Press X " << X_pressed_count << endl;
+    if (GameState.ActionMenu.Z_COUNT == 1 && moved_target == false &&
+        collision == false) {
+      moved_target = false;
 
-      // PrintMoveList();
+      cout << "this collistion " << collision << endl;
 
-      if (move_list.empty() != true) {
-        moving = true;
-        moved_target = false;
-        temp_movecount[combatant_selected] =
-            combatant_list[combatant_selected].current_movecount;
-        // Log("current_movecount ", temp_movecount[combatant_selected]);
+      ResetFieldVariables(&GameState.CombatantSelected);
 
-        ResetFieldVariables();
+      GameState.Target.is_on_move_field = false;
 
-        player_animation = true;
-      } else {
-        cout << "move_list.empty() == true" << endl;
-      }
+      enemy_colored = false;
+      entity_checked = 0;
+
+      GameState.ActionMenu.X_COUNT = 0;
+      GameState.ActionMenu.Z_COUNT = 0;
     }
 
-    if ((IsKeyPressed(KEY_Z) && !IsKeyPressed(KEY_X)) &&
-        move_field_up == true && !moving) {
-      if (Z_pressed_count == 1 && moved_target == true) {
-        target->x = combatant_list[combatant_selected].pEntity->x;
+    if (GameState.ActionMenu.Z_COUNT == 1 && collision == true) {
+      GameState.Target.pEntity->x = GameState.CombatantSelected.pEntity->x;
 
-        target->y = combatant_list[combatant_selected].pEntity->y;
+      GameState.Target.pEntity->y = GameState.CombatantSelected.pEntity->y;
 
-        ResetMovedTilesColor(target_field, GameState.SpriteList, 2);
-
-        colored_moved_tiles.clear();
-
-        combatant_list[combatant_selected].current_movecount =
-            temp_movecount[combatant_selected];
-
-        moved_target = false;
-
-        move_list.clear();
-
-        Z_pressed_count = 0;
-
-        // Log("Z_pressed_count == 1 && moved_target == true");
-
-        // enemy_colored = false;
-        // entity_checked = 0;
+      if (GameState.MoveList.empty() == false) {
+        ResetTrackTilesColor(GameState.CombatantSelected.move_field,
+                             GameState.SpriteList, GREEN_TILE);
       }
 
-      if (Z_pressed_count == 1 && moved_target == false && collision == false) {
-        moved_target = false;
+      GameState.CombatantSelected.move_field.track_tiles.clear();
 
-        cout << collision << endl;
+      GameState.CombatantSelected.current_movecount =
+          GameState.ActionMenu.MOVE_COUNT;
 
-        // Log("(Z_pressed_count == 1 && (moved_target == false) && collision
-        // == false) moving");
+      moved_target = false;
 
-        ResetFieldVariables();
+      collision = false;
 
-        enemy_colored = false;
-        entity_checked = 0;
-      }
+      GameState.MoveList.clear();
 
-      if (Z_pressed_count == 1 && collision == true) {
-        target->x = combatant_list[combatant_selected].pEntity->x;
-
-        target->y = combatant_list[combatant_selected].pEntity->y;
-
-        if (move_list.empty() == false) {
-          ResetMovedTilesColor(target_field, GameState.SpriteList, 2);
-        }
-
-        colored_moved_tiles.clear();
-
-        combatant_list[combatant_selected].current_movecount =
-            temp_movecount[combatant_selected];
-
-        moved_target = false;
-
-        collision = false;
-
-        move_list.clear();
-
-        Z_pressed_count = 0;
-
-        // Log("Z_pressed_count == 1 && moved_target == true");
-
-        // enemy_colored = false;
-        // entity_checked = 0;
-      }
+      GameState.ActionMenu.Z_COUNT = 0;
     }
+  }
 
-    if (on_field == true && moved_target == true) {
-      target->x = temptarget.x;
-      target->y = temptarget.y;
-    } else {
-    }
+  if (on_field == true && moved_target == true) {
+    GameState.Target.pEntity->x = temptarget.x;
+    GameState.Target.pEntity->y = temptarget.y;
+  } else {
   }
 }
 
-inline void CheckEnemy() {
+inline void CheckEnemyMoveField(vector<combatant>& enemy_list, target& Target) {
   for (size_t i = 0; i < enemy_list.size(); i++) {
     // Check if target is on enemy entity position and X pressed, not on
     // movefield, not moveing
     if ((IsKeyPressed(KEY_X) && !IsKeyPressed(KEY_Z)) &&
-        (target->x == enemy_list[i].pEntity->x) &&
-        (target->y == enemy_list[i].pEntity->y) && move_field_up == false &&
-        action_menu_up != true && !moving) {
+        (Target.pEntity->x == enemy_list[i].pEntity->x) &&
+        (Target.pEntity->y == enemy_list[i].pEntity->y)) {
       cout << "Enemy checked" << endl;
       enemy_list[i].move_field.render_field = true;
     }
@@ -1033,9 +1117,8 @@ inline void CheckEnemy() {
     // Check if target is on enemy entity position and X pressed, not on
     // movefield, not moveing
     if ((!IsKeyPressed(KEY_X) && IsKeyPressed(KEY_Z)) &&
-        (target->x == enemy_list[i].pEntity->x) &&
-        (target->y == enemy_list[i].pEntity->y) && move_field_up == false &&
-        action_menu_up != true && !moving) {
+        (Target.pEntity->x == enemy_list[i].pEntity->x) &&
+        (Target.pEntity->y == enemy_list[i].pEntity->y)) {
       cout << "Enemy checked" << endl;
       enemy_list[i].move_field.render_field = false;
     }
@@ -1045,178 +1128,275 @@ inline void CheckEnemy() {
 inline void TargetLogic(game_state& GameState) {
   temptarget = {0, 0, 0, 0};
 
-  for (size_t i = 0; i < combatant_list.size(); i++) {
-    if (target->ID == combatant_list[i].pEntity->ID) {
-    } else {
-      // Check if target is on combat entity position and X pressed, not on
-      // movefield, not moveing
-      if ((IsKeyPressed(KEY_X) && !IsKeyPressed(KEY_Z)) &&
-          (target->x == combatant_list[i].pEntity->x) &&
-          (target->y == combatant_list[i].pEntity->y) &&
-          move_field_up == false && action_menu_up != true && !moving) {
-        cout << "First Press X " << X_pressed_count << endl;
+  static double static_last_input_time = 0;
 
-        cout << "Collision" << endl;
-        SetField(GameState, target_field, target->x, target->y, 0, GREEN_TILE);
-
-        // field_up = true;
-
-        Z_pressed_count = 0;
-
-        X_pressed_count = 1;
-
-        combatant_selected = i;
-
-        action_target->x = (float)(combatant_list[i].pEntity->x +
-                                   combatant_list[i].pEntity->w) +
-                           16;
-        action_target->y = (float)(combatant_list[i].pEntity->y -
-                                   combatant_list[i].pEntity->h) +
-                           20;
-
-        setActionMenu();
-
-        action_menu_up = true;
-
-        break;
-      }
-    }
-  }
-
-  if (move_field_up == true) {
+  if (GameState.Target.is_on_move_field == true) {
     MoveLogic(GameState);
-  } else if (attacking == true) {
+
+  } else if (GameState.Target.is_attacking == true) {
     AttackLogic(GameState);
+
   } else  // Not on a movefield
   {
-    if (action_menu_up != true) {
-      CheckEnemy();
+    for (size_t i = 0; i < GameState.Map.CombatantList.size(); i++) {
+      if (GameState.Target.pEntity->ID ==
+          GameState.Map.CombatantList[i].pEntity->ID) {
+      } else {
+        // Check if target is on combat entity position and X pressed, not on
+        // movefield, not moveing
+        if ((IsKeyPressed(KEY_X) && !IsKeyPressed(KEY_Z)) &&
+            (GameState.Target.pEntity->x ==
+             GameState.Map.CombatantList[i].pEntity->x) &&
+            (GameState.Target.pEntity->y ==
+             GameState.Map.CombatantList[i].pEntity->y) &&
+            !GameState.AnimatingMovement) {
+          cout << "else First Press X " << GameState.ActionMenu.X_COUNT << endl;
 
-      if ((GetTime() - last2) >
-          input_delay)  // Needed to limit target movespeed
-      {
-        last2 = (float)GetTime();
+          GameState.ActionMenu.Z_COUNT = 0;
+
+          GameState.ActionMenu.X_COUNT = 1;
+
+          SetActionMenu(GameState.ActionMenu, &GameState.CombatantSelected);
+
+          GameState.ActionMenu.is_menu_up = true;
+
+          if (GameState.CombatantSelected.pEntity->ID !=
+              GameState.Map.CombatantList[i].pEntity->ID) {
+            cout << "UPDATED SELECTED COMBATANT" << endl;
+            GameState.CombatantSelected = GameState.Map.CombatantList[i];
+          }
+
+          break;
+        }
+      }
+    }
+
+    if (GameState.ActionMenu.is_menu_up != true) {
+      if (GameState.AnimatingMovement != true) {
+        // CheckEnemyMoveField(GameState.Map.EnemyList, GameState.Target);
+      }
+
+      // Needed to limit target movespeed
+      if ((GetTime() - static_last_input_time) > INPUT_DELAY) {
+        static_last_input_time = (float)GetTime();
 
         if (IsKeyDown(KEY_UP)) {
-          target->y = target->y + up_vel;
+          GameState.Target.pEntity->y =
+              GameState.Target.pEntity->y + GameState.Target.up_vel;
         }
 
         if (IsKeyDown(KEY_DOWN)) {
-          target->y = target->y + down_vel;
+          GameState.Target.pEntity->y =
+              GameState.Target.pEntity->y + GameState.Target.down_vel;
         }
         if (IsKeyDown(KEY_LEFT)) {
-          target->x = target->x + left_vel;
+          GameState.Target.pEntity->x =
+              GameState.Target.pEntity->x + GameState.Target.left_vel;
         }
         if (IsKeyDown(KEY_RIGHT)) {
-          target->x = target->x + right_vel;
+          GameState.Target.pEntity->x =
+              GameState.Target.pEntity->x + GameState.Target.right_vel;
         }
       }
 
       // colored_tiles.clear();
 
-      last_tile = {-100, -100, 0, 0};
+      // ref_field.last_tile_x =-10000;
+      //  ref_field.last_tile_y =-10000;
     }
   }
 }
 
-inline void MoveUnit() {
+inline void MoveUnit(game_state& GameState) {
   int speed_adjustment = 8;
   int static frame_count = 0;
-  if (action_menu_up != true) {
-    if ((GetTime() - last) > 0.1)  // Needed to limit target movespeed
+
+  static double static_last_input_time = 0;
+
+  int x_vel = (GAME_TILE_WIDTH / speed_adjustment);
+  int y_vel = (GAME_TILE_HEIGHT / speed_adjustment);
+
+  int act_vel = 0;
+
+  bool check_layered = true;
+
+  ellipse temp_el = GameState.WorldPlayer.pEntity->el;
+
+  DebugLog("Player X: ", GameState.WorldPlayer.pEntity->x);
+  DebugLog("Player Y: ", GameState.WorldPlayer.pEntity->y);
+
+  SetEllipsesColPointArray(temp_el, GameState.WorldPlayer.EllipsePoints);
+
+  if (GameState.ActionMenu.is_menu_up != true) {
+    if ((GetTime() - static_last_input_time) >
+        INPUT_DELAY)  // Needed to limit target movespeed
     {
-      last = (float)GetTime();
+      static_last_input_time = (float)GetTime();
 
-      SetEllipsesColPointArray(world_player.pEntity->el, ellipses_point);
-
-      // for (size_t i = 0; i < GameState.Map.EntityList.size(); i++) {
-      //   //     if (GameState.Map.EntityList[i] != world_player.pEntity->ID) {
-      //   //       GetEllipsesColPoint(collision_arry, GameState.Map.EntityList[i].el,
-      //   //                           ellipses_point);
-      //   //     }
-
-      //   //     for (size_t i = 0; i < collision_arry.size(); i++) {
-      //   //       if (collision_arry[i]) {
-      //   //         cout << "true"
-      //   //              << " ";
-      //   //       } else {
-      //   //         cout << "false"
-      //   //              << " ";
-      //   //       }
-      //   //     }
-
-      //   //     cout << endl;
-      // }
+      if (DEBUG_PRINT) {
+        DebugLog("UP ",
+                 GameState.WorldPlayer.EllipsePointsCollisions[INDEX_UP]);
+        DebugLog("UP_RIGHT ",
+                 GameState.WorldPlayer.EllipsePointsCollisions[INDEX_UP_RIGHT]);
+        DebugLog("RIGHT ",
+                 GameState.WorldPlayer.EllipsePointsCollisions[INDEX_RIGHT]);
+        DebugLog(
+            "DOWN_RIGHT ",
+            GameState.WorldPlayer.EllipsePointsCollisions[INDEX_DOWN_RIGHT]);
+        DebugLog("DOWN ",
+                 GameState.WorldPlayer.EllipsePointsCollisions[INDEX_DOWN]);
+        DebugLog(
+            "DOWN_LEFT ",
+            GameState.WorldPlayer.EllipsePointsCollisions[INDEX_DOWN_LEFT]);
+        DebugLog("LEFT ",
+                 GameState.WorldPlayer.EllipsePointsCollisions[INDEX_LEFT]);
+        DebugLog("UP_LEFT ",
+                 GameState.WorldPlayer.EllipsePointsCollisions[INDEX_UP_LEFT]);
+      }
 
       if (IsKeyDown(KEY_W)) {
-        // if (CheckCollisionRecs(
-        // 	{ (float)combatant_list[0].pEntity->x,
-        // (float)combatant_list[0].pEntity->y,
-        // (float)combatant_list[0].pEntity->w,
-        // (float)combatant_list[0].pEntity->h }, 	{ (float)target_field.x,
-        // (float)target_field.y, (float)target_field.w, (float)target_field.h
-        // }))
-        // {
-        // }
-
         if (frame_count % 8 == 0) {
-          AnimateMovement(combatant_list[0].pEntity, UP);
+          AnimateMovement(GameState.WorldPlayer.pEntity, UP);
         }
 
-        combatant_list[0].pEntity->y = combatant_list[0].pEntity->y -
-                                       (speed_adjustment / speed_adjustment);
+        for (size_t i = 0; i < y_vel; i++) {
+          SetEllipsesColPointArray(temp_el,
+                                   GameState.WorldPlayer.EllipsePoints);
+
+          act_vel = i;
+
+          CheckCollisionPoints(GameState.WorldPlayer.EllipsePointsCollisions,
+                               GameState.WorldPlayer.EllipsePoints,
+                               GameState.Map.EntityList,
+                               GameState.WorldPlayer.pEntity, check_layered);
+
+          if ((GameState.WorldPlayer.EllipsePointsCollisions[INDEX_UP]) ||
+              (GameState.WorldPlayer.EllipsePointsCollisions[INDEX_UP_RIGHT]) ||
+              (GameState.WorldPlayer.EllipsePointsCollisions[INDEX_UP_LEFT])) {
+            break;
+          }
+          temp_el.center.y++;
+        }
+
+        GameState.WorldPlayer.pEntity->y =
+            GameState.WorldPlayer.pEntity->y - act_vel;
       }
 
       if (IsKeyDown(KEY_S)) {
         if (frame_count % 4 == 0) {
-          AnimateMovement(combatant_list[0].pEntity, DOWN);
+          AnimateMovement(GameState.WorldPlayer.pEntity, DOWN);
         }
-        combatant_list[0].pEntity->y = combatant_list[0].pEntity->y +
-                                       (speed_adjustment / speed_adjustment);
+
+        for (size_t i = 0; i < y_vel; i++) {
+          SetEllipsesColPointArray(temp_el,
+                                   GameState.WorldPlayer.EllipsePoints);
+
+          act_vel = i;
+
+          CheckCollisionPoints(GameState.WorldPlayer.EllipsePointsCollisions,
+                               GameState.WorldPlayer.EllipsePoints,
+                               GameState.Map.EntityList,
+                               GameState.WorldPlayer.pEntity, check_layered);
+
+          if ((GameState.WorldPlayer.EllipsePointsCollisions[INDEX_DOWN]) ||
+              (GameState.WorldPlayer
+                   .EllipsePointsCollisions[INDEX_DOWN_RIGHT]) ||
+              (GameState.WorldPlayer
+                   .EllipsePointsCollisions[INDEX_DOWN_LEFT])) {
+            break;
+          }
+          temp_el.center.y++;
+        }
+        GameState.WorldPlayer.pEntity->y =
+            GameState.WorldPlayer.pEntity->y + act_vel;
       }
 
       if (IsKeyDown(KEY_A)) {
         if (frame_count % 4 == 0) {
-          AnimateMovement(combatant_list[0].pEntity, LEFT);
+          AnimateMovement(GameState.WorldPlayer.pEntity, LEFT);
         }
-        combatant_list[0].pEntity->x = combatant_list[0].pEntity->x -
-                                       (speed_adjustment / speed_adjustment);
+
+        for (size_t i = 0; i < x_vel; i++) {
+          SetEllipsesColPointArray(temp_el,
+                                   GameState.WorldPlayer.EllipsePoints);
+
+          act_vel = i;
+
+          CheckCollisionPoints(GameState.WorldPlayer.EllipsePointsCollisions,
+                               GameState.WorldPlayer.EllipsePoints,
+                               GameState.Map.EntityList,
+                               GameState.WorldPlayer.pEntity, check_layered);
+
+          if ((GameState.WorldPlayer.EllipsePointsCollisions[INDEX_LEFT]) ||
+              (GameState.WorldPlayer
+                   .EllipsePointsCollisions[INDEX_DOWN_LEFT]) ||
+              (GameState.WorldPlayer.EllipsePointsCollisions[INDEX_UP_LEFT])) {
+            break;
+          }
+          temp_el.center.x++;
+        }
+
+        GameState.WorldPlayer.pEntity->x =
+            GameState.WorldPlayer.pEntity->x - act_vel;
       }
       if (IsKeyDown(KEY_D)) {
         if (frame_count % 4 == 0) {
-          AnimateMovement(combatant_list[0].pEntity, RIGHT);
+          AnimateMovement(GameState.WorldPlayer.pEntity, RIGHT);
         }
-        if (collision_map) {
-          ///
 
-        } else {
-          combatant_list[0].pEntity->x = combatant_list[0].pEntity->x +
-                                         (speed_adjustment / speed_adjustment);
+        for (size_t i = 0; i < x_vel; i++) {
+          SetEllipsesColPointArray(temp_el,
+                                   GameState.WorldPlayer.EllipsePoints);
+
+          act_vel = i;
+
+          CheckCollisionPoints(GameState.WorldPlayer.EllipsePointsCollisions,
+                               GameState.WorldPlayer.EllipsePoints,
+                               GameState.Map.EntityList,
+                               GameState.WorldPlayer.pEntity, check_layered);
+
+          if ((GameState.WorldPlayer.EllipsePointsCollisions[INDEX_RIGHT]) ||
+              (GameState.WorldPlayer.EllipsePointsCollisions[INDEX_UP_RIGHT]) ||
+              (GameState.WorldPlayer
+                   .EllipsePointsCollisions[INDEX_DOWN_RIGHT])) {
+            break;
+          }
+          temp_el.center.x++;
         }
+
+        GameState.WorldPlayer.pEntity->x =
+            GameState.WorldPlayer.pEntity->x + act_vel;
       }
+
       frame_count++;
 
-      if (frame_count == 41) {
+      if (frame_count == 4) {
         frame_count = 0;
       }
+
+      // for (size_t i = 0; i < 8; i++) {
+      //   if (ElipsesPointCollisions[i]) {
+      //     cout << "[TRUE]";
+      //   } else {
+      //     cout << "[FALSE]";
+      //   }
+      // }
+      // cout << endl;
     }
   }
 }
 
 static bool startset = false;
 
-inline bool HoverSelect(field& fieldRef, entity* e) {
+inline bool HoverSelect(field& fieldRef, entity* entity) {
   bool ret = false;
 
   float mouseX = GetMouseX();
   float mouseY = GetMouseY();
 
   Rectangle mouseRect = {mouseX, mouseY, 1, 1};
-  //	Rectangle tempEntityRect;
 
-  // Rectangle tempEntityRect = { 0,0,0,0 };
-
-  combatant_list[combatant_selected].pEntity->render_this = true;
+  entity->render_this = true;
 
   Rectangle tempEntityRect;
 
@@ -1224,9 +1404,9 @@ inline bool HoverSelect(field& fieldRef, entity* e) {
     tempEntityRect = {(float)fieldRef.tiles[0].x, (float)fieldRef.tiles[0].y,
                       (float)fieldRef.tiles[0].w, (float)fieldRef.tiles[0].h};
 
-    combatant_list[combatant_selected].pEntity->x = tempEntityRect.x;
+    entity->x = tempEntityRect.x;
 
-    combatant_list[combatant_selected].pEntity->y = tempEntityRect.y;
+    entity->y = tempEntityRect.y;
 
     cout << (float)fieldRef.tiles[10].x << endl;
 
@@ -1241,14 +1421,18 @@ inline bool HoverSelect(field& fieldRef, entity* e) {
     tempEntityRect = {(float)fieldRef.tiles[i].x, (float)fieldRef.tiles[i].y,
                       (float)fieldRef.tiles[i].w, (float)fieldRef.tiles[i].h};
 
-    if (CollisionIsoTrianglesMouse(tempEntityRect) &&
+    point temp;
+    temp.x = GetMousePosition().x - GAMESCREEN_OFFSET_X;
+    temp.y = GetMousePosition().y - GAMESCREEN_OFFSET_Y;
+
+    if (CollisionIsoTriangles(tempEntityRect, temp) &&
         IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
       printf("Collision with tile: x:%.0f y:%.0f \n", tempEntityRect.x,
              tempEntityRect.y);
 
-      combatant_list[combatant_selected].pEntity->x = tempEntityRect.x;
+      entity->x = tempEntityRect.x;
 
-      combatant_list[combatant_selected].pEntity->y = tempEntityRect.y;
+      entity->y = tempEntityRect.y;
 
       ret = true;
     }
@@ -1298,45 +1482,33 @@ inline void EditorGuiLogic(game_state& GameState) {
   }
 }
 
-bool run_init = false;
-
 inline void CombatLogic(game_state& GameState) {
-  if (combat == true) {
-    UpdateGameTurn();
+  UpdateGameTurn(GameState);
 
-    if (run_init == false) {
-      InitCombat(GameState);
+  if (GameState.InitCombat == false) {
+    GameState.InitCombat = true;
 
-      run_init = true;
+    InitCombat(GameState);
 
-      precombat = true;
+    GameState.ActionMenu.is_pre_state = true;
+    GameState.ActionMenu.is_menu_up = true;
+  }
 
-      combatant_selected = 0;
-
-      action_menu_up = true;
+  if (GameState.ActionMenu.is_pre_state == true) {
+    if (HoverSelect(GameState.CombatantSelected.position_field,
+                    GameState.CombatantSelected.pEntity) == true) {
+      SetActionMenu(GameState.ActionMenu, &GameState.CombatantSelected);
     }
+  }
 
-    if (precombat == true) {
-      if (HoverSelect(position_field,
-                      combatant_list[combatant_selected].pEntity) == true) {
-        setActionMenu();
-      }
-    }
+  if (GameState.PLAYER_TURN == true) {
+    SetEnemyFields(GameState);
 
-    if (PLAYER_TURN == true) {
-      SetEnemyFields(GameState);
+    // if (toggle_enemy_movefields == true) {
 
-      if (toggle_enemy_movefields == true) {
-        SetRenderEnemyFields(true);
-      }
-    } else {
-      EnemyLogic();
-    }
+    // }
   } else {
-    // Overworld Logic
-    gui_entity_list[0].render_this = true;
-    world_player.pEntity->render_this = false;
-    MoveUnit();
+    EnemyLogic(GameState);
   }
 }
 

@@ -196,7 +196,7 @@ inline string GetDataFromReadlineTwo(string line) {
   return line;
 }
 
-inline string GetDataFromReadlineThree(string line, int layer) {
+inline string GetDataFromReadlineThree(map &Map,string line, int layer) {
   global_variable int row = 0;
 
   // entity sprite w:	[64] <-- example this functions reads and returns what
@@ -235,9 +235,9 @@ inline string GetDataFromReadlineThree(string line, int layer) {
 
     // cout << "loop " << loop << endl;
 
-    string_cords[row][0] = (line.substr(start_at + 1, (end_at - 1 - start_at)));
+    Map.StringCords[row][0] = (line.substr(start_at + 1, (end_at - 1 - start_at)));
 
-    cords[row][0][layer] = stoi(string_cords[row][0]);
+    Map.Cords[row][0][layer] = stoi(Map.StringCords[row][0]);
 
     temp = line.substr((end_at + 1), line.size());
 
@@ -260,10 +260,10 @@ inline string GetDataFromReadlineThree(string line, int layer) {
         end_at = 0;
       }
 
-      string_cords[row][i] =
+      Map.StringCords[row][i] =
           (temp.substr(start_at + 1, (end_at - 1 - start_at)));
 
-      cords[row][i][layer] = stoi(string_cords[row][i]);
+      Map.Cords[row][i][layer] = stoi(Map.StringCords[row][i]);
 
       temp = temp.substr((end_at + 1), temp.size());
     }
@@ -274,7 +274,7 @@ inline string GetDataFromReadlineThree(string line, int layer) {
   return line;
 }
 
-inline string GetDataFromReadlineTiledMap(string line, int layer) {
+inline string GetDataFromReadlineTiledMap(map &Map,string line, int layer) {
   // entity sprite w:	[64] <-- example this functions reads and returns what
   // is inside []
 
@@ -288,7 +288,6 @@ inline string GetDataFromReadlineTiledMap(string line, int layer) {
 
   size_t start_at = line.find(start);
 
-  // line.find_last_of(start);
 
   if (start_at != string::npos) {
   } else {
@@ -303,25 +302,20 @@ inline string GetDataFromReadlineTiledMap(string line, int layer) {
   }
 
   if (line != "" && start_at != -1) {
-    // cout << "line size " << line.size() << endl;
 
     loop = (line.size() - start_at) / (end_at - start_at + 1);
 
-    string_cords[row][0] = (line.substr(start_at, (end_at - start_at)));
+    Map.StringCords[Map.CurrentRow][0] = (line.substr(start_at, (end_at - start_at)));
 
-    // cout << " | " << string_cords[row][0] << " | ";
-
-    cords[row][0][layer] = stoi(string_cords[row][0]);
+    Map.Cords[Map.CurrentRow][0][layer] = stoi(Map.StringCords[Map.CurrentRow][0]);
 
     temp = line.substr((end_at + 1), line.size());
 
     for (size_t i = 1; i < 19; i++) {
       start_at = temp.find(start);
 
-      // line.find_last_of(start);
 
       if (start_at != string::npos) {
-        // cout << "[ occurrence is " << start_at << endl;
       } else {
         start_at = -1;
       }
@@ -329,25 +323,21 @@ inline string GetDataFromReadlineTiledMap(string line, int layer) {
       end_at = temp.find(end);
 
       if (end_at != string::npos) {
-        // cout << "] occurrence is " << end_at << endl;
       } else {
         end_at = 0;
       }
 
-      string_cords[row][i] = (temp.substr(start_at, (end_at - start_at)));
+      Map.StringCords[Map.CurrentRow][i] = (temp.substr(start_at, (end_at - start_at)));
 
-      // cout << " | " << string_cords[row][i] << " | ";
-
-      cords[row][i][layer] = stoi(string_cords[row][i]);
+      Map.Cords[Map.CurrentRow][i][layer] = stoi(Map.StringCords[Map.CurrentRow][i]);
 
       temp = temp.substr((end_at + 1), temp.size());
     }
 
-    cords[row][19][layer] = stoi(temp);
+    Map.Cords[Map.CurrentRow][19][layer] = stoi(temp);
 
-    cout << "layer: " << layer << endl;
 
-    row++;
+    Map.CurrentRow++;
   }
   return line;
 }
@@ -391,7 +381,7 @@ inline void setSprite(vector<sprite>& sprite_list, entity* e, int ID) {
   }
 }
 
-inline void LoadSpriteData(game_state & GameState, int sprite_count) {
+inline void LoadSpriteData(game_state& GameState, int sprite_count) {
   //------
   // entity sprite ID : [0]
   // entity sprite filename : []
@@ -412,39 +402,39 @@ inline void LoadSpriteData(game_state & GameState, int sprite_count) {
   string tmp_str = "";
 
   for (; i <= sprite_count; i++) {
-    tmp_str = GetDataFromReadline(sprite_lines[index]);
+    tmp_str = GetDataFromReadline(GameState.Resources.SpriteLines[index]);
     temp.ID = atoi(tmp_str.c_str());
     index++;
 
-    tmp_str = GetDataFromReadline(sprite_lines[index]);
+    tmp_str = GetDataFromReadline(GameState.Resources.SpriteLines[index]);
     temp.name = tmp_str;
     index++;
 
-    tmp_str = GetDataFromReadline(sprite_lines[index]);
+    tmp_str = GetDataFromReadline(GameState.Resources.SpriteLines[index]);
     temp.img = tmp_str;
     index++;
 
-    tmp_str = GetDataFromReadline(sprite_lines[index]);
+    tmp_str = GetDataFromReadline(GameState.Resources.SpriteLines[index]);
     temp.x = atoi(tmp_str.c_str());
     index++;
 
-    tmp_str = GetDataFromReadline(sprite_lines[index]);
+    tmp_str = GetDataFromReadline(GameState.Resources.SpriteLines[index]);
     temp.y = atoi(tmp_str.c_str());
     index++;
 
-    tmp_str = GetDataFromReadline(sprite_lines[index]);
+    tmp_str = GetDataFromReadline(GameState.Resources.SpriteLines[index]);
     temp.w = atoi(tmp_str.c_str());
     index++;
 
-    tmp_str = GetDataFromReadline(sprite_lines[index]);
+    tmp_str = GetDataFromReadline(GameState.Resources.SpriteLines[index]);
     temp.h = atoi(tmp_str.c_str());
     index++;
 
-    tmp_str = GetDataFromReadline(sprite_lines[index]);
+    tmp_str = GetDataFromReadline(GameState.Resources.SpriteLines[index]);
     temp.offset_x = atoi(tmp_str.c_str());
     index++;
 
-    tmp_str = GetDataFromReadline(sprite_lines[index]);
+    tmp_str = GetDataFromReadline(GameState.Resources.SpriteLines[index]);
     temp.offset_y = atoi(tmp_str.c_str());
     index++;
 
@@ -453,7 +443,7 @@ inline void LoadSpriteData(game_state & GameState, int sprite_count) {
   cout << "this happend 1" << endl;
 }
 
-inline void LoadEntityData(game_state & GameState, int entity_count) {
+inline void LoadEntityData(game_state& GameState, int entity_count) {
   //------
   // entity sprite ID : [0]
   // entity sprite filename : []
@@ -476,7 +466,7 @@ inline void LoadEntityData(game_state & GameState, int entity_count) {
   int tempSpriteID;
 
   for (; i <= entity_count; i++) {
-    tmp_str = GetDataFromReadline(entity_lines[index]);
+    tmp_str = GetDataFromReadline(GameState.Resources.EntityLines[index]);
     temp.ID = atoi(tmp_str.c_str());  // entity ID : [n]
     index++;
 
@@ -488,32 +478,32 @@ inline void LoadEntityData(game_state & GameState, int entity_count) {
     // temp.y = atoi(tmp_str.c_str());
     // index++;
 
-    tmp_str = GetDataFromReadline(entity_lines[index]);
+    tmp_str = GetDataFromReadline(GameState.Resources.EntityLines[index]);
     temp.w = atoi(tmp_str.c_str());  // entity w : [n]
     index++;
 
-    tmp_str = GetDataFromReadline(entity_lines[index]);
+    tmp_str = GetDataFromReadline(GameState.Resources.EntityLines[index]);
     temp.h = atoi(tmp_str.c_str());  // entity h : [n]
     index++;
 
-    tmp_str = GetDataFromReadline(entity_lines[index]);
+    tmp_str = GetDataFromReadline(GameState.Resources.EntityLines[index]);
     tempSpriteID = atoi(tmp_str.c_str());  // entity sprite ID : [n]
 
-    setSprite(GameState.SpriteList,&temp, tempSpriteID);
+    setSprite(GameState.SpriteList, &temp, tempSpriteID);
 
     index++;
 
-    temp.entity_tile = {(float)temp.x, (float)temp.y, (float)tile_width,
-                        (float)tile_height};
+    temp.entity_tile = {(float)temp.x, (float)temp.y, (float)GAME_TILE_WIDTH,
+                        (float)GAME_TILE_HEIGHT};
 
     GameState.EntityList.push_back(temp);
   }
 }
 
-inline int ReadEntityData(string path) {
+inline int ReadEntityData(game_state& GameState, string path) {
   int temp_entity_count = 0;
 
-  entity_lines.clear();
+  GameState.Resources.EntityLines.clear();
 
   string entity_divider = "------";
 
@@ -528,7 +518,7 @@ inline int ReadEntityData(string path) {
     while (getline(myfile, line)) {
       if (line.find(comment_token) == string::npos) {
         if (line.find(entity_divider) == string::npos) {
-          entity_lines.push_back(line);
+          GameState.Resources.EntityLines.push_back(line);
 
         } else {
           divider_count++;
@@ -548,7 +538,7 @@ inline int ReadEntityData(string path) {
   return temp_entity_count;
 }
 
-inline bool ReadMapData(string path) {
+inline bool ReadMapData(game_state& GameState, string path) {
   // string map_path = path + "map1.txt";
 
   bool success = false;
@@ -561,14 +551,14 @@ inline bool ReadMapData(string path) {
 
   int divider_count = 0;
 
-  map_lines.clear();
+  GameState.Resources.MapLines.clear();
 
   ifstream myfile(path);
   if (myfile.is_open()) {
     while (getline(myfile, line)) {
       if (line.find(comment_token) == string::npos) {
         if (line.find(entity_divider) == string::npos) {
-          map_lines.push_back(line);
+          GameState.Resources.MapLines.push_back(line);
         } else {
           divider_count++;
         }
@@ -583,16 +573,14 @@ inline bool ReadMapData(string path) {
     printf("Unable to open file\n");
   }
 
-  for (size_t i = 0; i < map_lines.size(); i++) {
-    cout << map_lines[i] << endl;
+  for (size_t i = 0; i < GameState.Resources.MapLines.size(); i++) {
+    cout << GameState.Resources.MapLines[i] << endl;
   }
 
   return success;
 }
 
-inline bool ReadMapDataTiledMap(string path) {
-  // string map_path = path + "map1.txt";
-
+inline bool ReadMapDataTiledMap(game_state& GameState, string path) {
   bool success = false;
 
   string entity_divider = "------";
@@ -607,7 +595,7 @@ inline bool ReadMapDataTiledMap(string path) {
 
   int line_count = 0;
 
-  map_tiled_lines.clear();
+  GameState.Resources.MapLinesTiledFormat.clear();
 
   ifstream myfile(path);
   if (myfile.is_open()) {
@@ -617,17 +605,9 @@ inline bool ReadMapDataTiledMap(string path) {
       }
 
       if (line.find(comment_token) == string::npos) {
-        // if (line.find(entity_divider) == string::npos)
-        // {
-        map_tiled_lines.push_back(line);
+        GameState.Resources.MapLinesTiledFormat.push_back(line);
         line_count++;
-        // }
-        // else
-        // {
-        // 	divider_count++;
-        // }
       } else {
-        //	cout << line << endl;
       }
     }
 
@@ -637,43 +617,46 @@ inline bool ReadMapDataTiledMap(string path) {
     printf("Unable to open file\n");
   }
 
-  cout << "lines: " << map_tiled_lines.size() << endl;
-  for (size_t i = 0; i < map_tiled_lines.size(); i++) {
+  cout << "lines: " << GameState.Resources.MapLinesTiledFormat.size() << endl;
+  for (size_t i = 0; i < GameState.Resources.MapLinesTiledFormat.size(); i++) {
     if (i % Y_TILES == 0 && i != 0) {
       cout << endl;
     }
 
-    cout << map_tiled_lines[i] << endl;
+    cout << GameState.Resources.MapLinesTiledFormat[i] << endl;
   }
 
   return success;
 }
 
-inline void setMapCords(int layer) {
-  for (size_t i = 0; i < map_lines.size(); i++) {
-    // cout << "Data: " << GetDataFromReadlineTwo(map_lines[i]) << endl;
-    GetDataFromReadlineThree(map_lines[i], layer);
+inline void SetMapCords(game_state& GameState, int layer) {
+  for (size_t i = 0; i < GameState.Resources.MapLines.size(); i++) {
+    GetDataFromReadlineThree(GameState.Map,GameState.Resources.MapLines[i], layer);
   }
 }
 
-inline void setMapCordsTiled() {
+inline void SetMapCordsTiled(game_state &GameState) {
   int layer = 0;
 
-  row = 0;
+  GameState.Map.CurrentRow = 0;
 
-  for (size_t i = 0; i < map_tiled_lines.size(); i++) {
+  for (size_t i = 0; i < GameState.Resources.MapLinesTiledFormat.size(); i++) {
     if (i % Y_TILES == 0 && i != 0) {
+
+      if(DEBUG_PRINT){
       cout << "layer: " << layer << endl;
-      cout << "lines: " << map_tiled_lines.size() << endl;
+      cout << "lines: " << GameState.Resources.MapLinesTiledFormat.size() << endl;
       cout << "layer switch: " << i << endl;
+
+      }
       layer++;
-      row = 0;
+      GameState.Map.CurrentRow = 0;
     }
 
-    GetDataFromReadlineTiledMap(map_tiled_lines[i], layer);
+    GetDataFromReadlineTiledMap(GameState.Map,GameState.Resources.MapLinesTiledFormat[i], layer);
   }
 }
-inline void setEntityCords(map & Map, vector<entity> & entity_list ,int layer) {
+inline void SetEntityCords(map& Map, vector<entity>& entity_list, int layer) {
   cout << "Testing setEntityCords" << endl;
 
   entity temp;
@@ -681,7 +664,7 @@ inline void setEntityCords(map & Map, vector<entity> & entity_list ,int layer) {
   for (size_t i = 0; i < Y_TILES; i++) {
     for (size_t j = 0; j < X_TILES; j++) {
       for (size_t k = 0; k < entity_list.size(); k++) {
-        if (entity_list[k].ID == cords[i][j][layer]) {
+        if (entity_list[k].ID == Map.Cords[i][j][layer]) {
           temp.ID = entity_list[k].ID;
           if (i % 2 == 0) {
             temp.x = (j * GAME_TILE_WIDTH);
@@ -707,7 +690,7 @@ inline void setEntityCords(map & Map, vector<entity> & entity_list ,int layer) {
   }
 }
 
-inline void setPosCords() {
+inline void SetPosCords(pos pos_cords[40][20]) {
   cout << "Testing setPosCords" << endl;
 
   for (size_t i = 0; i < Y_TILES; i++) {
@@ -723,7 +706,7 @@ inline void setPosCords() {
   }
 }
 
-inline void SetGuiEntities( vector<entity> & entity_list) {
+inline void SetGuiEntities(gui& Gui, vector<entity>& entity_list) {
   entity temp;
 
   for (size_t k = 0; k < entity_list.size(); k++) {
@@ -742,7 +725,7 @@ inline void SetGuiEntities( vector<entity> & entity_list) {
     //	gui_entity_list.push_back(temp);
     //}
 
-    if (entity_list[k].ID == 7) {
+    if (entity_list[k].ID == TARGET_ID) {
       temp.ID = entity_list[k].ID;
       temp.x = 64;
       temp.y = 32;
@@ -751,12 +734,12 @@ inline void SetGuiEntities( vector<entity> & entity_list) {
       temp.entity_tile = entity_list[k].entity_tile;
       temp.sprite = entity_list[k].sprite;
 
-      gui_entity_list.push_back(temp);
+      Gui.EntityList.push_back(temp);
 
       cout << "target found, setGuiEntities" << endl;
     }
 
-    if (entity_list[k].ID == 2)  // Grid
+    if (entity_list[k].ID == GRID_ID)  // Grid
     {
       temp.ID = entity_list[k].ID;
       temp.x = 0;
@@ -766,7 +749,7 @@ inline void SetGuiEntities( vector<entity> & entity_list) {
       temp.entity_tile = entity_list[k].entity_tile;
       temp.sprite = entity_list[k].sprite;
 
-      gui_entity_list.push_back(temp);
+      Gui.EntityList.push_back(temp);
 
       cout << "ID == 2 found, Grid set, setGuiEntities" << endl;
     }
@@ -777,7 +760,7 @@ inline void SetGuiEntities( vector<entity> & entity_list) {
   // cout << " " << endl;
 }
 
-inline void setPlayer(game_state & GameState) {
+inline void setPlayer(game_state& GameState) {
   entity temp;
 
   cout << "setPlayer start " << endl;
@@ -791,35 +774,13 @@ inline void setPlayer(game_state & GameState) {
   temp.entity_tile = {temp.x, temp.y, (float)GAME_TILE_WIDTH,
                       (float)GAME_TILE_HEIGHT};
 
-  setSprite(GameState.SpriteList,&temp, 67);
+  setSprite(GameState.SpriteList, &temp, 67);
 
   GameState.Map.EntityList.push_back(temp);
-
-  // game_entity_list.push_back(&temp);
-
-  // entity ID : [9] "Julius"
-  // entity w : [48]
-  // entity h : [64]
-  // entity sprite ID : [67]
-
-  // for (size_t k = 0; k < GameState.Map.EntityList.size(); k++)
-  // {
-  // 	cout << "setPlayer: " << GameState.Map.EntityList[k].ID << endl;
-
-  // 	if (GameState.Map.EntityList[k].ID == player_entity_ID )
-  // 	{
-
-  // 		cout << "true setPlayer: "<< GameState.Map.EntityList[k].ID << endl;
-
-  // 		game_entity_list.push_back(&GameState.Map.EntityList[k]);
-
-  // 		GameState.Map.EntityList[k].render_this = true;
-  // 	}
-  // }
 }
 
-inline int ReadSpriteData(string path) {
-  sprite_lines.clear();
+inline int ReadSpriteData(game_state& GameState, string path) {
+  GameState.Resources.SpriteLines.clear();
 
   int sprite_count = -1;
 
@@ -837,7 +798,7 @@ inline int ReadSpriteData(string path) {
     while (getline(myfile, line)) {
       if (line.find(comment_token) == string::npos) {
         if (line.find(entity_divider) == string::npos) {
-          sprite_lines.push_back(line);
+          GameState.Resources.SpriteLines.push_back(line);
         } else {
           divider_count++;
         }
@@ -856,7 +817,7 @@ inline int ReadSpriteData(string path) {
   return sprite_count;
 }
 
-inline int WriteEntityData( vector<entity> & entity_list,string path) {
+inline int WriteEntityData(vector<entity>& entity_list, string path) {
   ofstream myfile(path);
 
   if (myfile.is_open()) {

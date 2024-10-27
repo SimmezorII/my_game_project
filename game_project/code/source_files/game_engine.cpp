@@ -314,7 +314,8 @@ inline entity& getEntityByID(string sprite_name, vector<entity>& entities) {
     }
   }
 
-  cout << "getEntityByID entity not found, sprite by name:" << sprite_name << endl;
+  cout << "getEntityByID entity not found, sprite by name:" << sprite_name
+       << endl;
 
   return entities[0];
 }
@@ -355,46 +356,35 @@ Rectangle recEntity2;
 global_variable vector<pos> Layer1;
 global_variable vector<pos> Layer2;
 
-inline int getCurrentToRender() {
-  cout << "This is called" << endl;
-
-  for (size_t i = 0; i < 1024; i++) {
-    if (AllRenderObjects[i][0].layer != -1) {
-      objects_to_render[1]++;
-    }
-  }
-  return 0;
-}
-
 pos temp = {0, 0};
 
 static int index_counter = 0;
 
-inline void calcDrawLayer(int layer, vector<pos>& poslayer) {
-  int counter = 0;
+// inline void calcDrawLayer(int layer, vector<pos>& poslayer) {
+//   int counter = 0;
 
-  // temp.y = 32 * (layer - 1);
+//   // temp.y = 32 * (layer - 1);
 
-  temp.x = 32 * (layer - 1);
+//   temp.x = 32 * (layer - 1);
 
-  for (size_t i = 0; i < layer - 1; i++) {
-    counter++;
-  }
+//   for (size_t i = 0; i < layer - 1; i++) {
+//     counter++;
+//   }
 
-  for (size_t i = 0; i < layer + counter; i++) {
-    temp.index = index_counter;
+//   for (size_t i = 0; i < layer + counter; i++) {
+//     temp.index = index_counter;
 
-    poslayer.push_back(temp);
+//     poslayer.push_back(temp);
 
-    index_counter++;
+//     index_counter++;
 
-    temp.y = temp.y + down_vel / 2;
-    temp.x = temp.x + left_vel / 2;
-  }
+//     temp.y = temp.y + down_vel / 2;
+//     temp.x = temp.x + left_vel / 2;
+//   }
 
-  // cout << poslayer.size() << endl;
-  temp = {0, 0};
-}
+//   // cout << poslayer.size() << endl;
+//   temp = {0, 0};
+// }
 
 static int added_once = 0;
 
@@ -421,7 +411,7 @@ inline void RenderEntities(game_state& GameState, vector<entity>& entities,
 
     entities[i].entity_tile.y = entities[i].y;
 
-    if (entities[i].ID == target->ID) {
+    if (entities[i].ID == GameState.Target.pEntity->ID) {
       lowerlayer = 1;
     } else {
       lowerlayer = 0;
@@ -438,35 +428,39 @@ inline void RenderEntities(game_state& GameState, vector<entity>& entities,
       templayer = templayer - 1000;
     }
 
-    AllRenderObjects[i + objects_to_render[render_list_index]]
-                    [render_list_index] = {getTexture(GameState.SpriteList,
-                                                      GameState.GameTextureList,
-                                                      entities[i].sprite->ID)
-                                               .tex,
-                                           recSprite2,
-                                           recEntity2,
-                                           {0, 0},
-                                           0,
-                                           WHITE,
-                                           templayer,
-                                           entities[i].render_this,
-                                           entities[i].use_shader};
+    GameState.AllRenderObjects[i + GameState.ObjectsToRender[render_list_index]]
+                              [render_list_index] = {
+        getTexture(GameState.SpriteList, GameState.GameTextureList,
+                   entities[i].sprite->ID)
+            .tex,
+        recSprite2,
+        recEntity2,
+        {0, 0},
+        0,
+        Fade(WHITE, entities[i].alpha),
+        templayer,
+        entities[i].render_this,
+        entities[i].use_shader};
 
-    if (render_list[render_list_index].List.size() <
-        entities.size() + objects_to_render[render_list_index]) {
-      render_list[render_list_index].List.push_back(
-          &AllRenderObjects[i + objects_to_render[render_list_index]]
-                           [render_list_index]);
+    if (GameState.RenderList[render_list_index].List.size() <
+        entities.size() + GameState.ObjectsToRender[render_list_index]) {
+      GameState.RenderList[render_list_index].List.push_back(
+          &GameState
+               .AllRenderObjects[i +
+                                 GameState.ObjectsToRender[render_list_index]]
+                                [render_list_index]);
     } else {
-      render_list[render_list_index]
-          .List[i + objects_to_render[render_list_index]] =
-          &AllRenderObjects[i + objects_to_render[render_list_index]]
-                           [render_list_index];
+      GameState.RenderList[render_list_index]
+          .List[i + GameState.ObjectsToRender[render_list_index]] =
+          &GameState
+               .AllRenderObjects[i +
+                                 GameState.ObjectsToRender[render_list_index]]
+                                [render_list_index];
     }
 
-    if (render_entity_boxes == true) {
+    if (DEBUG_RENDER_BOXES == true) {
       DrawRectangleLines(entities[i].entity_tile.x, entities[i].entity_tile.y,
-                         tile_width, tile_height, BLUE);
+                         GAME_TILE_WIDTH, GAME_TILE_HEIGHT, BLUE);
 
       DrawRectangleLines(entities[i].x, entities[i].y, entities[i].w,
                          entities[i].h, RED);
@@ -477,10 +471,10 @@ inline void RenderEntities(game_state& GameState, vector<entity>& entities,
     }
   }
 
-  if (objects_to_render[render_list_index] <
-      objects_to_render[render_list_index] + entities.size()) {
-    objects_to_render[render_list_index] =
-        objects_to_render[render_list_index] + entities.size();
+  if (GameState.ObjectsToRender[render_list_index] <
+      GameState.ObjectsToRender[render_list_index] + entities.size()) {
+    GameState.ObjectsToRender[render_list_index] =
+        GameState.ObjectsToRender[render_list_index] + entities.size();
   }
 }
 
@@ -505,61 +499,42 @@ inline void RenderEntityBoxes(vector<entity>& entities) {
     entities[i].entity_tile.y = entities[i].y;
 
     if (entities[i].w < 500) {
-      offset_x = (entities[i].w - tile_width) / 2;
+      offset_x = (entities[i].w - GAME_TILE_WIDTH) / 2;
     }
 
     if (entities[i].h < 500) {
-      offset_y = entities[i].h - (tile_height);
+      offset_y = entities[i].h - (GAME_TILE_HEIGHT);
     }
 
-    entities[i].offset_rect = {gamescreen_offset_x + entities[i].x - offset_x,
-                               gamescreen_offset_y + entities[i].y - offset_y,
+    entities[i].offset_rect = {GAMESCREEN_OFFSET_X + entities[i].x - offset_x,
+                               GAMESCREEN_OFFSET_Y + entities[i].y - offset_y,
                                entities[i].w, entities[i].h};
 
     if (ToggleEntityBoxes == true) {
-      DrawRectangleLines(gamescreen_offset_x + entities[i].x - offset_x,
-                         gamescreen_offset_y + entities[i].y - offset_y,
+      DrawRectangleLines(GAMESCREEN_OFFSET_X + entities[i].x - offset_x,
+                         GAMESCREEN_OFFSET_Y + entities[i].y - offset_y,
                          entities[i].w, entities[i].h, RED);
 
-      // DrawRectangleLines(gamescreen_offset_x + (float)entities[i].x +
-      //                        entities[i].sprite->offset_x,
-      //                    gamescreen_offset_y + (float)entities[i].y +
-      //                        entities[i].sprite->offset_y,
-      //                    entities[i].w, entities[i].h, GREEN);
+      DrawRectangleLines(GAMESCREEN_OFFSET_X + entities[i].entity_tile.x,
+                         GAMESCREEN_OFFSET_Y + entities[i].entity_tile.y,
+                         GAME_TILE_WIDTH, GAME_TILE_HEIGHT, BLUE);
 
-      DrawRectangleLines(gamescreen_offset_x + entities[i].entity_tile.x,
-                         gamescreen_offset_y + entities[i].entity_tile.y,
-                         tile_width, tile_height, BLUE);
-
-      DrawEllipse(gamescreen_offset_x + entities[i].el.center.x,
-                  gamescreen_offset_y + entities[i].el.center.y,
+      DrawEllipse(GAMESCREEN_OFFSET_X + entities[i].el.center.x,
+                  GAMESCREEN_OFFSET_Y + entities[i].el.center.y,
                   entities[i].el.h, entities[i].el.w, YELLOW);
 
-      // DrawEllipse(tile_width/2+gamescreen_offset_x + entities[i].el.center.x,
-      //             tile_height/2+gamescreen_offset_y +
-      //             entities[i].el.center.y, entities[i].el.h,
-      //             entities[i].el.w, ORANGE);
 
-      if (entities[i].ID == world_player.pEntity->ID) {
-        int mouse_x = GetMouseX();
-        int mouse_y = GetMouseY();
-
-        for (size_t i = 0; i < ellipses_point.size(); i++) {
-          DrawRectangle(gamescreen_offset_x + ellipses_point[i].x,
-                        gamescreen_offset_y + ellipses_point[i].y, 1, 1, BLACK);
-        }
-      }
-
-      // if (a[0]) {
-      //   cout << "player up" << countercoll << endl;
-      //   countercoll++;
-      // }
-      // if (a[2]) {
-      //   cout << "player right" << countercoll << endl;
-      //   countercoll++;
-      // }
     }
   }
+}
+
+inline void DrawEllipseCollisionPoints(  vector<point> & ellipses_points)
+{
+
+        for (size_t i = 0; i < ellipses_points.size(); i++) {
+        DrawRectangle(GAMESCREEN_OFFSET_X + ellipses_points[i].x,
+                      GAMESCREEN_OFFSET_Y + ellipses_points[i].y, 1, 1, RED);
+      }
 }
 
 inline void RenderWholeEntity(texture* Texture) {}
@@ -634,7 +609,7 @@ static float timer = 0.0f;
 
 static int loop = 0;
 
-inline void PrintMoveList() {
+inline void PrintMoveList(vector<int>& move_list) {
   for (size_t i = 0; i < move_list.size(); i++) {
     switch (move_list[i]) {
       case UP:
@@ -667,6 +642,11 @@ inline void PrintMoveList() {
 }
 
 inline void Animate(entity* en) {
+  int right_vel = (GAME_TILE_WIDTH / 2);
+  int left_vel = -(GAME_TILE_WIDTH / 2);
+  int up_vel = -(GAME_TILE_HEIGHT / 2);
+  int down_vel = (GAME_TILE_HEIGHT / 2);
+
   timer += GetFrameTime();
 
   if (timer >= 0.12) {
@@ -698,20 +678,19 @@ inline void Animate(entity* en) {
   }
 }
 
-inline void MovementAnimated(entity* en) {
+inline void MovementAnimated(game_state& GameState, entity* en) {
   static int movecount = 0;
 
   static int steps = 0;
 
-  printf("MovementAnimated: %d\n", movecount);
+  int right_vel = (GAME_TILE_WIDTH / 2);
+  int left_vel = -(GAME_TILE_WIDTH / 2);
+  int up_vel = -(GAME_TILE_HEIGHT / 2);
+  int down_vel = (GAME_TILE_HEIGHT / 2);
 
-  if (moving == true) {
-    if (movecount < move_list.size()) {
-      printf("steps lower than size\n");
-
-      if (move_list[movecount] == LEFT) {
-        printf("steps LEFT\n");
-
+  if (GameState.AnimatingMovement == true) {
+    if (movecount < GameState.MoveList.size()) {
+      if (GameState.MoveList[movecount] == LEFT) {
         timer += GetFrameTime();
 
         if (timer >= 0.12) {
@@ -744,7 +723,7 @@ inline void MovementAnimated(entity* en) {
         }
       }
 
-      else if (move_list[movecount] == RIGHT) {
+      else if (GameState.MoveList[movecount] == RIGHT) {
         timer += GetFrameTime();
 
         if (timer >= 0.12) {
@@ -775,7 +754,7 @@ inline void MovementAnimated(entity* en) {
             printf("[RIGHT]");
           }
         }
-      } else if (move_list[movecount] == UP) {
+      } else if (GameState.MoveList[movecount] == UP) {
         timer += GetFrameTime();
 
         if (timer >= 0.12) {
@@ -806,7 +785,7 @@ inline void MovementAnimated(entity* en) {
             printf("[UP]");
           }
         }
-      } else if (move_list[movecount] == DOWN) {
+      } else if (GameState.MoveList[movecount] == DOWN) {
         timer += GetFrameTime();
 
         if (timer >= 0.12) {
@@ -840,24 +819,24 @@ inline void MovementAnimated(entity* en) {
       }
     } else {
       printf("steps reset\n");
-      player_animation = false;
-      moving = false;
 
-      if (move_list.back() == LEFT) {
-        printf("(move_list.back() == LEFT)\n");
+      GameState.AnimatingMovement = false;
+
+      if (GameState.MoveList.back() == LEFT) {
+        printf("(GameState.MoveList.back() == LEFT)\n");
 
         // en->sprite->x = 0;
 
         // en->sprite->y = 0;
-      } else if (move_list.back() == RIGHT) {
+      } else if (GameState.MoveList.back() == RIGHT) {
         en->sprite->x = 0;
 
         en->sprite->y = 2 * en->sprite->h;
-      } else if (move_list.back() == UP) {
+      } else if (GameState.MoveList.back() == UP) {
         en->sprite->x = 0;
 
         en->sprite->y = 3 * en->sprite->h;
-      } else if (move_list.back() == DOWN) {
+      } else if (GameState.MoveList.back() == DOWN) {
         en->sprite->x = 0;
 
         en->sprite->y = 1 * en->sprite->h;
@@ -866,19 +845,24 @@ inline void MovementAnimated(entity* en) {
       steps = 0;
       movecount = 0;
 
-      move_list.clear();
+      GameState.MoveList.clear();
     }
   }
 }
 
-inline void EnemyMovementAnimated() {
+inline void EnemyMovementAnimated(game_state& GameState) {
   static int movecount = 0;
 
   static int steps = 0;
 
   static int enemy_checked = 0;
 
-  combatant& en = enemy_list[enemy_checked];
+  int right_vel = (GAME_TILE_WIDTH / 2);
+  int left_vel = -(GAME_TILE_WIDTH / 2);
+  int up_vel = -(GAME_TILE_HEIGHT / 2);
+  int down_vel = (GAME_TILE_HEIGHT / 2);
+
+  combatant& en = GameState.Map.EnemyList[enemy_checked];
 
   if (!en.movelist.empty()) {
     if (movecount < en.movelist.size()) {
@@ -1042,18 +1026,11 @@ inline void EnemyMovementAnimated() {
     enemy_checked++;
   }
 
-  if (enemy_checked >= enemy_list.size()) {
+  if (enemy_checked >= GameState.Map.EnemyList.size()) {
     enemy_checked = 0;
-    enemy_moving = false;
+    GameState.AnimatingEnemyMovement = false;
   }
 }
-
-inline void RenderTextList() {
-  for (size_t i = 0; i < text_list.size(); i++) {
-  }
-}
-
-Rectangle infoRect = {(GameGui.x - 200), GameGui.y, 100, 16};
 
 // inline void RendedDebugInfo()
 //{
@@ -1134,7 +1111,7 @@ inline bool CheckCollisionRects(Rectangle a, Rectangle b) {
   return true;
 }
 
-inline bool CheckCollisionMouseEntity( vector<entity> &entity_list) {
+inline bool CheckCollisionMouseEntity(vector<entity>& entity_list) {
   bool ret = false;
 
   float mouseX = GetMouseX();  // Returns mouse position X
@@ -1159,66 +1136,71 @@ inline bool CheckCollisionMouseEntity( vector<entity> &entity_list) {
 
 float offset = 4;
 
-inline void InitActionMenu() {
+inline void InitActionMenu(menu& ActionMenu) {
   Rectangle temp;
 
+  ActionMenu.MaxButtons = ACTION_MENU_BUTTONS_MAX;
+
   temp = {0, 0, (float)((GUI_ACTION_BUTTON_WIDTH)*1.5),
-          ((GUI_ACTION_BUTTON_HEIGHT) + offset / 2) * NumOfActionMenuButtons};
+          ((GUI_ACTION_BUTTON_HEIGHT) + offset / 2) * ActionMenu.MaxButtons};
 
-  ActionMenuRects.push_back(temp);
-
-  temp = {0, 0, GUI_ACTION_BUTTON_WIDTH, GUI_ACTION_BUTTON_HEIGHT};
-
-  ActionMenuRects.push_back(temp);
+  ActionMenu.MenuRects.push_back(temp);
 
   temp = {0, 0, GUI_ACTION_BUTTON_WIDTH, GUI_ACTION_BUTTON_HEIGHT};
 
-  ActionMenuRects.push_back(temp);
+  ActionMenu.MenuRects.push_back(temp);
 
   temp = {0, 0, GUI_ACTION_BUTTON_WIDTH, GUI_ACTION_BUTTON_HEIGHT};
 
-  ActionMenuRects.push_back(temp);
+  ActionMenu.MenuRects.push_back(temp);
 
   temp = {0, 0, GUI_ACTION_BUTTON_WIDTH, GUI_ACTION_BUTTON_HEIGHT};
 
-  ActionMenuRects.push_back(temp);
+  ActionMenu.MenuRects.push_back(temp);
 
   temp = {0, 0, GUI_ACTION_BUTTON_WIDTH, GUI_ACTION_BUTTON_HEIGHT};
 
-  ActionMenuRects.push_back(temp);
+  ActionMenu.MenuRects.push_back(temp);
 
-  action_target = &action_target_rect;
+  temp = {0, 0, GUI_ACTION_BUTTON_WIDTH, GUI_ACTION_BUTTON_HEIGHT};
+
+  ActionMenu.MenuRects.push_back(temp);
+
+  ActionMenu.MenuTarget.height = GUI_ACTION_BUTTON_HEIGHT;
+  ActionMenu.MenuTarget.width = GUI_ACTION_BUTTON_WIDTH;
+
+  ActionMenu.MenuTarget.x = temp.x;
+  ActionMenu.MenuTarget.x = temp.y;
 }
 
-inline void setActionMenu() {
+inline void SetActionMenu(menu& ActionMenu, combatant* Combatant) {
   float EntityX = 0;
   float EntityY = 0;
   float EntityW = 0;
   float EntityH = 0;
 
-  if (combatant_selected > -1) {
-    EntityX = combatant_list[combatant_selected].pEntity->x;
-    EntityY = combatant_list[combatant_selected].pEntity->y;
-    EntityW = combatant_list[combatant_selected].pEntity->w;
-    EntityH = combatant_list[combatant_selected].pEntity->h;
-  } else {
-  }
+  EntityX = Combatant->pEntity->x;
+  EntityY = Combatant->pEntity->y;
+  EntityW = Combatant->pEntity->w;
+  EntityH = Combatant->pEntity->h;
 
   // This is the Action menu box/panel
-  ActionMenuRects[0].x = (float)(EntityX + (EntityW * 2.5)) + 20;
-  ActionMenuRects[0].y = (float)(EntityY - (EntityH * 0.5)) + 16;
+  ActionMenu.MenuRects[0].x = (float)(EntityX + (EntityW * 2.5)) + 20;
+  ActionMenu.MenuRects[0].y = (float)(EntityY - (EntityH * 0.5)) + 16;
 
-  for (size_t i = 1; i < ActionMenuRects.size(); i++) {
-    ActionMenuRects[i].x = (float)(EntityX + (EntityW * 2.5)) + 4 + 20;
-    ActionMenuRects[i].y =
+  for (size_t i = 1; i < ActionMenu.MenuRects.size(); i++) {
+    ActionMenu.MenuRects[i].x = (float)(EntityX + (EntityW * 2.5)) + 4 + 20;
+    ActionMenu.MenuRects[i].y =
         (float)(EntityY - (EntityH * 0.5)) + (i * GUI_ACTION_BUTTON_HEIGHT);
   }
 
-  action_target->x = ActionMenuRects[currentbutton_index].x;
-  action_target->y = ActionMenuRects[currentbutton_index].y;
+  ActionMenu.MenuTarget.x =
+      ActionMenu.MenuRects[ActionMenu.CurrentButtonIndex].x;
+  ActionMenu.MenuTarget.y =
+      ActionMenu.MenuRects[ActionMenu.CurrentButtonIndex].y;
 }
 
-inline bool setMouseEntity( vector<entity> entity_list) {
+inline bool SetMouseEntity(editor& Editor, vector<entity> entity_list) {
   bool ret = false;
 
   float mouseX = GetMouseX();
@@ -1232,7 +1214,7 @@ inline bool setMouseEntity( vector<entity> entity_list) {
         IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
       // printf("Collision with Entity: %d", entity_list[i].ID);
 
-      game_entity = &entity_list[i];
+      Editor.GameEntity = &entity_list[i];
 
       ret = true;
     }
@@ -1241,11 +1223,11 @@ inline bool setMouseEntity( vector<entity> entity_list) {
   return ret;
 }
 
-inline bool setMouseEntity(vector<entity>& entities) {
+inline bool SetMouseEntity(editor& Editor, vector<entity>& entities) {
   bool ret = false;
 
-  float mouseX = GetMouseX() - gamescreen_offset_x;
-  float mouseY = GetMouseY() - gamescreen_offset_y;
+  float mouseX = GetMouseX() - GAMESCREEN_OFFSET_X;
+  float mouseY = GetMouseY() - GAMESCREEN_OFFSET_Y;
 
   Rectangle mouseRect = {mouseX, mouseY, 1, 1};
   //	Rectangle tempEntityRect;
@@ -1260,7 +1242,7 @@ inline bool setMouseEntity(vector<entity>& entities) {
         IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
       // printf("Collision with Entity: %d", entity_list[i].ID);
 
-      game_entity = &entities[i];
+      Editor.GameEntity = &entities[i];
 
       ret = true;
     }
@@ -1287,69 +1269,75 @@ inline void SetRenderField(field* fieldRef, bool render) {
   }
 }
 
-inline void RenderAllFields(game_state& GameState) {
-  int render_list_index = 0;
+inline void RenderAllFields(game_state& GameState, int render_list_index) {
   int diff = 0;
 
-  for (size_t n = 0; n < fields.size(); n++) {
-    for (size_t i = 0; i < fields[n]->sum_of_field_tiles; i++) {
-      recEntity = {(float)(fields[n]->tiles[i].x),
-                   (float)(fields[n]->tiles[i].y), (float)tile_width,
-                   (float)tile_height};
+  for (size_t n = 0; n < GameState.FieldList.size(); n++) {
+    for (size_t i = 0; i < GameState.FieldList[n]->sum_of_field_tiles; i++) {
+      recEntity = {(float)(GameState.FieldList[n]->tiles[i].x),
+                   (float)(GameState.FieldList[n]->tiles[i].y),
+                   (float)GAME_TILE_WIDTH, (float)GAME_TILE_HEIGHT};
 
-      recSprite = {(float)(fields[n]->tiles[i].sprite->x),
-                   (float)(fields[n]->tiles[i].sprite->y),
-                   (float)fields[n]->tiles[i].sprite->w,
-                   (float)fields[n]->tiles[i].sprite->h};
+      recSprite = {(float)(GameState.FieldList[n]->tiles[i].sprite->x),
+                   (float)(GameState.FieldList[n]->tiles[i].sprite->y),
+                   (float)GameState.FieldList[n]->tiles[i].sprite->w,
+                   (float)GameState.FieldList[n]->tiles[i].sprite->h};
 
-      if ((fields[n]->tiles[i].render == true) &&
-          (fields[n]->render_field == true)) {
+      if ((GameState.FieldList[n]->tiles[i].render == true) &&
+          (GameState.FieldList[n]->render_field == true)) {
         render = true;
       } else {
         render = false;
       }
 
-      AllRenderObjects[i + objects_to_render[render_list_index]]
-                      [render_list_index] = {
-                          getTexture(GameState.SpriteList,
-                                     GameState.GameTextureList,
-                                     fields[n]->tiles[i].sprite->ID)
-                              .tex,
-                          recSprite,
-                          recEntity,
-                          vec,
-                          0,
-                          Fade(WHITE, fields[n]->field_alpha),
-                          -60,
-                          render};
+      GameState
+          .AllRenderObjects[i + GameState.ObjectsToRender[render_list_index]]
+                           [render_list_index] = {
+          getTexture(GameState.SpriteList, GameState.GameTextureList,
+                     GameState.FieldList[n]->tiles[i].sprite->ID)
+              .tex,
+          recSprite,
+          recEntity,
+          vec,
+          0,
+          Fade(WHITE, GameState.FieldList[n]->field_alpha),
+          -60,
+          render};
 
-      if (render_list[render_list_index].List.size() <
-          fields[n]->sum_of_field_tiles +
-              objects_to_render[render_list_index]) {
-        render_list[render_list_index].List.push_back(
-            &AllRenderObjects[i + objects_to_render[render_list_index]]
-                             [render_list_index]);
+      if (GameState.RenderList[render_list_index].List.size() <
+          GameState.FieldList[n]->sum_of_field_tiles +
+              GameState.ObjectsToRender[render_list_index]) {
+        GameState.RenderList[render_list_index].List.push_back(
+            &GameState
+                 .AllRenderObjects[i +
+                                   GameState.ObjectsToRender[render_list_index]]
+                                  [render_list_index]);
       } else {
-        render_list[render_list_index]
-            .List[i + objects_to_render[render_list_index]] =
-            &AllRenderObjects[i + objects_to_render[render_list_index]]
-                             [render_list_index];
-        diff = (int)render_list[render_list_index].List.size() -
-               (fields[n]->sum_of_field_tiles +
-                objects_to_render[render_list_index]);
+        GameState.RenderList[render_list_index]
+            .List[i + GameState.ObjectsToRender[render_list_index]] =
+            &GameState
+                 .AllRenderObjects[i +
+                                   GameState.ObjectsToRender[render_list_index]]
+                                  [render_list_index];
+        diff = (int)GameState.RenderList[render_list_index].List.size() -
+               (GameState.FieldList[n]->sum_of_field_tiles +
+                GameState.ObjectsToRender[render_list_index]);
       }
     }
 
-    if (objects_to_render[render_list_index] <
-        objects_to_render[render_list_index] + fields[n]->sum_of_field_tiles) {
-      objects_to_render[render_list_index] =
-          objects_to_render[render_list_index] + fields[n]->sum_of_field_tiles;
+    if (GameState.ObjectsToRender[render_list_index] <
+        GameState.ObjectsToRender[render_list_index] +
+            GameState.FieldList[n]->sum_of_field_tiles) {
+      GameState.ObjectsToRender[render_list_index] =
+          GameState.ObjectsToRender[render_list_index] +
+          GameState.FieldList[n]->sum_of_field_tiles;
     }
   }
 
   for (size_t j = 0; j < diff; j++) {
-    render_list[render_list_index]
-        .List[((render_list[render_list_index].List.size()) - diff) + j]
+    GameState.RenderList[render_list_index]
+        .List[((GameState.RenderList[render_list_index].List.size()) - diff) +
+              j]
         ->render_this = false;
   }
 }
@@ -1365,12 +1353,14 @@ static bool sorted = false;
 static int firstround = 0;
 
 static int secondround = 0;
-inline void SortLayerRenderObjectList() {
+inline void SortLayerRenderObjectList(vector<Render_List>& render_list,
+                                      vector<RenderObject*>& sorted_list,
+                                      int* last_sorted_list) {
   RenderObject temp;
 
   int i = 0;
   int j = 0;
-  int n = SortedRenderObject_list.size();
+  int n = sorted_list.size();
 
   int num_of_lists = 0;
   int list_index = 0;
@@ -1385,58 +1375,44 @@ inline void SortLayerRenderObjectList() {
     }
   }
 
-  DebugLog(" SortedRenderObject_list.size():",
-           (int)SortedRenderObject_list.size());
+  DebugLog(" sorted_list.size():", (int)sorted_list.size());
   DebugLog("newlist_size:", newlist_size);
 
-  // cout << newlist_size << endl;
-
   for (num_of_lists = 0; num_of_lists < render_list.size(); num_of_lists++) {
-    // cout << render_list[num_of_lists].List.size() << " ";
-
     for (list_index = 0; list_index < render_list[num_of_lists].List.size();
          list_index++) {
-      if (SortedRenderObject_list.size() < newlist_size) {
-        SortedRenderObject_list.push_back(
-            render_list[num_of_lists].List[list_index]);
+      if (sorted_list.size() < newlist_size) {
+        sorted_list.push_back(render_list[num_of_lists].List[list_index]);
 
-        last_sorted_list[i] = SortedRenderObject_list[i]->layer;
+        last_sorted_list[i] = sorted_list[i]->layer;
         i++;
       } else {
-        SortedRenderObject_list[count] =
-            render_list[num_of_lists].List[list_index];
+        sorted_list[count] = render_list[num_of_lists].List[list_index];
         count++;
       }
     }
   }
-  // cout << SortedRenderObject_list.size() << endl;
 
   if (sorted == false) {
     // cout << "start sorting" << endl;
 
     for (i = 0; i < n - 1; i++) {
       for (j = 0; j < n - i - 1; j++) {
-        if (SortedRenderObject_list[j]->layer >
-            SortedRenderObject_list[j + 1]->layer) {
-          swap(SortedRenderObject_list[j], SortedRenderObject_list[j + 1]);
+        if (sorted_list[j]->layer > sorted_list[j + 1]->layer) {
+          swap(sorted_list[j], sorted_list[j + 1]);
         } else {
         }
       }
     }
 
-    for (i = 0; i < SortedRenderObject_list.size(); i++) {
-      last_sorted_list[i] = SortedRenderObject_list[i]->layer;
-
-      // cout << last_sorted_list[i] << " ";
+    for (i = 0; i < sorted_list.size(); i++) {
+      last_sorted_list[i] = sorted_list[i]->layer;
     }
 
-    // cout << endl;
   } else {
-    for (i = 0; i < SortedRenderObject_list.size(); i++) {
-      if (SortedRenderObject_list.empty() != true) {
-        if (last_sorted_list[i] != SortedRenderObject_list[i]->layer) {
-          // cout << last_sorted_list[i] << " " <<
-          // SortedRenderObject_list[i]->layer;
+    for (i = 0; i < sorted_list.size(); i++) {
+      if (sorted_list.empty() != true) {
+        if (last_sorted_list[i] != sorted_list[i]->layer) {
           sorted = false;
 
           break;
@@ -1445,9 +1421,9 @@ inline void SortLayerRenderObjectList() {
     }
   }
 
-  for (i = 0; i < SortedRenderObject_list.size(); i++) {
-    if (SortedRenderObject_list.empty() != true) {
-      last_sorted_list[i] = SortedRenderObject_list[i]->layer;
+  for (i = 0; i < sorted_list.size(); i++) {
+    if (sorted_list.empty() != true) {
+      last_sorted_list[i] = sorted_list[i]->layer;
     }
   }
 
@@ -1463,25 +1439,26 @@ inline void SortLayerRenderObjectList() {
 }
 
 inline void SortLayerRenderObjectList(Render_List& render_list,
-                                      vector<RenderObject*>& Sortedlist) {
+                                      vector<RenderObject*>& sorted_list,
+                                      int* last_sorted_list) {
   RenderObject temp;
 
   int i = 0;
   int j = 0;
-  int n = Sortedlist.size();
+  int n = sorted_list.size();
 
   int num_of_lists = 0;
   int list_index = 0;
   int count = 0;
 
   for (list_index = 0; list_index < render_list.List.size(); list_index++) {
-    if (Sortedlist.size() < render_list.List.size()) {
-      Sortedlist.push_back(render_list.List[list_index]);
+    if (sorted_list.size() < render_list.List.size()) {
+      sorted_list.push_back(render_list.List[list_index]);
 
-      last_sorted_list[i] = Sortedlist[i]->layer;
+      last_sorted_list[i] = sorted_list[i]->layer;
       i++;
     } else {
-      Sortedlist[count] = render_list.List[list_index];
+      sorted_list[count] = render_list.List[list_index];
       count++;
     }
   }
@@ -1489,19 +1466,19 @@ inline void SortLayerRenderObjectList(Render_List& render_list,
   if (sorted == false) {
     for (i = 0; i < n - 1; i++) {
       for (j = 0; j < n - i - 1; j++) {
-        if (Sortedlist[j]->layer > Sortedlist[j + 1]->layer) {
-          swap(Sortedlist[j], Sortedlist[j + 1]);
+        if (sorted_list[j]->layer > sorted_list[j + 1]->layer) {
+          swap(sorted_list[j], sorted_list[j + 1]);
         } else {
         }
       }
     }
-    for (i = 0; i < Sortedlist.size(); i++) {
-      last_sorted_list[i] = Sortedlist[i]->layer;
+    for (i = 0; i < sorted_list.size(); i++) {
+      last_sorted_list[i] = sorted_list[i]->layer;
     }
   } else {
-    for (i = 0; i < Sortedlist.size(); i++) {
-      if (Sortedlist.empty() != true) {
-        if (last_sorted_list[i] != Sortedlist[i]->layer) {
+    for (i = 0; i < sorted_list.size(); i++) {
+      if (sorted_list.empty() != true) {
+        if (last_sorted_list[i] != sorted_list[i]->layer) {
           sorted = false;
           break;
         }
@@ -1509,9 +1486,9 @@ inline void SortLayerRenderObjectList(Render_List& render_list,
     }
   }
 
-  for (i = 0; i < Sortedlist.size(); i++) {
-    if (Sortedlist.empty() != true) {
-      last_sorted_list[i] = Sortedlist[i]->layer;
+  for (i = 0; i < sorted_list.size(); i++) {
+    if (sorted_list.empty() != true) {
+      last_sorted_list[i] = sorted_list[i]->layer;
     }
   }
 
@@ -1536,39 +1513,44 @@ inline void RenderAllLayers(game_state& GameState) {
 
   int render_count = 0;
 
-  DebugLog("SortedRenderObject_list: ", (int)SortedRenderObject_list.size());
+  DebugLog("GameState.SortedRenderObjectList: ",
+           (int)GameState.SortedRenderObjectList.size());
 
-  for (size_t i = 0; i < SortedRenderObject_list.size(); i++) {
-    if (SortedRenderObject_list[i] != NULL) {
-      if (SortedRenderObject_list[i]->render_this == true) {
+  for (size_t i = 0; i < GameState.SortedRenderObjectList.size(); i++) {
+    if (GameState.SortedRenderObjectList[i] != NULL) {
+      if (GameState.SortedRenderObjectList[i]->render_this == true) {
         render_count++;
-        if (SortedRenderObject_list[i]->dest.width < 500) {
-          offset_x = (SortedRenderObject_list[i]->dest.width - tile_width) / 2;
+        if (GameState.SortedRenderObjectList[i]->dest.width < 500) {
+          offset_x = (GameState.SortedRenderObjectList[i]->dest.width -
+                      GAME_TILE_WIDTH) /
+                     2;
         }
-        if (SortedRenderObject_list[i]->dest.height < 500) {
-          offset_y = SortedRenderObject_list[i]->dest.height - (tile_height);
+        if (GameState.SortedRenderObjectList[i]->dest.height < 500) {
+          offset_y = GameState.SortedRenderObjectList[i]->dest.height -
+                     (GAME_TILE_HEIGHT);
         }
 
-        if (SortedRenderObject_list[i]->texture.id ==
+        if (GameState.SortedRenderObjectList[i]->texture.id ==
             getSprite(GameState.SpriteList, GRID_SPRITE_ID).tex_ID) {
           offset_x = 0;
 
           offset_y = 0;
         }
 
-        dest_x =
-            SortedRenderObject_list[i]->dest.x + gamescreen_offset_x - offset_x;
+        dest_x = GameState.SortedRenderObjectList[i]->dest.x +
+                 GAMESCREEN_OFFSET_X - offset_x;
 
-        dest_y =
-            SortedRenderObject_list[i]->dest.y + gamescreen_offset_y - offset_y;
+        dest_y = GameState.SortedRenderObjectList[i]->dest.y +
+                 GAMESCREEN_OFFSET_Y - offset_y;
 
-        DrawTexturePro(SortedRenderObject_list[i]->texture,
-                       SortedRenderObject_list[i]->source,
-                       {dest_x, dest_y, SortedRenderObject_list[i]->dest.width,
-                        SortedRenderObject_list[i]->dest.height},
-                       SortedRenderObject_list[i]->origin,
-                       SortedRenderObject_list[i]->rotation,
-                       SortedRenderObject_list[i]->tint);
+        DrawTexturePro(
+            GameState.SortedRenderObjectList[i]->texture,
+            GameState.SortedRenderObjectList[i]->source,
+            {dest_x, dest_y, GameState.SortedRenderObjectList[i]->dest.width,
+             GameState.SortedRenderObjectList[i]->dest.height},
+            GameState.SortedRenderObjectList[i]->origin,
+            GameState.SortedRenderObjectList[i]->rotation,
+            GameState.SortedRenderObjectList[i]->tint);
       }
     }
   }
@@ -1594,11 +1576,11 @@ inline void RenderAllLayers(game_state& GameState,
       if (RenderObjectList[i]->render_this == true) {
         render_count++;
         if (RenderObjectList[i]->dest.width < 500) {
-          offset_x = (RenderObjectList[i]->dest.width - tile_width) / 2;
+          offset_x = (RenderObjectList[i]->dest.width - GAME_TILE_WIDTH) / 2;
         }
 
         if (RenderObjectList[i]->dest.height < 500) {
-          offset_y = RenderObjectList[i]->dest.height - (tile_height);
+          offset_y = RenderObjectList[i]->dest.height - (GAME_TILE_HEIGHT);
         }
 
         if (RenderObjectList[i]->texture.id ==
@@ -1608,15 +1590,16 @@ inline void RenderAllLayers(game_state& GameState,
           offset_y = 0;
         }
 
-        dest_x = RenderObjectList[i]->dest.x + gamescreen_offset_x - offset_x;
+        dest_x = RenderObjectList[i]->dest.x + GAMESCREEN_OFFSET_X - offset_x;
 
-        dest_y = RenderObjectList[i]->dest.y + gamescreen_offset_y - offset_y;
+        dest_y = RenderObjectList[i]->dest.y + GAMESCREEN_OFFSET_Y - offset_y;
 
         if (RenderObjectList[i]->use_shader == true) {
-          BeginShaderMode(shader);
+          BeginShaderMode(GAME_SHADER);
         } else {
           EndShaderMode();
         }
+
 
         DrawTexturePro(
             RenderObjectList[i]->texture, RenderObjectList[i]->source,
@@ -1681,14 +1664,15 @@ void CycleColoredTiles(entity* target, vector<tile>& colored_tiles) {
 inline void SetFieldTileColors(field& fieldRef, vector<sprite>& sprite_list,
                                int Sprite_ID) {
   for (size_t i = 0; i < fieldRef.sum_of_field_tiles; i++) {
-    target_field.tiles[i].sprite = &getSprite(sprite_list, Sprite_ID);
+    fieldRef.tiles[i].sprite = &getSprite(sprite_list, Sprite_ID);
   }
 }
 
-inline bool ColorFieldTileEntityList(vector<tile>& colored_tiles,
-                                     field* fieldRef, vector<combatant>& list,
-                                     vector<sprite>& sprite_list,
-                                     int iTileColor) {
+inline bool ColorFieldCollisionTileEntityList(field* field_ref,
+                                              vector<combatant>& enemies,
+                                              vector<combatant>& allies,
+                                              vector<sprite>& sprite_list,
+                                              int iTileColor) {
   bool colored_tile = false;
 
   Rectangle temp1 = {-100, -100, 0, 0};
@@ -1696,84 +1680,93 @@ inline bool ColorFieldTileEntityList(vector<tile>& colored_tiles,
 
   tile temptile;
 
-  if (colored_tiles.empty()) {
-    for (size_t i = 0; i < list.size(); i++) {
-      temp2 = {list[i].pEntity->x, list[i].pEntity->y, list[i].pEntity->w,
-               list[i].pEntity->h};
-      if (list[i].pEntity->x == combatant_list[combatant_selected].pEntity->x &&
-          list[i].pEntity->y == combatant_list[combatant_selected].pEntity->y) {
-        // cout << "Player X Y" << endl;
-      } else {
-        if (enemy_colored == false) {
-          for (size_t j = 0; j < fieldRef->sum_of_field_tiles; j++) {
-            temp1 = {(float)(fieldRef->tiles[j].x),
-                     (float)(fieldRef->tiles[j].y), (float)tile_width,
-                     (float)tile_height};
+  if (field_ref->collision_tiles.empty()) {
+    for (size_t i = 0; i < enemies.size(); i++) {
+      temp2 = {enemies[i].pEntity->x, enemies[i].pEntity->y,
+               enemies[i].pEntity->w, enemies[i].pEntity->h};
 
-            if (CheckCollisionRecs(
-                    {(float)(temp2.x - 1 + (tile_width / 2)),
-                     (float)(temp2.y - 1 + (tile_height / 2)), 2, 2},
-                    {(float)(temp1.x - 1 + (tile_width / 2)),
-                     (float)(temp1.y - 1 + (tile_height / 2)), 2, 2})) {
-              fieldRef->tiles[j].sprite = &getSprite(sprite_list, iTileColor);
+      for (size_t a = 0; a < allies.size(); a++) {
+        if (enemies[i].pEntity->x == allies[a].pEntity->x &&
+            enemies[i].pEntity->y == allies[a].pEntity->y) {
+          // cout << "Player X Y" << endl;
+        } else {
+          if (enemy_colored == false) {
+            for (size_t j = 0; j < field_ref->sum_of_field_tiles; j++) {
+              temp1 = {(float)(field_ref->tiles[j].x),
+                       (float)(field_ref->tiles[j].y), (float)GAME_TILE_WIDTH,
+                       (float)GAME_TILE_HEIGHT};
 
-              colored_tiles.push_back(fieldRef->tiles[j]);
+              if (CheckCollisionRecs(
+                      {(float)(temp2.x - 1 + (GAME_TILE_WIDTH / 2)),
+                       (float)(temp2.y - 1 + (GAME_TILE_HEIGHT / 2)), 2, 2},
+                      {(float)(temp1.x - 1 + (GAME_TILE_WIDTH / 2)),
+                       (float)(temp1.y - 1 + (GAME_TILE_HEIGHT / 2)), 2, 2})) {
+                field_ref->tiles[j].sprite =
+                    &getSprite(sprite_list, iTileColor);
 
-              colored_tile = true;
+                field_ref->collision_tiles.push_back(field_ref->tiles[j]);
 
-              cout << "coloured tile 1 " << i << endl;
-            } else {
+                colored_tile = true;
+
+                cout << "collision_tiles 1 " << i << endl;
+              } else {
+              }
             }
-          }
 
-          if (entity_checked >= list.size()) {
-            enemy_colored = true;
-          } else {
-            entity_checked++;
+            if (entity_checked >= enemies.size()) {
+              enemy_colored = true;
+            } else {
+              entity_checked++;
+            }
           }
         }
       }
     }
 
   } else {
-    for (size_t i = 0; i < list.size(); i++) {
-      temp2 = {list[i].pEntity->x, list[i].pEntity->y, list[i].pEntity->w,
-               list[i].pEntity->h};
-      if (list[i].pEntity->x == combatant_list[combatant_selected].pEntity->x &&
-          list[i].pEntity->y == combatant_list[combatant_selected].pEntity->y) {
-        // cout << "Player X Y" << endl;
-      } else {
-        if (enemy_colored == false) {
-          for (size_t j = 0; j < fieldRef->sum_of_field_tiles; j++) {
-            temp1 = {(float)(fieldRef->tiles[j].x),
-                     (float)(fieldRef->tiles[j].y), (float)tile_width,
-                     (float)tile_height};
+    for (size_t i = 0; i < enemies.size(); i++) {
+      temp2 = {enemies[i].pEntity->x, enemies[i].pEntity->y,
+               enemies[i].pEntity->w, enemies[i].pEntity->h};
 
-            if (CheckCollisionRecs(
-                    {(float)(temp2.x - 1 + (tile_width / 2)),
-                     (float)(temp2.y - 1 + (tile_height / 2)), 2, 2},
-                    {(float)(temp1.x - 1 + (tile_width / 2)),
-                     (float)(temp1.y - 1 + (tile_height / 2)), 2, 2})) {
-              fieldRef->tiles[j].sprite = &getSprite(sprite_list, iTileColor);
+      for (size_t a = 0; a < allies.size(); a++) {
+        if (enemies[i].pEntity->x == allies[a].pEntity->x &&
+            enemies[i].pEntity->y == allies[a].pEntity->y) {
+          // cout << "Player X Y" << endl;
+        } else {
+          if (enemy_colored == false) {
+            for (size_t j = 0; j < field_ref->sum_of_field_tiles; j++) {
+              temp1 = {(float)(field_ref->tiles[j].x),
+                       (float)(field_ref->tiles[j].y), (float)GAME_TILE_WIDTH,
+                       (float)GAME_TILE_HEIGHT};
 
-              if (fieldRef->tiles[j].x == colored_tiles[i].x &&
-                  fieldRef->tiles[j].y == colored_tiles[i].y) {
-                colored_tiles[i].sprite = &getSprite(sprite_list, iTileColor);
+              if (CheckCollisionRecs(
+                      {(float)(temp2.x - 1 + (GAME_TILE_WIDTH / 2)),
+                       (float)(temp2.y - 1 + (GAME_TILE_HEIGHT / 2)), 2, 2},
+                      {(float)(temp1.x - 1 + (GAME_TILE_WIDTH / 2)),
+                       (float)(temp1.y - 1 + (GAME_TILE_HEIGHT / 2)), 2, 2})) {
+                field_ref->tiles[j].sprite =
+                    &getSprite(sprite_list, iTileColor);
+
+                if (field_ref->tiles[j].x == field_ref->collision_tiles[i].x &&
+                    field_ref->tiles[j].y == field_ref->collision_tiles[i].y) {
+                  field_ref->collision_tiles[i].sprite =
+                      &getSprite(sprite_list, iTileColor);
+                } else {
+                  field_ref->collision_tiles.push_back(field_ref->tiles[j]);
+                }
+
+                colored_tile = true;
+
+                cout << "collision_tiles tile 2 " << i << endl;
               } else {
-                colored_tiles.push_back(fieldRef->tiles[j]);
               }
-
-              colored_tile = true;
-
-              cout << "coloured tile 2 " << i << endl;
-            } else {
             }
-          }
 
-          if (entity_checked >= list.size()) {
-            enemy_colored = true;
-          } else {
-            entity_checked++;
+            if (entity_checked >= enemies.size()) {
+              enemy_colored = true;
+            } else {
+              entity_checked++;
+            }
           }
         }
       }
@@ -1783,11 +1776,11 @@ inline bool ColorFieldTileEntityList(vector<tile>& colored_tiles,
   return colored_tile;
 }
 
-inline bool ColorFieldTileEntityList(vector<tile>& colored_tiles,
-                                     field* fieldRef,
-                                     vector<entity>& entity_list,
-                                     vector<sprite>& sprite_list,
-                                     int iTileColor) {
+inline bool ColorFieldCollisionTileEntityList(field& field_ref,
+                                              vector<entity>& entity_list,
+                                              vector<combatant>& allies,
+                                              vector<sprite>& sprite_list,
+                                              int iTileColor) {
   bool colored_tile = false;
 
   Rectangle temp2;
@@ -1797,44 +1790,47 @@ inline bool ColorFieldTileEntityList(vector<tile>& colored_tiles,
     temp2 = {(float)entity_list[i].x, (float)entity_list[i].y,
              (float)entity_list[i].w, (float)entity_list[i].h};
 
-    if (entity_list[i].x == combatant_list[combatant_selected].pEntity->x &&
-        entity_list[i].y == combatant_list[combatant_selected].pEntity->y) {
-      // cout << "Player X Y" << endl;
-    } else {
-      // Check layer
-      if (combatant_list[combatant_selected].pEntity->layer !=
-          entity_list[i].layer) {
+    for (size_t a = 0; a < allies.size(); a++) {
+      if (entity_list[i].x == allies[a].pEntity->x &&
+          entity_list[i].y == allies[a].pEntity->y) {
+        // cout << "Player X Y" << endl;
       } else {
-        if (enemy_colored == false) {
-          for (size_t j = 0; j < fieldRef->sum_of_field_tiles; j++) {
-            temp1 = {(float)(fieldRef->tiles[j].x),
-                     (float)(fieldRef->tiles[j].y), (float)tile_width,
-                     (float)tile_height};
+        // Check layer
+        if (allies[a].pEntity->layer != entity_list[i].layer) {
+        } else {
+          if (enemy_colored == false) {
+            for (size_t j = 0; j < field_ref.sum_of_field_tiles; j++) {
+              temp1 = {(float)(field_ref.tiles[j].x),
+                       (float)(field_ref.tiles[j].y), (float)GAME_TILE_WIDTH,
+                       (float)GAME_TILE_HEIGHT};
 
-            if (CheckCollisionRecs(
-                    {(float)(temp2.x - 1 + (tile_width / 2)),
-                     (float)(temp2.y - 1 + (tile_height / 2)), 2, 2},
-                    {(float)(temp1.x - 1 + (tile_width / 2)),
-                     (float)(temp1.y - 1 + (tile_height / 2)), 2, 2})) {
-              if (last_tile.x != temp2.x || last_tile.y != temp2.y) {
-                fieldRef->tiles[j].sprite =
-                    &getSprite(sprite_list, iTileColor);  // red tile
+              if (CheckCollisionRecs(
+                      {(float)(temp2.x - 1 + (GAME_TILE_WIDTH / 2)),
+                       (float)(temp2.y - 1 + (GAME_TILE_HEIGHT / 2)), 2, 2},
+                      {(float)(temp1.x - 1 + (GAME_TILE_WIDTH / 2)),
+                       (float)(temp1.y - 1 + (GAME_TILE_HEIGHT / 2)), 2, 2})) {
+                if (field_ref.last_tile_x != temp2.x ||
+                    field_ref.last_tile_y != temp2.y) {
+                  field_ref.tiles[j].sprite =
+                      &getSprite(sprite_list, iTileColor);  // red tile
 
-                colored_enemy_tiles.push_back(fieldRef->tiles[j]);
+                  field_ref.collision_tiles.push_back(field_ref.tiles[j]);
 
-                last_tile = {temp2.x, temp2.y, 0, 0};
+                  field_ref.last_tile_x = temp2.x;
+                  field_ref.last_tile_y = temp2.y;
 
-                colored_tile = true;
+                  colored_tile = true;
+                } else {
+                }
               } else {
               }
-            } else {
             }
-          }
 
-          if (entity_checked >= entity_list.size()) {
-            enemy_colored = true;
-          } else {
-            entity_checked++;
+            if (entity_checked >= entity_list.size()) {
+              enemy_colored = true;
+            } else {
+              entity_checked++;
+            }
           }
         }
       }
@@ -1844,31 +1840,32 @@ inline bool ColorFieldTileEntityList(vector<tile>& colored_tiles,
   return colored_tile;
 }
 
-inline bool ColorFieldTile(field& fieldRef, vector<sprite>& sprite_list,
-                           entity* target) {
+inline bool ColorFieldTrackTile(field& field_ref, vector<sprite>& sprite_list,
+                                entity* target, int color) {
   bool colored_tile = false;
 
   temp2 = {(float)target->x, (float)target->y, (float)target->w,
            (float)target->h};
 
-  for (size_t i = 0; i < fieldRef.sum_of_field_tiles; i++) {
-    temp1 = {(float)(fieldRef.tiles[i].x), (float)(fieldRef.tiles[i].y),
-             (float)tile_width, (float)tile_height};
+  for (size_t i = 0; i < field_ref.sum_of_field_tiles; i++) {
+    temp1 = {(float)(field_ref.tiles[i].x), (float)(field_ref.tiles[i].y),
+             (float)GAME_TILE_WIDTH, (float)GAME_TILE_HEIGHT};
 
-    if (CheckCollisionRecs({(float)(temp2.x - 1 + (tile_width / 2)),
-                            (float)(temp2.y - 1 + (tile_height / 2)), 2, 2},
-                           {(float)(temp1.x - 1 + (tile_width / 2)),
-                            (float)(temp1.y - 1 + (tile_height / 2)), 2, 2})) {
-      if (last_tile.x != temp2.x || last_tile.y != temp2.y) {
-        fieldRef.tiles[i].sprite = &getSprite(sprite_list, YELLOW_TILE);
-        fieldRef.tiles[i].render = true;
-        colored_moved_tiles.push_back(fieldRef.tiles[i]);
+    if (CheckCollisionRecs(
+            {(float)(temp2.x - 1 + (GAME_TILE_WIDTH / 2)),
+             (float)(temp2.y - 1 + (GAME_TILE_HEIGHT / 2)), 2, 2},
+            {(float)(temp1.x - 1 + (GAME_TILE_WIDTH / 2)),
+             (float)(temp1.y - 1 + (GAME_TILE_HEIGHT / 2)), 2, 2})) {
+      if (field_ref.last_tile_x != temp2.x ||
+          field_ref.last_tile_y != temp2.y) {
+        field_ref.tiles[i].sprite = &getSprite(sprite_list, color);
+        field_ref.tiles[i].render = true;
+        field_ref.track_tiles.push_back(field_ref.tiles[i]);
 
-        last_tile = {temp2.x, temp2.y, 0, 0};
+        field_ref.last_tile_x = temp2.x;
+        field_ref.last_tile_y = temp2.y;
 
         colored_tile = true;
-
-        // cout << "colored_moved_tiles.push_back(temptile);" << endl;
 
         break;
       } else {
@@ -1880,17 +1877,14 @@ inline bool ColorFieldTile(field& fieldRef, vector<sprite>& sprite_list,
   return colored_tile;
 }
 
-inline void ResetMovedTilesColor(field& fieldRef, vector<sprite>& sprite_list,
+inline void ResetTrackTilesColor(field& field_ref, vector<sprite>& sprite_list,
                                  int Sprite_ID) {
-  for (size_t i = 0; i < fieldRef.sum_of_field_tiles; i++) {
-    for (size_t j = 0; j < colored_moved_tiles.size(); j++) {
-      // cout << "same2" << endl;
-
-      if (fieldRef.tiles[i].x == colored_moved_tiles[j].x &&
-          fieldRef.tiles[i].y == colored_moved_tiles[j].y) {
-        // cout << "same3" << endl;
-        fieldRef.tiles[i].sprite = &getSprite(sprite_list, Sprite_ID);
-        fieldRef.tiles[i].render = true;
+  for (size_t i = 0; i < field_ref.sum_of_field_tiles; i++) {
+    for (size_t j = 0; j < field_ref.track_tiles.size(); j++) {
+      if (field_ref.tiles[i].x == field_ref.track_tiles[j].x &&
+          field_ref.tiles[i].y == field_ref.track_tiles[j].y) {
+        field_ref.tiles[i].sprite = &getSprite(sprite_list, Sprite_ID);
+        field_ref.tiles[i].render = true;
       }
     }
   }
@@ -1970,15 +1964,15 @@ inline void randomSpawnTile(vector<sprite>& sprite_list, field& fieldRef,
     }
 
     cout << endl;
-    cout << "Fields set " << fieldRef.sum_of_field_tiles << " "
+    cout << "FieldList set " << fieldRef.sum_of_field_tiles << " "
          << spawn_field.sum_of_field_tiles << endl;
   } else {
-    cout << "Fields not set " << fieldRef.sum_of_field_tiles << " "
+    cout << "FieldList not set " << fieldRef.sum_of_field_tiles << " "
          << spawn_field.sum_of_field_tiles << endl;
   }
 }
 
-inline void drawIsoTriangles(entity* e) {
+inline void DrawIsoTriangles(entity* e) {
   // temp3 = getTileRect(e->entity_tile);
 
   // DrawLine(temp3.line_1_p1_x, temp3.line_1_p1_y, temp3.line_1_p2_x,
@@ -1988,55 +1982,62 @@ inline void drawIsoTriangles(entity* e) {
   // DrawLine(temp3.line_4_p1_x, temp3.line_4_p1_y, temp3.line_4_p2_x,
   // temp3.line_4_p2_y, ORANGE);
 
-  static tile_triangles temp4;
+  static tile_triangles temp_rect;
 
-  temp4 = getTileTriangles(e->entity_tile);
+  Rectangle temp;
+
+  temp.x = e->entity_tile.x + GAMESCREEN_OFFSET_X;
+    temp.y = e->entity_tile.y+ GAMESCREEN_OFFSET_Y;
+      temp.width = e->entity_tile.width;
+        temp.height = e->entity_tile.height;
+
+  temp_rect = getTileTriangles(temp);
 
   Vector2 p1;
   Vector2 p2;
   Vector2 p3;
 
-  p1.x = temp4.tri_1_line_1_x;
-  p1.y = temp4.tri_1_line_1_y;
+  p1.x = temp_rect.tri_1_line_1_x;
+  p1.y = temp_rect.tri_1_line_1_y;
 
-  p2.x = temp4.tri_1_line_2_x;
-  p2.y = temp4.tri_1_line_2_y;
+  p2.x = temp_rect.tri_1_line_2_x;
+  p2.y = temp_rect.tri_1_line_2_y;
 
-  p3.x = temp4.tri_1_line_3_x;
-  p3.y = temp4.tri_1_line_3_y;
+  p3.x = temp_rect.tri_1_line_3_x;
+  p3.y = temp_rect.tri_1_line_3_y;
 
   DrawTriangle(p1, p2, p3, BLUE);
 
-  p1.x = temp4.tri_2_line_1_x;
-  p1.y = temp4.tri_2_line_1_y;
+  p1.x = temp_rect.tri_2_line_1_x;
+  p1.y = temp_rect.tri_2_line_1_y;
 
-  p2.x = temp4.tri_2_line_2_x;
-  p2.y = temp4.tri_2_line_2_y;
+  p2.x = temp_rect.tri_2_line_2_x;
+  p2.y = temp_rect.tri_2_line_2_y;
 
-  p3.x = temp4.tri_2_line_3_x;
-  p3.y = temp4.tri_2_line_3_y;
+  p3.x = temp_rect.tri_2_line_3_x;
+  p3.y = temp_rect.tri_2_line_3_y;
 
   DrawTriangle(p1, p2, p3, RED);
 
-  p1.x = temp4.tri_3_line_1_x;
-  p1.y = temp4.tri_3_line_1_y;
+  p1.x = temp_rect.tri_3_line_1_x;
+  p1.y = temp_rect.tri_3_line_1_y;
 
-  p2.x = temp4.tri_3_line_2_x;
-  p2.y = temp4.tri_3_line_2_y;
+  p2.x = temp_rect.tri_3_line_2_x;
+  p2.y = temp_rect.tri_3_line_2_y;
 
-  p3.x = temp4.tri_3_line_3_x;
-  p3.y = temp4.tri_3_line_3_y;
+  p3.x = temp_rect.tri_3_line_3_x;
+  p3.y = temp_rect.tri_3_line_3_y;
 
   DrawTriangle(p1, p2, p3, GREEN);
 
-  p1.x = temp4.tri_4_line_1_x;
-  p1.y = temp4.tri_4_line_1_y;
+  p1.x = temp_rect.tri_4_line_1_x;
+  p1.y = temp_rect.tri_4_line_1_y;
 
-  p2.x = temp4.tri_4_line_2_x;
-  p2.y = temp4.tri_4_line_2_y;
+  p2.x = temp_rect.tri_4_line_2_x;
+  p2.y = temp_rect.tri_4_line_2_y;
 
-  p3.x = temp4.tri_4_line_3_x;
-  p3.y = temp4.tri_4_line_3_y;
+  p3.x = temp_rect.tri_4_line_3_x;
+  p3.y = temp_rect.tri_4_line_3_y;
 
   DrawTriangle(p1, p2, p3, ORANGE);
 }
@@ -2058,7 +2059,7 @@ inline void InitDebugLog() {
   for (size_t i = 0; i < 100; i++) {
     temp = "Log line " + to_string(i);
 
-    debuglog_lines.push_back(temp);
+    GAME_LOG.DebugLogLines.push_back(temp);
   }
 }
 
@@ -2068,7 +2069,7 @@ inline void InitLog() {
   for (size_t i = 0; i < 100; i++) {
     temp = "Log line " + to_string(i);
 
-    log_lines.push_back(temp);
+    GAME_LOG.LogLines.push_back(temp);
   }
 }
 

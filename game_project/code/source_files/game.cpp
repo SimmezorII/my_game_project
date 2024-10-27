@@ -37,6 +37,7 @@ float offset_y = 0;
 
 inline void Load(game_state &GameState) {
   int sprite_count = 0;
+  int entity_count = 0;
   int result;
   // old png_list = GetPNG_FilesInDir(GAME_ASSET_PATH.c_str());
 
@@ -51,7 +52,7 @@ inline void Load(game_state &GameState) {
   } else {
   }
 
-  sprite_count = ReadSpriteData(MAPS_PATH + "game_sprite_data.txt");
+  sprite_count = ReadSpriteData(GameState, MAPS_PATH + "game_sprite_data.txt");
 
   if (sprite_count > 0) {
     printf("LoadSpriteData(sprite_count), sprite_count was %d\n", sprite_count);
@@ -60,7 +61,8 @@ inline void Load(game_state &GameState) {
     printf("LoadSpriteData(sprite_count), sprite_count was %d\n", sprite_count);
   }
 
-  entity_count = ReadEntityData(MAPS_PATH + "game_entity_data_temp.txt");
+  entity_count =
+      ReadEntityData(GameState, MAPS_PATH + "game_entity_data_temp.txt");
 
   if (entity_count > 0) {
     printf("LoadEntityData(entity_count), entity_count was %d\n", entity_count);
@@ -71,27 +73,28 @@ inline void Load(game_state &GameState) {
 
   SetSpriteTextures(GameState.SpriteList, GameState.GameTextureList);
 
-  if (ReadMapDataTiledMap(TILED_MAPS_PATH + "untitled.tmx")) {
-    setMapCordsTiled();
+  if (ReadMapDataTiledMap(GameState, TILED_MAPS_PATH + "untitled.tmx")) {
+    SetMapCordsTiled(GameState);
   }
 
-  // if (ReadMapData(MAPS_PATH + "map2.txt"))
+  SetPosCords(GameState.Map.PosCords);
+
+  // for (size_t i = 0; i < 40; i++)
   // {
-  // 	setMapCords();
-  // }
-  // else
-  // {
-  // 	printf("\n");
+  //   for (size_t j = 0; j < 20; j++)
+  //   {
+  //     cout << " " << GameState.Map.PosCords[i][j].x << "." <<
+  //     GameState.Map.PosCords[i][j].y;
+  //   }
+  //   cout << endl;
   // }
 
-  setPosCords();
-
-  setEntityCords(GameState.Map, GameState.EntityList, 0);
-  setEntityCords(GameState.Map, GameState.EntityList, 1);
-  setEntityCords(GameState.Map, GameState.EntityList, 2);
+  SetEntityCords(GameState.Map, GameState.EntityList, 0);
+  SetEntityCords(GameState.Map, GameState.EntityList, 1);
+  SetEntityCords(GameState.Map, GameState.EntityList, 2);
 
   // Loads entities seperate from game entities that need to be present on a map
-  SetGuiEntities(GameState.EntityList);
+  SetGuiEntities(GameState.Gui, GameState.EntityList);
 
   setPlayer(GameState);
 
@@ -99,7 +102,7 @@ inline void Load(game_state &GameState) {
 }
 
 inline void Init(game_state &GameState) {
-  player_entity_ID = 9;
+  // player_entity_ID = 9;
 
   Load(GameState);
 
@@ -112,58 +115,51 @@ inline void Init(game_state &GameState) {
   Render_List temp1;
   Render_List temp2;
 
-  render_list.push_back(temp1);
+  GameState.RenderList.push_back(temp1);
 
-  render_list.push_back(temp1);
-
-  objects_to_render.push_back(0);
-  objects_to_render.push_back(0);
+  GameState.RenderList.push_back(temp1);
 
   // Init this with the first entity, used to render entity info
-  game_entity = &GameState.EntityList[0];
+  GameState.Editor.GameEntity = &GameState.EntityList[0];
 
   ////////////////////   TARGET //////////////////////////////////
 
-  target = &getEntityByID("target", gui_entity_list);
+  GameState.Target.pEntity = &getEntityByID("target", GameState.Gui.EntityList);
 
-  target->render_this = false;
+  GameState.Target.pEntity->render_this = false;
 
-  ////////////////////   TARGET FIELD //////////////////////////////////
-
-  target_field.range = 4;
-
-  SetField(GameState, target_field, GameState.EntityList[0].x,
-           GameState.EntityList[0].y, SQUARE, GREEN_TILE);
-
-  fields.push_back(&target_field);
-
-  ////////////////////  ATTACK TARGET FIELD //////////////////////////////////
-
-  attack_target_field.range = 4;
-
-  attack_target_field.field_alpha = 0.5;
-
-  SetField(GameState, attack_target_field, GameState.EntityList[0].x,
-           GameState.EntityList[0].y, SQUARE, BLUE_TILE);
-
-  fields.push_back(&attack_target_field);
+  GameState.Target.right_vel = (GAME_TILE_WIDTH / 2);
+  GameState.Target.left_vel = -(GAME_TILE_WIDTH / 2);
+  GameState.Target.up_vel = -(GAME_TILE_HEIGHT / 2);
+  GameState.Target.down_vel = (GAME_TILE_HEIGHT / 2);
 
   ////////////////////   PLAYER(Julius) //////////////////////////////////
 
   cout << "PLAYER this happens " << endl;
 
-  world_player.pEntity =
-      &getEntityByID(player_entity_ID, GameState.Map.EntityList);
+  GameState.WorldPlayer.pEntity =
+      &getEntityByID("Julius", GameState.Map.EntityList);
 
-  world_player.move_range = 8;
+  GameState.WorldPlayer.move_range = 6;
 
-  world_player.attack_range = 2;
+  GameState.WorldPlayer.attack_range = 4;
 
-  world_player.pEntity->use_shader = true;
+  GameState.WorldPlayer.pEntity->use_shader = true;
 
-  world_player.pEntity->render_this = false;
+  GameState.WorldPlayer.attack_field.range = 4;
 
-  combatant_list.push_back(world_player);
+  GameState.WorldPlayer.attack_field.field_alpha = 0.5;
+
+  GameState.WorldPlayer.pEntity->render_this = true;
+
+  SetField(GameState, GameState.WorldPlayer.attack_field,
+           GameState.EntityList[0].x, GameState.EntityList[0].y, SQUARE,
+           BLUE_TILE);
+
+  GameState.FieldList.push_back(&GameState.WorldPlayer.attack_field);
+
+  GameState.CombatantSelected = GameState.WorldPlayer;
+  GameState.Map.CombatantList.push_back(GameState.CombatantSelected);
 
   ////////////////////   ENEMIES  //////////////////////////////////
 
@@ -171,23 +167,14 @@ inline void Init(game_state &GameState) {
 
   combatant e1;
 
-  combatant e2;
-
   e1.move_range = 2;
-
-  e2.move_range = 2;
 
   e1.move_field.range = 3;
 
-  e2.move_field.range = 3;
+  e1.pEntity = &getEntityByID(211, GameState.Map.EntityList);
 
-  e1.pEntity = &getEntityByID(24, GameState.Map.EntityList);
+  GameState.Map.EnemyList.push_back(e1);
 
-  e2.pEntity = &getEntityByID(25, GameState.Map.EntityList);
-
-  enemy_list.push_back(e1);
-
-  enemy_list.push_back(e2);
 
   InitEnemyFields(GameState);
 
@@ -197,6 +184,8 @@ inline void Init(game_state &GameState) {
 
   Log("test 1");
 
+  Log(GameState.Map.EnemyList[0].pEntity->sprite->name);
+
   for (size_t i = 0; i < 15; i++) {
     Log("Log");
   }
@@ -204,7 +193,8 @@ inline void Init(game_state &GameState) {
 
 inline void InitShaders() {
   printf("######################### SHADER ##############################\n");
-  shader = LoadShader(0, TextFormat("resources/assets/shaders/outline.fs"));
+  GAME_SHADER =
+      LoadShader(0, TextFormat("resources/assets/shaders/outline.fs"));
 
   float outlineSize = 1.75f;
   float outlineColor[4] = {0.0f, 1.0f, 0.0f, 1.0f};  // Normalized Greed color
@@ -213,14 +203,16 @@ inline void InitShaders() {
   float textureSize[2] = {(float)(140), (float)(158)};
 
   // Get shader locations
-  int outlineSizeLoc = GetShaderLocation(shader, "outlineSize");
-  int outlineColorLoc = GetShaderLocation(shader, "outlineColor");
-  int textureSizeLoc = GetShaderLocation(shader, "textureSize");
+  int outlineSizeLoc = GetShaderLocation(GAME_SHADER, "outlineSize");
+  int outlineColorLoc = GetShaderLocation(GAME_SHADER, "outlineColor");
+  int textureSizeLoc = GetShaderLocation(GAME_SHADER, "textureSize");
 
   // Set shader values (they can be changed later)
-  SetShaderValue(shader, outlineSizeLoc, &outlineSize, SHADER_UNIFORM_FLOAT);
-  SetShaderValue(shader, outlineColorLoc, outlineColor, SHADER_UNIFORM_VEC4);
-  SetShaderValue(shader, textureSizeLoc, textureSize, SHADER_UNIFORM_VEC2);
+  SetShaderValue(GAME_SHADER, outlineSizeLoc, &outlineSize,
+                 SHADER_UNIFORM_FLOAT);
+  SetShaderValue(GAME_SHADER, outlineColorLoc, outlineColor,
+                 SHADER_UNIFORM_VEC4);
+  SetShaderValue(GAME_SHADER, textureSizeLoc, textureSize, SHADER_UNIFORM_VEC2);
 }
 
 // Gameplay Screen Initialization logic
@@ -234,9 +226,11 @@ inline void InitGameplayScreen(game_state &GameState) {
 
   InitShaders();
 
-  InitGui();
+  InitActionMenu(GameState.ActionMenu);
 
-  InitActionMenu();
+  for (size_t i = 0; i < GameState.Map.EnemyList.size(); i++) {
+    cout << GameState.Map.EnemyList[i].pEntity->sprite->name << endl;
+  }
 }
 
 // Game logic
@@ -247,7 +241,8 @@ inline void UpdateGameplayScreen(game_state &GameState) {
 
   SetEntityListEllipses(GameState.Map.EntityList);
 
-  if (moving != true && enemy_moving != true) {
+  if (GameState.AnimatingMovement != true &&
+      GameState.AnimatingEnemyMovement != true) {
     CheckKeyboardInput(GameState);
     // UpdateDebugText();
 
@@ -287,16 +282,23 @@ inline void UpdateGameplayScreen(game_state &GameState) {
     // if (setMouseEntity(GameState.Map.EntityList) == true) {
     // }
 
-    CreateNewEntity(GameState.EntityList);
+    // CreateNewEntity(GameState.Editor,GameState.Map,GameState.EntityList);
 
     MouseLogic();
 
-    CombatLogic(GameState);
+    if (DEBUG_TOGGLE_COMBAT == true) {
+      CombatLogic(GameState);
 
-    if (action_menu_up == true) {
+    } else {
+      // Overworld Logic
+
+      MoveUnit(GameState);
+    }
+
+    if (GameState.ActionMenu.is_menu_up == true) {
       ActionGuiLogic(GameState);
     } else {
-      target->render_this = true;
+      GameState.Target.pEntity->render_this = true;
 
       TargetLogic(GameState);
     }
@@ -304,15 +306,15 @@ inline void UpdateGameplayScreen(game_state &GameState) {
     // render_entity_boxes = ToggleEntityBoxes;
 
   } else {
-    if (moving == true) {
-      if (combatant_selected > -1) {
-        MovementAnimated(combatant_list[combatant_selected].pEntity);
+    if (GameState.AnimatingMovement == true) {
+      if (GameState.CombatantSelected.pEntity != 0) {
+        MovementAnimated(GameState, GameState.CombatantSelected.pEntity);
         // moving = false;
       }
     }
 
-    if (enemy_moving == true) {
-      EnemyMovementAnimated();
+    if (GameState.AnimatingEnemyMovement == true) {
+      EnemyMovementAnimated(GameState);
     }
   }
 }
@@ -325,37 +327,38 @@ inline void DrawGameplayScreen(game_state &GameState) {
     printf("DrawGameplayScreen\n");
   }
 
-  DrawFPS(GameGui.x - 200, 0);
+  DrawFPS(GAMESCREEN_OFFSET_X, 0);
 
-  for (size_t i = 0; i < objects_to_render.size(); i++) {
-    objects_to_render[i] = 0;
-  }
+  // Zero out the render objects array
+  memset(GameState.ObjectsToRender, 0, sizeof(GameState.ObjectsToRender));
 
   if (DrawGameplayScreen_runonce == 0) {
     printf("This happens 1\n");
   }
 
-  RenderEntities(GameState, gui_entity_list, RENDER_INDEX);
+  RenderEntities(GameState, GameState.Gui.EntityList, GameState.RENDER_INDEX);
 
-  RenderEntities(GameState, GameState.Map.EntityList, RENDER_INDEX);
+  RenderEntities(GameState, GameState.Map.EntityList, GameState.RENDER_INDEX);
 
-  RenderEntities(GameState, new_entity_list, RENDER_INDEX);
+  // RenderEntities(GameState, new_entity_list, RENDER_INDEX);
 
   if (DrawGameplayScreen_runonce == 0) {
     printf("This happens 2\n");
   }
 
-  RenderAllFields(GameState);
+  RenderAllFields(GameState, GameState.RENDER_INDEX);
 
   if (DrawGameplayScreen_runonce == 0) {
     printf("This happens 3\n");
   }
 
-  SortLayerRenderObjectList(render_list[RENDER_INDEX], SortedRenderObject_list);
+  SortLayerRenderObjectList(GameState.RenderList[GameState.RENDER_INDEX],
+                            GameState.SortedRenderObjectList,
+                            GameState.CurrentLayerList);
 
-  RenderAllLayers(GameState, SortedRenderObject_list);
+  RenderAllLayers(GameState, GameState.SortedRenderObjectList);
 
-  DrawGui(GameState);
+  DrawEditorGui(GameState);
 
   RenderSelectedSprite(GameState);
 
@@ -363,12 +366,18 @@ inline void DrawGameplayScreen(game_state &GameState) {
     printf("This happens 4\n");
   }
 
-  if (action_menu_up == true) {
-    DrawActionGui();
+  if (GameState.ActionMenu.is_menu_up == true) {
+    DrawActionGui(GameState.ActionMenu);
   }
 
   if (PLACING_ENTITY == true) {
     RenderNewEntity(GameState);
+  }
+
+  for (size_t i = 0; i < GameState.Map.EnemyList.size(); i++) {
+    entity *temp = GameState.Map.EnemyList[i].pEntity;
+
+    DrawIsoTriangles(temp);
   }
 
   // RenderEntityBoxes(gui_entity_list);
@@ -376,11 +385,7 @@ inline void DrawGameplayScreen(game_state &GameState) {
 
   // RenderEntityBoxes(new_entity_list);
 
-  // drawIsoTriangles(target);
-
-  DebugLog("combatant_selected: ", combatant_selected);
-
-  RenderEntityInfo();
+  RenderEntityInfo(GameState);
 
   RenderLog();
 

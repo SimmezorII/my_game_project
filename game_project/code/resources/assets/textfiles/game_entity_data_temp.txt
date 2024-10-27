@@ -1,42 +1,48 @@
 ------
-entity ID : [2]
+entity ID : [1] "GreenBlock" "This ID is used by the .tmx files from tiled"
+entity w : [64] "This is the ingame values, how large the enitty is regardless of sprite size"
+entity h : [64]
+entity sprite ID : [70] "This ID is set in game_sprite_data.txt"
+------
+------
+entity ID : [2] "GreenBlock"
+entity w : [64]
+entity h : [64]
+entity sprite ID : [71]
+------
+------
+entity ID : [3] "GreenBlock"
+entity w : [64]
+entity h : [64]
+entity sprite ID : [72]
+------
+------
+entity ID : [200] "Grid"
 entity w : [1280]
 entity h : [640]
 entity sprite ID : [29]
 ------
 ------
-entity ID : [7] "target"
+entity ID : [207] "target"
 entity w : [64]
 entity h : [32]
 entity sprite ID : [59]
 ------
 ------
-entity ID : [8] "sedric"
-entity w : [128]
-entity h : [48]
-entity sprite ID : [62]
-------
-------
-entity ID : [9] "Julius"
+entity ID : [209] "Julius"
 entity w : [48]
 entity h : [64]
 entity sprite ID : [67]
 ------
 ------
-entity ID : [10]
+entity ID : [210]
 entity w : [126]
 entity h : [143]
 entity sprite ID : [62]
 ------
 ------
-entity ID : [11]
-entity w : [126]
-entity h : [143]
-entity sprite ID : [62]
-------
-------
-entity ID : [1]
+entity ID : [211] "Girl"
 entity w : [64]
 entity h : [64]
-entity sprite ID : [68]
+entity sprite ID : [26]
 ------
