@@ -3,15 +3,16 @@
 #include <string>
 
 #include "../header_files/globals.h"
-#include "../header_files/raylib.h"
 #include "game_engine.cpp"
+#include "raylib.h"
+
 
 using namespace std;
 
 inline void ReadAllFilesInDir(const char* path) {
   int count = 0;
 
-  char** DirectoryFiles;
+  FilePathList DirectoryFiles;
 
   char empty1[] = ".";
   char empty2[] = "..";
@@ -19,16 +20,16 @@ inline void ReadAllFilesInDir(const char* path) {
   if (DirectoryExists(path)) {
     // printf("Directory exists\n");
 
-    DirectoryFiles = GetDirectoryFiles(path, &count);
+    DirectoryFiles = LoadDirectoryFiles(path);
 
     // printf("%d\n", count);
 
     for (size_t i = 0; i < count; i++) {
-      if ((strcmp(DirectoryFiles[i], empty1) == 0) ||
-          (strcmp(DirectoryFiles[i], empty2) == 0)) {
+      if ((strcmp(DirectoryFiles.paths[i], empty1) == 0) ||
+          (strcmp(DirectoryFiles.paths[i], empty2) == 0)) {
         // Do nothing with . and .. paths
       } else {
-        printf("%s\n", DirectoryFiles[i]);
+        printf("%s\n", DirectoryFiles.paths[i]);
       }
     }
 
@@ -36,7 +37,7 @@ inline void ReadAllFilesInDir(const char* path) {
     printf("Directory does not exist\n");
   }
 
-  ClearDirectoryFiles();
+  UnloadDirectoryFiles(DirectoryFiles);
 }
 
 inline int GetPNG_FilesInDir(const char* path, vector<string>& StringVector,
@@ -47,7 +48,9 @@ inline int GetPNG_FilesInDir(const char* path, vector<string>& StringVector,
 
   int count = 0;
 
-  char** DirectoryFiles;
+  cout << path << endl; 
+
+  FilePathList DirectoryFiles;
 
   char empty1[] = ".";
   char empty2[] = "..";
@@ -55,35 +58,36 @@ inline int GetPNG_FilesInDir(const char* path, vector<string>& StringVector,
   if (DirectoryExists(path)) {
     printf("Directory exists\n");
 
-    DirectoryFiles = GetDirectoryFiles(path, &count);
+    DirectoryFiles = LoadDirectoryFiles(path);
 
     // printf("%d\n", count);
 
-    for (size_t i = 0; i < count; i++) {
-      if ((strcmp(DirectoryFiles[i], empty1) == 0) ||
-          (strcmp(DirectoryFiles[i], empty2) == 0)) {
+    for (size_t i = 0; i < DirectoryFiles.count; i++) {
+      if ((strcmp(DirectoryFiles.paths[i], empty1) == 0) ||
+          (strcmp(DirectoryFiles.paths[i], empty2) == 0)) {
         // Do nothing with . and .. paths
       } else {
-        if (IsFileExtension(DirectoryFiles[i], ".png")) {
-          StringVector.push_back(DirectoryFiles[i]);
+        if (IsFileExtension(DirectoryFiles.paths[i], ".png")) {
+          StringVector.push_back(DirectoryFiles.paths[i]);
 
           if (!StringList.compare("")) {
-            StringList = StringList + DirectoryFiles[i];
+            StringList = StringList + DirectoryFiles.paths[i];
           } else {
-            StringList = StringList + ";" + DirectoryFiles[i];
+            StringList = StringList + ";" + DirectoryFiles.paths[i];
           }
 
         } else {
         }
       }
     }
+    cout << StringList << endl;
     result = 1;
   } else {
     printf("Directory does not exist\n");
     result = 0;
   }
 
-  ClearDirectoryFiles();
+  UnloadDirectoryFiles(DirectoryFiles);
   return result;
 }
 
@@ -366,8 +370,6 @@ inline string GetPropertyNameFromReadline(string line) {
   return line;
 }
 
-
-
 inline void LoadSpriteData(game_state& GameState, int sprite_count) {
   //------
   // entity sprite ID : [0]
@@ -446,7 +448,7 @@ inline void LoadEntityData(game_state& GameState, int entity_count) {
 
   entity temp;
   int coll_effect = 0;
-   int coll_type = 0;
+  int coll_type = 0;
 
   int index = 0;
   size_t i = 1;
@@ -487,7 +489,6 @@ inline void LoadEntityData(game_state& GameState, int entity_count) {
     if (index < GameState.Resources.EntityLines.size()) {
       if (GameState.Resources.EntityLines[index].find(
               "entity collision effect") != std::string::npos) {
-
         cout << GameState.Resources.EntityLines[index] << endl;
         tmp_str = GetDataFromReadline(GameState.Resources.EntityLines[index]);
         coll_effect = atoi(tmp_str.c_str());
@@ -500,7 +501,6 @@ inline void LoadEntityData(game_state& GameState, int entity_count) {
     if (index < GameState.Resources.EntityLines.size()) {
       if (GameState.Resources.EntityLines[index].find(
               "entity collision type") != std::string::npos) {
-                
         cout << GameState.Resources.EntityLines[index] << endl;
         tmp_str = GetDataFromReadline(GameState.Resources.EntityLines[index]);
         coll_type = atoi(tmp_str.c_str());

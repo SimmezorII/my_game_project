@@ -7,7 +7,7 @@
 #include <string>
 
 #include "../header_files/globals.h"
-#include "../header_files/raylib.h"
+#include "raylib.h"
 
 
 using namespace std;

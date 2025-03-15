@@ -9,7 +9,7 @@
 #include <iostream>
 #include <fstream>
 
-#include "../header_files/raylib.h"
+#include "raylib.h"
 #include "../header_files/globals.h"
 
 using namespace std;
@@ -288,6 +288,32 @@ inline void DebugLog(string text, bool bValue)
 
 }
 
+inline void DebugLogEntityCollissions(game_state& GameState) {
+	DebugLog("INDEX_UP ",
+			 GameState.WorldPlayer.EllipsePointsCollisionsType[INDEX_UP]);
+	DebugLog("INDEX_UP2 ",
+			 GameState.WorldPlayer.EllipsePointsCollisionsType[INDEX_UP2]);
+	DebugLog("INDEX_UP_RIGHT ",
+			 GameState.WorldPlayer.EllipsePointsCollisionsType[INDEX_UP_RIGHT]);
+	DebugLog("INDEX_RIGHT ",
+			 GameState.WorldPlayer.EllipsePointsCollisionsType[INDEX_RIGHT]);
+	DebugLog("INDEX_RIGHT2 ",
+			 GameState.WorldPlayer.EllipsePointsCollisionsType[INDEX_RIGHT2]);
+	DebugLog("INDEX_DOWN_RIGHT ",
+			 GameState.WorldPlayer.EllipsePointsCollisionsType[INDEX_DOWN_RIGHT]);
+	DebugLog("INDEX_DOWN ",
+			 GameState.WorldPlayer.EllipsePointsCollisionsType[INDEX_DOWN]);
+	DebugLog("INDEX_DOWN2 ",
+			 GameState.WorldPlayer.EllipsePointsCollisionsType[INDEX_DOWN2]);
+	DebugLog("INDEX_DOWN_LEFT ",
+			 GameState.WorldPlayer.EllipsePointsCollisionsType[INDEX_DOWN_LEFT]);
+	DebugLog("INDEX_LEFT ",
+			 GameState.WorldPlayer.EllipsePointsCollisionsType[INDEX_LEFT]);
+	DebugLog("INDEX_LEFT ",
+			 GameState.WorldPlayer.EllipsePointsCollisionsType[INDEX_LEFT2]);
+	DebugLog("INDEX_UP_LEFT ",
+			 GameState.WorldPlayer.EllipsePointsCollisionsType[INDEX_UP_LEFT]);
+  }
 
 #define GAME_ENGINE_FUNC
 #endif

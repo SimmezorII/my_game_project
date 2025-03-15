@@ -5,31 +5,11 @@
 //#include "file_handler.cpp" // included in logic.cpp
 //#include "game_engine.cpp" // included in logic.cpp
 
-#include "../header_files/raylib.h"
 #include "../header_files/raylib_functions.h"
 #include "combat.cpp"
 #include "gui.cpp"
 #include "logic.cpp"
-
-//----------------------------------------------------------------------------------
-// Global Variables Definition (local to this module)
-//----------------------------------------------------------------------------------
-
-static int framesCounter;
-static int finishScreen;
-
-//----------------------------------------------------------------------------------
-//  Variables Definition
-//----------------------------------------------------------------------------------
-
-Rectangle panelRec2 = {20, 40, 200, 150};
-Rectangle panelContentRec2 = {0, 0, 340, 340};
-Vector2 panelScroll2 = {99, -20};
-
-Rectangle ctrlvalue = {0, 0, 0, 0};
-
-float offset_x = 0;
-float offset_y = 0;
+#include "raylib.h"
 
 //----------------------------------------------------------------------------------
 // Function Definitions
@@ -202,8 +182,7 @@ inline void Init(game_state &GameState) {
 
 inline void InitShaders() {
   printf("######################### SHADER ##############################\n");
-  GAME_SHADER =
-      LoadShader(0, TextFormat("resources/assets/shaders/outline.fs"));
+  GAME_SHADER = LoadShader(0, TextFormat(TEST_SHADER));
 
   float outlineSize = 1.75f;
   float outlineColor[4] = {0.0f, 1.0f, 0.0f, 1.0f};  // Normalized Greed color
@@ -251,10 +230,6 @@ inline void InitGameplayScreen(game_state &GameState) {
     cout << GameState.EntityList[i].collision_effect << " ";
   }
   cout << endl;
-
-
-  
-
 }
 
 static int DrawGameplayScreen_runonce = 0;
@@ -282,8 +257,7 @@ inline void UpdateGameplayScreen(game_state &GameState) {
   CheckKeyboardInput(GameState);
   MouseLogic();
 
-  MOUSE_POINT= GetCameraMousePosition(GameState);
-
+  MOUSE_POINT = GetCameraMousePosition(GameState);
 
   // if (setMouseEntity(GameState.Map.EntityList) == true) {
   // }
@@ -312,9 +286,9 @@ inline void UpdateGameplayScreen(game_state &GameState) {
     if (DrawGameplayScreen_runonce != 0) {
       if (GameState.AnimatingEnemyMovement == false &&
           GameState.AnimatingMovement == false) {
-      //  EnemyRoaming2(GameState, ROAMING_VEL);
+        //  EnemyRoaming2(GameState, ROAMING_VEL);
       } else {
-       // EnemyMovementAnimated(GameState, ROAMING_VEL);
+        // EnemyMovementAnimated(GameState, ROAMING_VEL);
       }
     }
   }
@@ -327,24 +301,20 @@ inline void UpdateGameplayScreen(game_state &GameState) {
     TargetLogic(GameState);
   }
 
-  CAMERA.target =
-      Vector2{(GameState.WorldPlayer.pEntity->x) ,
-              (GameState.WorldPlayer.pEntity->y) };
-
+  CAMERA.target = Vector2{(GameState.WorldPlayer.pEntity->x),
+                          (GameState.WorldPlayer.pEntity->y)};
 }
 
 // Gameplay Screen Rendering
 inline void DrawGameplayScreen(game_state &GameState) {
   if (DrawGameplayScreen_runonce == 0) {
     printf("DrawGameplayScreen\n");
-    for (size_t i = 0; i < 10; i++)
-    {
-      cout << 64*i << " ";
+    for (size_t i = 0; i < 10; i++) {
+      cout << 64 * i << " ";
     }
-
   }
 
-  DrawFPS(GRID_WIDTH- GAME_TILE_WIDTH*1, 0);
+  DrawFPS(GRID_WIDTH - GAME_TILE_WIDTH * 1, 0);
 
   // Zero out the render objects array
   memset(GameState.ObjectsToRender, 0, sizeof(GameState.ObjectsToRender));
@@ -371,8 +341,7 @@ inline void DrawGameplayScreen(game_state &GameState) {
                             GameState.SortedRenderObjectList,
                             GameState.CurrentLayerList);
 
-  // ############################### BEGIN CAMERA
-  // ###############################
+  // ######################## BEGIN CAMERA ###############################
   if (TOGGLE_CAMERA_MODE) {
     BeginMode2D(CAMERA);
   }
@@ -388,8 +357,6 @@ inline void DrawGameplayScreen(game_state &GameState) {
 
   RenderAllLayers(GameState, GameState.SortedRenderObjectList);
 
-
-
   if (GameState.ActionMenu.is_menu_up == true) {
     DrawActionGui(GameState.ActionMenu);
   }
@@ -404,16 +371,11 @@ inline void DrawGameplayScreen(game_state &GameState) {
     RenderNewEntity(GameState);
   }
 
-  RenderSelectedSprite(GameState);
-
-  //DrawCircle(MOUSE_POINT.x + GAME_TILE_WIDTH, MOUSE_POINT.y+ GAME_TILE_HEIGHT, 10, RED);
-
+  // RenderSelectedSprite(GameState);
   // ############################### END CAMERA ###############################
   if (TOGGLE_CAMERA_MODE) {
     EndMode2D();
   }
-
-  //DrawLineEx( {(float)GAMEWINDOW_WIDTH/2, 0},{(float)GAMEWINDOW_WIDTH/2, (float)GAMEWINDOW_HEIGHT}, 3,BLACK );
 
   DrawEditorGui(GameState);
 

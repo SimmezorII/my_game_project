@@ -5,7 +5,7 @@
 #include <iostream>
 
 #include "../header_files/globals.h"
-#include "../header_files/raylib.h"
+#include "raylib.h"
 
 using namespace std;
 
@@ -78,7 +78,7 @@ inline tile_rect SetIsoRect(pos t, int width, int height) {
   return temp;
 }
 
-void DrawIsoRect(tile_rect& rect) {
+inline void DrawIsoRect(tile_rect& rect) {
   DrawLineEx({rect.line_1_p1_x + GAMESCREEN_OFFSET_X,
               rect.line_1_p1_y + GAMESCREEN_OFFSET_Y},
              {rect.line_1_p2_x + GAMESCREEN_OFFSET_X,
@@ -654,10 +654,10 @@ inline bool CollisionIsoRect(Rectangle& r, point& ref_point) {
   return collision;
 }
 
-Rectangle cTemp = {0, 0, 64, 32};
-
 inline void CheckCordsCollision(pos** pos_cords, Rectangle e,
                                 point& ref_point) {
+  static Rectangle cTemp = {0, 0, 64, 32};
+
   // cout << "Testing setEntityCords" << endl;
 
   for (size_t i = 0; i < Y_TILES; i++) {
@@ -674,6 +674,7 @@ inline void CheckCordsCollision(pos** pos_cords, Rectangle e,
 }
 
 inline pos GetCordsCollisionXY(pos** pos_cords, Rectangle e, point& ref_point) {
+  Rectangle cTemp = {0, 0, 64, 32};
   pos temp = {0, 0, 0};
   // cout << "Testing setEntityCords" << endl;
 
@@ -696,6 +697,7 @@ inline pos GetCordsCollisionXY(pos** pos_cords, Rectangle e, point& ref_point) {
 
 inline pos GetCordsCollisionIndex(pos pos_cords[40][20], Rectangle e,
                                   point& ref_point) {
+  Rectangle cTemp = {0, 0, 64, 32};
   pos temp = {-1, -1, 0};
   // cout << "Testing setEntityCords" << endl;
 
@@ -982,32 +984,7 @@ inline bool CheckCollisionPoints(bool* collision, int* collision_type,
   return any_collision;
 }
 
-void DebugLogEntityCollissions(game_state& GameState) {
-  DebugLog("INDEX_UP ",
-           GameState.WorldPlayer.EllipsePointsCollisionsType[INDEX_UP]);
-  DebugLog("INDEX_UP2 ",
-           GameState.WorldPlayer.EllipsePointsCollisionsType[INDEX_UP2]);
-  DebugLog("INDEX_UP_RIGHT ",
-           GameState.WorldPlayer.EllipsePointsCollisionsType[INDEX_UP_RIGHT]);
-  DebugLog("INDEX_RIGHT ",
-           GameState.WorldPlayer.EllipsePointsCollisionsType[INDEX_RIGHT]);
-  DebugLog("INDEX_RIGHT2 ",
-           GameState.WorldPlayer.EllipsePointsCollisionsType[INDEX_RIGHT2]);
-  DebugLog("INDEX_DOWN_RIGHT ",
-           GameState.WorldPlayer.EllipsePointsCollisionsType[INDEX_DOWN_RIGHT]);
-  DebugLog("INDEX_DOWN ",
-           GameState.WorldPlayer.EllipsePointsCollisionsType[INDEX_DOWN]);
-  DebugLog("INDEX_DOWN2 ",
-           GameState.WorldPlayer.EllipsePointsCollisionsType[INDEX_DOWN2]);
-  DebugLog("INDEX_DOWN_LEFT ",
-           GameState.WorldPlayer.EllipsePointsCollisionsType[INDEX_DOWN_LEFT]);
-  DebugLog("INDEX_LEFT ",
-           GameState.WorldPlayer.EllipsePointsCollisionsType[INDEX_LEFT]);
-  DebugLog("INDEX_LEFT ",
-           GameState.WorldPlayer.EllipsePointsCollisionsType[INDEX_LEFT2]);
-  DebugLog("INDEX_UP_LEFT ",
-           GameState.WorldPlayer.EllipsePointsCollisionsType[INDEX_UP_LEFT]);
-}
+
 
 inline int DirCollisionCheck(game_state& GameState, combatant& combatant,
                              bool check_layered, int dir, int effect_index,

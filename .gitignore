@@ -1,18 +1,12 @@
 $ cat .gitignore
 # comment
-    
-game_project/obj/
 
-game_project/code/shell.bat
-
+my_game/code/shell.bat
 bin/
-
 .vs/
-
-build/
-
+builds/
+builds-debug/
+.vscode/
 raylib/
+old_backup/
 
-old/
-
-gameproject_bat/

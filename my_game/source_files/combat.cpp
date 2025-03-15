@@ -6,7 +6,7 @@
 #include <iostream>
 
 #include "../header_files/globals.h"
-#include "../header_files/raylib.h"
+#include "raylib.h"
 #include "game_engine.cpp"
 
 using namespace std;

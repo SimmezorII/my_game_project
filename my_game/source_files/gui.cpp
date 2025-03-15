@@ -3,87 +3,85 @@
 #include "../header_files/game_engine_func.h"
 #include "../header_files/globals.h"
 #include "../header_files/logic_func.h"
-#include "../header_files/raylib.h"
-#include "../header_files/raylib_functions.h"
-
-#define RAYGUI_IMPLEMENTATION
 #include "../header_files/raygui.h"
+#include "../header_files/raylib_functions.h"
+#include "raylib.h"
 
-Rectangle gui_temp = {0, 0, 100, 18};
+static Rectangle SpriteGroupBoxRect = {(float)(GAMEWINDOW_WIDTH - 220), 20, 200,
+                                       800};
 
-Rectangle SpriteGroupBoxRect = {(float)(GAMEWINDOW_WIDTH - 220),
-                                20, 200, 800};
+static entity gui_temp_entity;
 
-entity gui_temp_entity;
+static Rectangle temp_sprite_rec;
 
-Rectangle temp_sprite_rec;
+static entity new_e;
+static int current_selected = 0;
 
-entity new_e;
+static int init_done = 0;
 
-int temp_w;
-int temp_h;
-
-int selected_sprite = 1;
+static int selected_sprite = 1;
 
 static int GUItempx;
 
 static int GUItempy;
 
-inline void RenderEntityInfo( game_state & GameState) {
+static Rectangle LogInfoRect = {0, 0, 100, 16};
+
+static Rectangle DebugLogInfoRect = {0, 0, 100, 16};
+
+static Rectangle DebugScrollBar = {
+    8 + 400, (float)GAMESCREEN_OFFSET_Y + (float)GAMEWINDOW_HEIGHT - 200 - 16,
+    10, 16 * 11};
+
+static Rectangle ScrollBar = {
+    (float)GAMESCREEN_OFFSET_X + 8,
+    (float)GAMESCREEN_OFFSET_Y + GAMEWINDOW_HEIGHT - 200 - 16, 10, 16 * 11};
+
+inline void RenderEntityInfo(game_state &GameState) {
   string s;
   string name;
   Rectangle temp;
 
-    DebugLog(GameState.CombatantSelected.pEntity->sprite->name);
+  DebugLog(GameState.CombatantSelected.pEntity->sprite->name);
 
-    temp.x = GameState.CombatantSelected.pEntity->offset_rect.x;
-    temp.y =
-        GameState.CombatantSelected.pEntity->offset_rect.y - FONT_SIZE;
+  temp.x = GameState.CombatantSelected.pEntity->offset_rect.x;
+  temp.y = GameState.CombatantSelected.pEntity->offset_rect.y - FONT_SIZE;
+  temp.width = 100;  // Size of max string
+  temp.height = FONT_SIZE;
+
+  GuiLabel(temp, GameState.CombatantSelected.pEntity->sprite->name.c_str());
+
+  s = to_string((int)GameState.CombatantSelected.Stats.CurrentHP) + "/" +
+      to_string((int)GameState.CombatantSelected.Stats.MaxHP);
+  temp.x = temp.x + s.size() * 6;
+  GuiLabel(temp, s.c_str());
+
+  for (size_t i = 0; i < GameState.Map.EnemyList.size(); i++) {
+    DebugLog(GameState.Map.EnemyList[i].pEntity->sprite->name);
+
+    temp.x = GameState.Map.EnemyList[i].pEntity->offset_rect.x;
+    temp.y = GameState.Map.EnemyList[i].pEntity->offset_rect.y - FONT_SIZE;
     temp.width = 100;  // Size of max string
     temp.height = FONT_SIZE;
 
-    GuiLabel(temp,
-             GameState.CombatantSelected.pEntity->sprite->name.c_str());
+    name = GameState.Map.EnemyList[i].pEntity->sprite->name;
 
-    s = to_string( (int)GameState.CombatantSelected.Stats.CurrentHP) + "/" + to_string( (int)GameState.CombatantSelected.Stats.MaxHP);
-    temp.x = temp.x + s.size() * 6;
+    GuiLabel(temp, name.c_str());
+
+    s = to_string((int)GameState.Map.EnemyList[i].Stats.CurrentHP) + "/" +
+        to_string((int)GameState.Map.EnemyList[i].Stats.MaxHP);
+    temp.x = temp.x + (name.size() * 6) + 6;
+    // temp.y = temp.y + FONT_SIZE;
     GuiLabel(temp, s.c_str());
-
-    for (size_t i = 0; i < GameState.Map.EnemyList.size(); i++) {
-
-        DebugLog(GameState.Map.EnemyList[i].pEntity->sprite->name);
-
-        temp.x = GameState.Map.EnemyList[i].pEntity->offset_rect.x;
-        temp.y = GameState.Map.EnemyList[i].pEntity->offset_rect.y - FONT_SIZE;
-        temp.width = 100;  // Size of max string
-        temp.height = FONT_SIZE;
-
-        name = GameState.Map.EnemyList[i].pEntity->sprite->name;
-
-        GuiLabel(temp, name.c_str());
-
-        s = to_string((int)GameState.Map.EnemyList[i].Stats.CurrentHP) +
-            "/" + to_string((int)GameState.Map.EnemyList[i].Stats.MaxHP);
-        temp.x = temp.x + (name.size() * 6) + 6;
-        // temp.y = temp.y + FONT_SIZE;
-        GuiLabel(temp, s.c_str());
-
-    }
-
-
+  }
 }
 
 inline void DrawEditorGui(game_state &GameState) {
   int n = 0;
 
-  bool ToggleSpriteOffsetX = false;
-  bool ToggleSpriteX = false;
-  bool ToggleSpriteOffsetY = false;
-  bool ToggleSpriteY = false;
-
   bool dropDown001EditMode = false;
 
-  DrawRectangle(GAMEWINDOW_WIDTH - 280,0, 280, GAMEWINDOW_HEIGHT, WHITE);
+  DrawRectangle(GAMEWINDOW_WIDTH - 280, 0, 280, GAMEWINDOW_HEIGHT, WHITE);
 
   Rectangle SaveRect2 = {0, 0, 40, 24};
 
@@ -106,62 +104,62 @@ inline void DrawEditorGui(game_state &GameState) {
            "sprite name");
   GuiTextBox(
       {gui_temp.x + 22, gui_temp.y, gui_temp.width - 10, gui_temp.height},
-      strdup(GameState.Editor.GameEntity->sprite->name.c_str()), 12, false);
+      _strdup(GameState.Editor.GameEntity->sprite->name.c_str()), 12, false);
   n++;
 
   gui_temp.y = 10 + SpriteGroupBoxRect.y + (n * 20);
 
   gui_temp.y = 14 + SpriteGroupBoxRect.y + (n * 20);
   GuiSpinner({gui_temp.x, gui_temp.y, gui_temp.width, gui_temp.height},
-             "sprite x", &GameState.Editor.GameEntity->sprite->x, 0, 2000, ToggleSpriteX);
+             "sprite x", &GameState.Editor.GameEntity->sprite->x, 0, 2000,
+             ToggleSpriteX);
   n++;
-  ToggleSpriteX = GuiToggle(
-      {gui_temp.x + gui_temp.width + 2, gui_temp.y, 40, gui_temp.height},
-      "Edit", ToggleSpriteX);
+  GuiToggle({gui_temp.x + gui_temp.width + 2, gui_temp.y, 40, gui_temp.height},
+            "Edit", &ToggleSpriteX);
 
   gui_temp.y = 12 + SpriteGroupBoxRect.y + (n * 20);
   GuiSpinner({gui_temp.x, gui_temp.y, gui_temp.width, gui_temp.height},
-             "sprite y", &GameState.Editor.GameEntity->sprite->y, 0, 2000, ToggleSpriteY);
+             "sprite y", &GameState.Editor.GameEntity->sprite->y, 0, 2000,
+             ToggleSpriteY);
   n++;
-  ToggleSpriteY = GuiToggle(
-      {gui_temp.x + gui_temp.width + 2, gui_temp.y, 40, gui_temp.height},
-      "Edit", ToggleSpriteY);
+  GuiToggle({gui_temp.x + gui_temp.width + 2, gui_temp.y, 40, gui_temp.height},
+            "Edit", &ToggleSpriteY);
 
   gui_temp.y = 12 + SpriteGroupBoxRect.y + (n * 20);
   GuiSpinner({gui_temp.x, gui_temp.y, gui_temp.width, gui_temp.height},
-             "sprite w", &GameState.Editor.GameEntity->sprite->w, 0, 2000, false);
+             "sprite w", &GameState.Editor.GameEntity->sprite->w, 0, 2000,
+             false);
   n++;
-  GameState.Editor.GameEntity->sprite->w = GuiSliderBar(
-      {gui_temp.x + 92, gui_temp.y, gui_temp.width, gui_temp.height}, "",
-      TextFormat("%i", GameState.Editor.GameEntity->sprite->w), GameState.Editor.GameEntity->sprite->w, 0,
-      2000);
+  // GameState.Editor.GameEntity->sprite->w = GuiSliderBar(
+  //     {gui_temp.x + 92, gui_temp.y, gui_temp.width, gui_temp.height}, "",
+  //     TextFormat("%i", (float *)GameState.Editor.GameEntity->sprite->w),
+  //     (float *)GameState.Editor.GameEntity->sprite->w, 0, 2000);
 
   gui_temp.y = 12 + SpriteGroupBoxRect.y + (n * 20);
   GuiSpinner({gui_temp.x, gui_temp.y, gui_temp.width, gui_temp.height},
-             "sprite h", &GameState.Editor.GameEntity->sprite->h, 0, 2000, false);
+             "sprite h", &GameState.Editor.GameEntity->sprite->h, 0, 2000,
+             false);
   n++;
-  GameState.Editor.GameEntity->sprite->h = GuiSliderBar(
-      {gui_temp.x + 92, gui_temp.y, gui_temp.width, gui_temp.height}, "",
-      TextFormat("%i", GameState.Editor.GameEntity->sprite->h), GameState.Editor.GameEntity->sprite->h, 0,
-      2000);
+  /*   GameState.Editor.GameEntity->sprite->h = GuiSliderBar(
+        {gui_temp.x + 92, gui_temp.y, gui_temp.width, gui_temp.height}, "",
+        TextFormat("%i",  (float *)GameState.Editor.GameEntity->sprite->h),
+        (float *)GameState.Editor.GameEntity->sprite->h, 0, 2000); */
 
   gui_temp.y = 14 + SpriteGroupBoxRect.y + (n * 20);
   GuiSpinner({gui_temp.x, gui_temp.y, gui_temp.width, gui_temp.height},
-             "offset_x", &GameState.Editor.GameEntity->sprite->offset_x, -800, 2000,
-             ToggleSpriteOffsetX);
+             "offset_x", &GameState.Editor.GameEntity->sprite->offset_x, -800,
+             2000, ToggleSpriteOffsetX);
   n++;
-  ToggleSpriteOffsetX = GuiToggle(
-      {gui_temp.x + gui_temp.width + 2, gui_temp.y, 40, gui_temp.height},
-      "Edit", ToggleSpriteOffsetX);
+  GuiToggle({gui_temp.x + gui_temp.width + 2, gui_temp.y, 40, gui_temp.height},
+            "Edit", &ToggleSpriteOffsetX);
 
   gui_temp.y = 12 + SpriteGroupBoxRect.y + (n * 20);
   GuiSpinner({gui_temp.x, gui_temp.y, gui_temp.width, gui_temp.height},
-             "offset_y", &GameState.Editor.GameEntity->sprite->offset_y, -800, 2000,
-             ToggleSpriteOffsetY);
+             "offset_y", &GameState.Editor.GameEntity->sprite->offset_y, -800,
+             2000, ToggleSpriteOffsetY);
   n++;
-  ToggleSpriteOffsetY = GuiToggle(
-      {gui_temp.x + gui_temp.width + 2, gui_temp.y, 40, gui_temp.height},
-      "Edit", ToggleSpriteOffsetY);
+  GuiToggle({gui_temp.x + gui_temp.width + 2, gui_temp.y, 40, gui_temp.height},
+            "Edit", &ToggleSpriteOffsetY);
 
   gui_temp.y = 14 + SpriteGroupBoxRect.y + (n * 20);
 
@@ -172,9 +170,8 @@ inline void DrawEditorGui(game_state &GameState) {
   GuiSpinner({gui_temp.x, gui_temp.y, gui_temp.width, gui_temp.height},
              "entity x", &GUItempx, 0, 2000, ToggleSpriteX);
   n++;
-  ToggleSpriteX = GuiToggle(
-      {gui_temp.x + gui_temp.width + 2, gui_temp.y, 40, gui_temp.height},
-      "Edit", ToggleSpriteX);
+  GuiToggle({gui_temp.x + gui_temp.width + 2, gui_temp.y, 40, gui_temp.height},
+            "Edit", &ToggleSpriteX);
 
   GameState.Editor.GameEntity->x = GUItempx;
 
@@ -182,9 +179,8 @@ inline void DrawEditorGui(game_state &GameState) {
   GuiSpinner({gui_temp.x, gui_temp.y, gui_temp.width, gui_temp.height},
              "entity y", &GUItempy, 0, 2000, ToggleSpriteY);
   n++;
-  ToggleSpriteY = GuiToggle(
-      {gui_temp.x + gui_temp.width + 2, gui_temp.y, 40, gui_temp.height},
-      "Edit", ToggleSpriteY);
+  GuiToggle({gui_temp.x + gui_temp.width + 2, gui_temp.y, 40, gui_temp.height},
+            "Edit", &ToggleSpriteY);
 
   GameState.Editor.GameEntity->y = GUItempy;
 
@@ -193,8 +189,8 @@ inline void DrawEditorGui(game_state &GameState) {
            "file img");
   if (GuiDropdownBox(
           {gui_temp.x, gui_temp.y + 2, gui_temp.width + 80, gui_temp.height},
-          GameState.AllPNGList.c_str(), &GameState.Editor.GameEntity->sprite->index,
-          dropDown001EditMode)) {
+          GameState.AllPNGList.c_str(),
+          &GameState.Editor.GameEntity->sprite->index, dropDown001EditMode)) {
     dropDown001EditMode = !dropDown001EditMode;
   }
   n++;
@@ -203,23 +199,19 @@ inline void DrawEditorGui(game_state &GameState) {
 
   GuiGroupBox({gui_temp.x, gui_temp.y, 100, 100}, "Options");
 
-  Rectangle OptionsGroupBoxRect = {(float)GAMEWINDOW_WIDTH  -100,
-                                   (float)GAMEWINDOW_HEIGHT  -100, 280, 400};
-
-  //
+  Rectangle OptionsGroupBoxRect = {(float)GAMEWINDOW_WIDTH - 100,
+                                   (float)GAMEWINDOW_HEIGHT - 100, 280, 400};
 
   n = 0;
 
   gui_temp.y = OptionsGroupBoxRect.y + (n * 24);
   gui_temp.x = OptionsGroupBoxRect.x;
-  // gui_temp.x = GameGui.x - 40;
 
   char str[12] = "Show Boxes";
 
-  ToggleEntityBoxes =
-      GuiToggle({gui_temp.x + 2, gui_temp.y, sizeof(str) / sizeof(str[0]) * 6,
-                 gui_temp.height},
-                str, ToggleEntityBoxes);
+  GuiToggle({gui_temp.x + 2, gui_temp.y, sizeof(str) / sizeof(str[0]) * 6,
+             gui_temp.height},
+            str, &ToggleEntityBoxes);
 
   n++;
 
@@ -227,9 +219,9 @@ inline void DrawEditorGui(game_state &GameState) {
 
   gui_temp.y = OptionsGroupBoxRect.y + (n * 24);
 
-  DEBUG_TOGGLE_COMBAT = GuiToggle({gui_temp.x + 2, gui_temp.y,
-                      sizeof(str2) / sizeof(str2[0]) * 6, gui_temp.height},
-                     str2, DEBUG_TOGGLE_COMBAT);
+  GuiToggle({gui_temp.x + 2, gui_temp.y, sizeof(str2) / sizeof(str2[0]) * 6,
+             gui_temp.height},
+            str2, &DEBUG_TOGGLE_COMBAT);
 
   n++;
 
@@ -237,21 +229,17 @@ inline void DrawEditorGui(game_state &GameState) {
 
   gui_temp.y = OptionsGroupBoxRect.y + (n * 24);
 
-  DEBUG_TOGGLE_UNUSED = GuiToggle({gui_temp.x + 2, gui_temp.y,
-                           sizeof(str3) / sizeof(str3[0]) * 6, gui_temp.height},
-                          str3, DEBUG_TOGGLE_UNUSED);
+  GuiToggle({gui_temp.x + 2, gui_temp.y, sizeof(str3) / sizeof(str3[0]) * 6,
+             gui_temp.height},
+            str3, &DEBUG_TOGGLE_UNUSED);
 }
-
-static int current_selected = 0;
-
-static int init_done = 0;
 
 inline void RenderSelectedSprite(game_state &GameState) {
   int n = 0;
   temp_sprite_rec.height = 60;
   temp_sprite_rec.width = 100;
 
-  temp_sprite_rec.x = GAMEWINDOW_WIDTH-200;
+  temp_sprite_rec.x = GAMEWINDOW_WIDTH - 200;
   temp_sprite_rec.y = GAMEWINDOW_HEIGHT - 400;
 
   GuiSpinner({temp_sprite_rec.x, temp_sprite_rec.y - 30, 100, 20}, "sprite id",
@@ -286,6 +274,9 @@ inline void RenderSelectedSprite(game_state &GameState) {
   // ToggleSpriteY = GuiToggle({ gui_temp.x + gui_temp.width + 2, gui_temp.y,
   // 40, gui_temp.height }, "Edit", ToggleSpriteY);
 
+  int temp_w = 0;
+  int temp_h = 0;
+
   new_e.sprite = &getSpriteEx(GameState.SpriteList, selected_sprite);
 
   if (init_done == 0) {
@@ -315,6 +306,9 @@ inline void RenderSelectedSprite(game_state &GameState) {
 }
 
 inline void RenderNewEntity(game_state &GameState) {
+  int temp_w = 0;
+  int temp_h = 0;
+
   temp_sprite_rec.height = temp_h;
   temp_sprite_rec.width = temp_w;
 
@@ -343,14 +337,16 @@ inline void RenderNewEntity(game_state &GameState) {
                   (float)getTexture(GameState.SpriteList,
                                     GameState.GameTextureList, selected_sprite)
                       .tex.height},
-                 temp_sprite_rec, {0, 0}, 0, CLITERAL(Color){ 255, 255, 255, 0 });
+                 temp_sprite_rec, {0, 0}, 0, CLITERAL(Color){255, 255, 255, 0});
 }
 
-inline void AddNewEntity(editor &Editor, map &Map ,vector<entity> &entity_list ,int x, int y, int screen_x, int screen_y) {
+inline void AddNewEntity(editor &Editor, map &Map, vector<entity> &entity_list,
+                         int x, int y, int screen_x, int screen_y) {
   new_e.ID = entity_list[entity_list.size() - 1].ID + Editor.NumOfAdded;
 
   new_e.render_this = true;
-
+  int temp_w = 0;
+  int temp_h = 0;
   new_e.w = temp_w;
   new_e.h = temp_h;
 
@@ -361,16 +357,17 @@ inline void AddNewEntity(editor &Editor, map &Map ,vector<entity> &entity_list ,
 
   WriteEntityDataSingle(new_e, MAPS_PATH + "game_entity_data_temp.txt");
 
-  WriteUpdatedMap(Map,MAPS_PATH + "map2.txt");
+  WriteUpdatedMap(Map, MAPS_PATH + "map2.txt");
 
-   Editor.NumOfAdded++;
+  Editor.NumOfAdded++;
 
   cout << "this happens" << endl;
 
   entity_list.push_back(new_e);
 }
 
-inline void CreateNewEntity(editor &Editor,map &Map, vector<entity> & entity_list) {
+inline void CreateNewEntity(editor &Editor, map &Map,
+                            vector<entity> &entity_list) {
   pos p;
 
   if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
@@ -383,7 +380,8 @@ inline void CreateNewEntity(editor &Editor,map &Map, vector<entity> & entity_lis
     cout << "NOT IMPLEMENTED" << endl;
     // if (PLACING_ENTITY) {
     //   p = GetCordsCollisionIndex(Map.PosCords,
-    //       {GetMousePosition().x, GetMousePosition().y, 1, 1}, {(int)GetMousePosition().x,(int)GetMousePosition().y});
+    //       {GetMousePosition().x, GetMousePosition().y, 1, 1},
+    //       {(int)GetMousePosition().x,(int)GetMousePosition().y});
 
     //   if (p.x != -1 && p.y != -1) {
     //     // CURRENT_LAYER = 1;
@@ -391,7 +389,8 @@ inline void CreateNewEntity(editor &Editor,map &Map, vector<entity> & entity_lis
     //     cout << "This happens clicked" << endl;
 
     //     AddNewEntity(Editor,Map,entity_list,p.x, p.y, p.screen_x,
-    //                  p.screen_y - (Map.CurrentLayer * (GAME_TILE_HEIGHT / 2)));
+    //                  p.screen_y - (Map.CurrentLayer * (GAME_TILE_HEIGHT /
+    //                  2)));
 
     //     PLACING_ENTITY = false;
     //   }
@@ -415,23 +414,23 @@ inline void DrawActionGui(menu &ActionMenu) {
 
   // This is the action menu box
   DrawRectangle(ActionMenu.MenuRects[0].x, ActionMenu.MenuRects[0].y,
-                ActionMenu.MenuRects[0].width + 24, ActionMenu.MenuRects[0].height,
-                WHITE);
+                ActionMenu.MenuRects[0].width + 24,
+                ActionMenu.MenuRects[0].height, WHITE);
 
-  GuiGroupBox({ActionMenu.MenuRects[0].x, ActionMenu.MenuRects[0].y,
-               ActionMenu.MenuRects[0].width + 24, ActionMenu.MenuRects[0].height},
-              "Action Menu");
+  GuiGroupBox(
+      {ActionMenu.MenuRects[0].x, ActionMenu.MenuRects[0].y,
+       ActionMenu.MenuRects[0].width + 24, ActionMenu.MenuRects[0].height},
+      "Action Menu");
 
   if (ActionMenu.is_pre_state == true) {
-    ActionButton[0] =
-        GuiButtonEx(ActionMenu.MenuRects[1], "Ready", ActionMenu.MenuTarget, KEY_X);
+    ActionButton[0] = GuiButtonEx(ActionMenu.MenuRects[1], "Ready",
+                                  ActionMenu.MenuTarget, KEY_X);
 
-    ActionButton[1] =
-        GuiButtonEx(ActionMenu.MenuRects[2], "Escape", ActionMenu.MenuTarget, KEY_X);
+    ActionButton[1] = GuiButtonEx(ActionMenu.MenuRects[2], "Escape",
+                                  ActionMenu.MenuTarget, KEY_X);
 
-    ActionButton[2] =
-        GuiButtonEx(ActionMenu.MenuRects[3], "End", ActionMenu.MenuTarget, KEY_X);
-
+    ActionButton[2] = GuiButtonEx(ActionMenu.MenuRects[3], "End",
+                                  ActionMenu.MenuTarget, KEY_X);
 
     DrawRectangleLinesEx(ActionMenu.MenuTarget, 2, RED);
 
@@ -440,20 +439,20 @@ inline void DrawActionGui(menu &ActionMenu) {
     //                    RED);
 
   } else {
-    ActionButton[0] =
-        GuiButtonEx(ActionMenu.MenuRects[1], "Move", ActionMenu.MenuTarget, KEY_X);
+    ActionButton[0] = GuiButtonEx(ActionMenu.MenuRects[1], "Move",
+                                  ActionMenu.MenuTarget, KEY_X);
 
-    ActionButton[1] =
-        GuiButtonEx(ActionMenu.MenuRects[2], "Attack", ActionMenu.MenuTarget, KEY_X);
+    ActionButton[1] = GuiButtonEx(ActionMenu.MenuRects[2], "Attack",
+                                  ActionMenu.MenuTarget, KEY_X);
 
-    ActionButton[2] =
-        GuiButtonEx(ActionMenu.MenuRects[3], "End", ActionMenu.MenuTarget, KEY_X);
+    ActionButton[2] = GuiButtonEx(ActionMenu.MenuRects[3], "End",
+                                  ActionMenu.MenuTarget, KEY_X);
 
     DrawRectangleLinesEx(ActionMenu.MenuTarget, 2, RED);
   }
 }
 
-inline void AddDebugText( ) {
+inline void AddDebugText() {
   GAME_LOG.DebugInfoLines.push_back("temp1");
   GAME_LOG.DebugInfoLines.push_back("temp2");
   GAME_LOG.DebugInfoLines.push_back("temp3");
@@ -476,12 +475,6 @@ inline void UpdateDebugText(game_state &GameState) {
   GAME_LOG.DebugInfoLines[5].append(to_string(GameState.Target.pEntity->y));
 }
 
-Rectangle LogInfoRect = {0, 0, 100, 16};
-
-Rectangle ScrollBar = {
-    (float)GAMESCREEN_OFFSET_X + 8,
-    (float)GAMESCREEN_OFFSET_Y + GAMEWINDOW_HEIGHT - 200 - 16, 10, 16 * 11};
-
 inline void RenderLog() {
   LogInfoRect.x = 20;
 
@@ -499,7 +492,8 @@ inline void RenderLog() {
                         ((i - GAME_LOG.LogScrollCounter) * LogInfoRect.height) -
                         (LogInfoRect.height * 1),
                     LogInfoRect.width, LogInfoRect.height},
-                   GAME_LOG.LogLines[(GAME_LOG.CurrentLineLog - 1 - rendernum)].c_str());
+                   GAME_LOG.LogLines[(GAME_LOG.CurrentLineLog - 1 - rendernum)]
+                       .c_str());
           rendernum++;
         } else {
           rendernum++;
@@ -511,22 +505,19 @@ inline void RenderLog() {
                       ((i - GAME_LOG.LogScrollCounter) * LogInfoRect.height) -
                       (LogInfoRect.height * 1),
                   LogInfoRect.width, LogInfoRect.height},
-                 GAME_LOG.LogLines[(GAME_LOG.CurrentLineLog - 1 - rendernum)].c_str());
+                 GAME_LOG.LogLines[(GAME_LOG.CurrentLineLog - 1 - rendernum)]
+                     .c_str());
 
         rendernum++;
       }
     }
   }
 
-  GAME_LOG.LogScrollCounter =
-      GuiScrollBar(ScrollBar, GAME_LOG.LogScrollCounter, 100 - GAME_LOG.CurrentLineLog, 89);
+  // GAME_LOG.LogScrollCounter = GuiScrollBar(ScrollBar,
+  // GAME_LOG.LogScrollCounter,
+  //                                          100 - GAME_LOG.CurrentLineLog,
+  //                                          89);
 }
-
-Rectangle DebugLogInfoRect = {0, 0, 100, 16};
-
-Rectangle DebugScrollBar = {
-    8 + 400, (float)GAMESCREEN_OFFSET_Y + (float)GAMEWINDOW_HEIGHT - 200 - 16,
-    10, 16 * 11};
 
 inline void RenderDebugLog() {
   DebugLogInfoRect.x = 20 + 400;
@@ -543,10 +534,13 @@ inline void RenderDebugLog() {
           GuiLabel(
               {DebugLogInfoRect.x,
                DebugLogInfoRect.y +
-                   ((i - GAME_LOG.DebugLogScrollCounter) * DebugLogInfoRect.height) -
+                   ((i - GAME_LOG.DebugLogScrollCounter) *
+                    DebugLogInfoRect.height) -
                    (DebugLogInfoRect.height * 1),
                DebugLogInfoRect.width, DebugLogInfoRect.height},
-              GAME_LOG.DebugLogLines[(GAME_LOG.CurrentLineDebuglog - 1 - rendernum)].c_str());
+              GAME_LOG
+                  .DebugLogLines[(GAME_LOG.CurrentLineDebuglog - 1 - rendernum)]
+                  .c_str());
           rendernum++;
         } else {
           rendernum++;
@@ -555,16 +549,20 @@ inline void RenderDebugLog() {
         GuiLabel(
             {DebugLogInfoRect.x,
              DebugLogInfoRect.y +
-                 ((i - GAME_LOG.DebugLogScrollCounter) * DebugLogInfoRect.height) -
+                 ((i - GAME_LOG.DebugLogScrollCounter) *
+                  DebugLogInfoRect.height) -
                  (DebugLogInfoRect.height * 1),
              DebugLogInfoRect.width, DebugLogInfoRect.height},
-            GAME_LOG.DebugLogLines[(GAME_LOG.CurrentLineDebuglog - 1 - rendernum)].c_str());
+            GAME_LOG
+                .DebugLogLines[(GAME_LOG.CurrentLineDebuglog - 1 - rendernum)]
+                .c_str());
 
         rendernum++;
       }
     }
   }
 
-  GAME_LOG.DebugLogScrollCounter = GuiScrollBar(DebugScrollBar, GAME_LOG.DebugLogScrollCounter,
-                                       100 - GAME_LOG.CurrentLineDebuglog, 89);
+  // GAME_LOG.DebugLogScrollCounter =
+  //     GuiScrollBar(DebugScrollBar, GAME_LOG.DebugLogScrollCounter,
+  //                  100 - GAME_LOG.CurrentLineDebuglog, 89);
 }

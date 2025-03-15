@@ -49,6 +49,25 @@ global_variable int GAMESCREEN_OFFSET_Y = 0;
 
 global_variable enum { TITLE = 0, OPTIONS, GAMEPLAY, ENDING, GUI } GameScreen;
 
+struct game_log {
+  int LogScrollCounter = 99;
+  int CurrentLineLog = 0;
+  int DebugLogScrollCounter = 99;
+  int CurrentLineDebuglog = 0;
+  int LogReset = 0;
+
+  vector<string> DebugInfoLines;
+  vector<string> LogLines;
+  vector<string> DebugLogLines;
+};
+
+struct vel {
+  int right;
+  int left;
+  int up;
+  int down;
+};
+
 global_variable enum Direction {
   UP = 1,
   DOWN = -1,
@@ -106,7 +125,6 @@ global_variable enum {
 
 } CollisionCheck;
 
-
 global_variable bool DEBUG_PRINT = false;
 
 global_variable int TARGET_FPS = 120;
@@ -131,19 +149,21 @@ global_variable bool TOGGLE_CAMERA_MODE = true;
 global_variable float RENDER_SCALE = 1.0f;
 
 // This path is relative to the .exe file
-global_variable char cstrGAME_ASSET_PATH[100] = "resources\\assets\\game\\";
+global_variable char cstrGAME_ASSET_PATH[100] = "..\\..\\resources\\assets\\game\\";
 
-global_variable char cstrGUI_ASSET_PATH[100] = "resources\\assets\\gui\\";
+global_variable char cstrGUI_ASSET_PATH[100] = "..\\..\\resources\\assets\\gui\\";
 
-global_variable char cstrMAPS_PATH[100] = "resources\\assets\\textfiles\\";
+global_variable char cstrMAPS_PATH[100] = "..\\..\\resources\\assets\\textfiles\\";
 
-global_variable string GAME_ASSET_PATH = "resources\\assets\\game";
+global_variable string GAME_ASSET_PATH = "..\\..\\resources\\assets\\game\\";
 
-global_variable string GUI_ASSET_PATH = "resources\\assets\\gui";
+global_variable string GUI_ASSET_PATH = "..\\..\\resources\\assets\\gui\\";
 
-global_variable string MAPS_PATH = "resources\\assets\\textfiles";
+global_variable string MAPS_PATH = "..\\..\\resources\\assets\\textfiles\\";
 
-global_variable string TILED_MAPS_PATH = "resources\\assets\\game\\tsx";
+global_variable string TILED_MAPS_PATH = "..\\..\\resources\\assets\\game\\tsx\\";
+
+global_variable char TEST_SHADER[100] = "../../resources/assets/shaders/outline.fs";
 
 global_variable int FONT_SIZE = 10;
 
@@ -182,17 +202,72 @@ global_variable float GLOBAL_ALPHA = 0.5;
 
 global_variable int DEBUG_ENEMEY_INDEX = 0;
 
-vel PLAYER_VEL = {(GAME_TILE_WIDTH / 8), -(GAME_TILE_WIDTH / 8),
-                  (GAME_TILE_HEIGHT / 8), -(GAME_TILE_HEIGHT / 8)};
+global_variable vel PLAYER_VEL = {(GAME_TILE_WIDTH / 8), -(GAME_TILE_WIDTH / 8),
+                                  (GAME_TILE_HEIGHT / 8),
+                                  -(GAME_TILE_HEIGHT / 8)};
 
-vel COMBAT_VEL = {(GAME_TILE_WIDTH / 2), -(GAME_TILE_WIDTH / 2),
-                  -(GAME_TILE_HEIGHT / 2), (GAME_TILE_HEIGHT / 2)};
+global_variable vel COMBAT_VEL = {(GAME_TILE_WIDTH / 2), -(GAME_TILE_WIDTH / 2),
+                                  -(GAME_TILE_HEIGHT / 2),
+                                  (GAME_TILE_HEIGHT / 2)};
 
-vel ROAMING_VEL = {(GAME_TILE_WIDTH / 1), -(GAME_TILE_WIDTH / 1),
-                   -(GAME_TILE_HEIGHT / 1), (GAME_TILE_HEIGHT / 1)};
+global_variable vel ROAMING_VEL = {
+    (GAME_TILE_WIDTH / 1), -(GAME_TILE_WIDTH / 1), -(GAME_TILE_HEIGHT / 1),
+    (GAME_TILE_HEIGHT / 1)};
 
 global_variable point MOUSE_POINT;
 
+//#############################  unhandled 
+
+static Rectangle recSprite2;
+static Rectangle recEntity2;
+
+global_variable vector<pos> Layer1;
+global_variable vector<pos> Layer2;
+
+static pos temp = {0, 0};
+
+static int index_counter = 0;
+
+static int added_once = 0;
+
+
+//----------------------------------------------------------------------------------
+// Global Variables Definition (local to this module)
+//----------------------------------------------------------------------------------
+
+static int framesCounter;
+static int finishScreen;
+
+//----------------------------------------------------------------------------------
+//  Variables Definition
+//----------------------------------------------------------------------------------
+
+static Rectangle panelRec2 = {20, 40, 200, 150};
+static Rectangle panelContentRec2 = {0, 0, 340, 340};
+static Vector2 panelScroll2 = {99, -20};
+
+static Rectangle ctrlvalue = {0, 0, 0, 0};
+
+static float fix_offset_x = 0;
+static float fix_offset_y = 0;
+
+static Rectangle recSprite = {64, 0, 64, 32};
+
+static Rectangle recEntity = {0, 0, 0, 0};
+
+static bool global_render = false;
+
+static Vector2 global_vec = {0, 0};
+
+static Rectangle global_temp1 = {-100, -100, 0, 0};
+
+static Rectangle global_temp2 = {-100, -100, 0, 0};
+
+static Rectangle gui_temp = {0, 0, 100, 18};
+
+static bool on_field = false;
+
+static bool MoveLogic_collision = false;
 
 #define GLOBALS_H
 #endif

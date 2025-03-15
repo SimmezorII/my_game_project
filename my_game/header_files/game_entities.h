@@ -6,10 +6,11 @@
 ======================================================================== */
 #include <string>
 #include <vector>
+#include "raylib.h"
 
-#include "globals.h"
 
 using namespace std;
+
 
 enum CollisionEffect {
   COLLISION = 0,
@@ -21,12 +22,7 @@ enum CollisionEffect {
 
 };
 
-struct vel {
-  int right;
-  int left;
-  int up;
-  int down;
-};
+
 
 struct win32_window_dimension {
   int Width;
@@ -86,6 +82,7 @@ struct point {
 };
 
 struct ellipse {
+
   point center;
 
   float w;
@@ -322,17 +319,7 @@ struct Render_List {
   bool render_this = false;
 };
 
-struct game_log {
-  int LogScrollCounter = 99;
-  int CurrentLineLog = 0;
-  int DebugLogScrollCounter = 99;
-  int CurrentLineDebuglog = 0;
-  int LogReset = 0;
 
-  vector<string> DebugInfoLines;
-  vector<string> LogLines;
-  vector<string> DebugLogLines;
-};
 
 struct gui {
   float x;
@@ -448,6 +435,10 @@ struct game_state {
   // Editor related functions
   editor Editor;
 };
+
+
+
+
 
 #define GAME_H
 #endif

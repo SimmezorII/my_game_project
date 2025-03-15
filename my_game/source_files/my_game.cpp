@@ -3,11 +3,13 @@
  *
  ********************************************************************************************/
 
-#include "../header_files/raylib.h"
+#include "raylib.h"
 
 #include "../header_files/globals.h"
 #include "game.cpp"
 
+#define RAYGUI_IMPLEMENTATION
+#include "../header_files/raygui.h"
 
 // Update and draw game frame
 static void GameUpdateAndRender(game_state &GameState, int CurrentScreen) {

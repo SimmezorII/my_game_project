@@ -12,7 +12,7 @@
 #include "../header_files/game_entities.h"
 #include "../header_files/globals.h"
 #include "../header_files/logic_func.h"
-#include "../header_files/raylib.h"
+#include "raylib.h"
 #include "combat.cpp"
 #include "game_engine.cpp"
 
@@ -39,17 +39,15 @@ static float time1;
 
 static float time2;
 
-bool on_field = false;
+static bool moved_combatant = false;
 
-bool moved_combatant = false;
-
-bool moved_target = false;
+static bool moved_target = false;
 
 static double last = 0;
 
-bool collision = false;
+//bool collision = false;
 
-Rectangle temptarget;
+static Rectangle temptarget;
 
 //================================== RANDOMNESS
 //======================================
@@ -57,10 +55,10 @@ typedef std::mt19937
     MyRNG;  // the Mersenne Twister with a popular choice of parameters
 static uint32_t seed_val;  // populate somehow
 
-std::uniform_int_distribution<uint32_t> uint_dist;  // by default range [0, MAX]
-std::uniform_int_distribution<uint32_t> uint_dist20(1, 20);  // range [1,20]
+static std::uniform_int_distribution<uint32_t> uint_dist;  // by default range [0, MAX]
+static std::uniform_int_distribution<uint32_t> uint_dist20(1, 20);  // range [1,20]
 
-std::uniform_int_distribution<uint32_t> uint_dist12(1, 12);  // range [1,12]
+static std::uniform_int_distribution<uint32_t> uint_dist12(1, 12);  // range [1,12]
 
 static MyRNG rng;
 
@@ -705,7 +703,7 @@ inline void UpdateGameTurn(game_state& GameState) {
   }
 }
 
-void InitMoveLogic(game_state& GameState) {
+inline void InitMoveLogic(game_state& GameState) {
   bool field_found = false;
 
   GameState.Target.is_on_move_field = true;
@@ -752,7 +750,7 @@ void InitMoveLogic(game_state& GameState) {
   }
 }
 
-void InitAttackLogic(game_state& GameState) {
+inline void InitAttackLogic(game_state& GameState) {
   Log("ATTACK!");
 
   bool field_found = false;
@@ -1031,7 +1029,7 @@ inline void MoveLogic(game_state& GameState) {
       if (GameState.MoveList.empty() != true) {
         GameState.MoveList.pop_back();
 
-        collision = true;
+        MoveLogic_collision = true;
       }
     }
   }
@@ -1081,10 +1079,10 @@ inline void MoveLogic(game_state& GameState) {
     }
 
     if (GameState.ActionMenu.Z_COUNT == 1 && moved_target == false &&
-        collision == false) {
+      MoveLogic_collision == false) {
       moved_target = false;
 
-      cout << "this collistion " << collision << endl;
+      cout << "this collistion " << MoveLogic_collision << endl;
 
       ResetFieldVariables(&GameState.CombatantSelected);
 
@@ -1097,7 +1095,7 @@ inline void MoveLogic(game_state& GameState) {
       GameState.ActionMenu.Z_COUNT = 0;
     }
 
-    if (GameState.ActionMenu.Z_COUNT == 1 && collision == true) {
+    if (GameState.ActionMenu.Z_COUNT == 1 && MoveLogic_collision == true) {
       GameState.Target.pEntity->x = GameState.CombatantSelected.pEntity->x;
 
       GameState.Target.pEntity->y = GameState.CombatantSelected.pEntity->y;
@@ -1114,7 +1112,7 @@ inline void MoveLogic(game_state& GameState) {
 
       moved_target = false;
 
-      collision = false;
+      MoveLogic_collision = false;
 
       GameState.MoveList.clear();
 
@@ -1372,7 +1370,7 @@ inline void MoveUnit(game_state& GameState, vel v) {
   }
 }
 
-void SyncEnemyPosition(game_state& GameState, vel v) {
+inline void SyncEnemyPosition(game_state& GameState, vel v) {
   bool x_synced = false;
   bool y_synced = false;
 
@@ -1403,7 +1401,7 @@ void SyncEnemyPosition(game_state& GameState, vel v) {
   }
 }
 
-void EnemyRoaming2(game_state& GameState, vel v) {
+inline void EnemyRoaming2(game_state& GameState, vel v) {
   int static enemy_frame_count = 0;
   static double enemy_static_last_input_time = 0;
 
