@@ -42,10 +42,208 @@ inline tile_rect getTileRect(Rectangle& t) {
   return temp;
 }
 
+inline tile_rect SetIsoRect(pos t, int width, int height) {
+  tile_rect temp;
+
+  t.x = t.x - width / 2;
+  t.y = t.y - height / 2;
+
+  temp.line_1_p1_x = t.x + width / 2 + GAME_TILE_WIDTH / 2;
+  temp.line_1_p1_y = t.y + GAME_TILE_HEIGHT / 2;
+
+  temp.line_1_p2_x = t.x + GAME_TILE_WIDTH / 2;
+  temp.line_1_p2_y = t.y + height / 2 + GAME_TILE_HEIGHT / 2;
+
+  temp.line_2_p1_x = t.x + GAME_TILE_WIDTH / 2;
+  temp.line_2_p1_y = t.y + height / 2 + GAME_TILE_HEIGHT / 2;
+
+  temp.line_2_p2_x = t.x + width / 2 + GAME_TILE_WIDTH / 2;
+  temp.line_2_p2_y = t.y + height + GAME_TILE_HEIGHT / 2;
+
+  temp.line_3_p1_x = t.x + width / 2 + GAME_TILE_WIDTH / 2;
+  temp.line_3_p1_y = t.y + height + GAME_TILE_HEIGHT / 2;
+
+  temp.line_3_p2_x = t.x + width + GAME_TILE_WIDTH / 2;
+  temp.line_3_p2_y = t.y + height / 2 + GAME_TILE_HEIGHT / 2;
+
+  temp.line_4_p1_x = t.x + width + GAME_TILE_WIDTH / 2;
+  temp.line_4_p1_y = t.y + height / 2 + GAME_TILE_HEIGHT / 2;
+
+  temp.line_4_p2_x = t.x + width / 2 + GAME_TILE_WIDTH / 2;
+  temp.line_4_p2_y = t.y + GAME_TILE_HEIGHT / 2;
+
+  // cout << "temp.line_1_p1_x: " << temp.line_1_p1_x << "temp.line_1_p1_y" <<
+  // temp.line_1_p1_y << endl;
+
+  return temp;
+}
+
+void DrawIsoRect(tile_rect& rect) {
+  DrawLineEx({rect.line_1_p1_x + GAMESCREEN_OFFSET_X,
+              rect.line_1_p1_y + GAMESCREEN_OFFSET_Y},
+             {rect.line_1_p2_x + GAMESCREEN_OFFSET_X,
+              rect.line_1_p2_y + GAMESCREEN_OFFSET_Y},
+             3, ORANGE);
+
+  DrawLineEx({rect.line_2_p1_x + GAMESCREEN_OFFSET_X,
+              rect.line_2_p1_y + GAMESCREEN_OFFSET_Y},
+             {rect.line_2_p2_x + GAMESCREEN_OFFSET_X,
+              rect.line_2_p2_y + GAMESCREEN_OFFSET_Y},
+             3, ORANGE);
+
+  DrawLineEx({rect.line_3_p1_x + GAMESCREEN_OFFSET_X,
+              rect.line_3_p1_y + GAMESCREEN_OFFSET_Y},
+             {rect.line_3_p2_x + GAMESCREEN_OFFSET_X,
+              rect.line_3_p2_y + GAMESCREEN_OFFSET_Y},
+             3, ORANGE);
+
+  DrawLineEx({rect.line_4_p1_x + GAMESCREEN_OFFSET_X,
+              rect.line_4_p1_y + GAMESCREEN_OFFSET_Y},
+             {rect.line_4_p2_x + GAMESCREEN_OFFSET_X,
+              rect.line_4_p2_y + GAMESCREEN_OFFSET_Y},
+             3, ORANGE);
+}
+
+inline void DrawRectLines(entity* e, int LINE) {
+  bool collision = false;
+  tile_rect temp = getTileRect(e->entity_tile);
+
+  float line_start_x = 0;
+  float line_start_y = 0;
+  float line_end_x = 0;
+  float line_end_y = 0;
+
+  if (LINE == LINE_UP) {
+    line_start_x = temp.line_1_p1_x;
+    line_start_y = temp.line_1_p1_y;
+    line_end_x = temp.line_1_p2_x;
+    line_end_y = temp.line_1_p2_y;
+  }
+
+  if (LINE == LINE_LEFT) {
+    line_start_x = temp.line_2_p1_x;
+    line_start_y = temp.line_2_p1_y;
+    line_end_x = temp.line_2_p2_x;
+    line_end_y = temp.line_2_p2_y;
+  }
+
+  if (LINE == LINE_DOWN) {
+    line_start_x = temp.line_3_p1_x;
+    line_start_y = temp.line_3_p1_y;
+    line_end_x = temp.line_3_p2_x;
+    line_end_y = temp.line_3_p2_y;
+  }
+
+  if (LINE == LINE_RIGHT) {
+    line_start_x = temp.line_4_p1_x;
+    line_start_y = temp.line_4_p1_y;
+    line_end_x = temp.line_4_p2_x;
+    line_end_y = temp.line_4_p2_y;
+  }
+
+  if (LINE == LINE_DIAG) {
+    line_start_x = temp.line_3_p1_x;
+    line_start_y = temp.line_3_p1_y;
+    line_end_x = temp.line_3_p2_x;
+    line_end_y = temp.line_3_p2_y - GAME_TILE_HEIGHT;
+  }
+
+  if (LINE == TRIPLE_LINE_RIGHT) {
+    // line_start_x = temp.line_2_p1_x + GAME_TILE_WIDTH / 2 + GAME_TILE_WIDTH /
+    // 8; line_start_y = GAME_TILE_HEIGHT / 2 + temp.line_2_p1_y -
+    //                GAME_TILE_HEIGHT * 2 + GAME_TILE_HEIGHT / 8;
+    // line_end_x = temp.line_2_p2_x + GAME_TILE_WIDTH / 2 - GAME_TILE_WIDTH /
+    // 8; line_end_y = GAME_TILE_HEIGHT / 2 + temp.line_2_p2_y -
+    //              GAME_TILE_HEIGHT * 2 - GAME_TILE_HEIGHT / 8;
+
+    // DrawLineEx(
+    //     {line_start_x + GAMESCREEN_OFFSET_X,
+    //      line_start_y + GAMESCREEN_OFFSET_Y},
+    //     {line_end_x + GAMESCREEN_OFFSET_X, line_end_y + GAMESCREEN_OFFSET_Y},
+    //     2, RED);
+
+    line_start_x = temp.line_2_p1_x + GAME_TILE_WIDTH / 8;
+    line_start_y = temp.line_2_p1_y + GAME_TILE_HEIGHT / 8;
+    line_end_x = temp.line_2_p2_x - GAME_TILE_WIDTH / 8;
+    line_end_y = temp.line_2_p2_y - GAME_TILE_HEIGHT / 8;
+
+    DrawLineEx(
+        {line_start_x + GAMESCREEN_OFFSET_X,
+         line_start_y + GAMESCREEN_OFFSET_Y},
+        {line_end_x + GAMESCREEN_OFFSET_X, line_end_y + GAMESCREEN_OFFSET_Y}, 2,
+        YELLOW);
+
+  } else {
+    DrawLineEx(
+        {line_start_x + GAMESCREEN_OFFSET_X,
+         line_start_y + GAMESCREEN_OFFSET_Y},
+        {line_end_x + GAMESCREEN_OFFSET_X, line_end_y + GAMESCREEN_OFFSET_Y}, 2,
+        ORANGE);
+  }
+}
+
+inline bool CollisionRectLines(entity* e, point& ref_point, int LINE) {
+  bool collision = false;
+  tile_rect temp = getTileRect(e->entity_tile);
+
+  float line_start_x;
+  float line_start_y;
+  float line_end_x;
+  float line_end_y;
+
+  if (LINE == LINE_UP) {
+    line_start_x = temp.line_1_p1_x;
+    line_start_y = temp.line_1_p1_y;
+    line_end_x = temp.line_1_p2_x;
+    line_end_y = temp.line_1_p2_y;
+  }
+
+  if (LINE == LINE_LEFT) {
+    line_start_x = temp.line_2_p1_x;
+    line_start_y = temp.line_2_p1_y;
+    line_end_x = temp.line_2_p2_x;
+    line_end_y = temp.line_2_p2_y;
+  }
+
+  if (LINE == LINE_DOWN) {
+    line_start_x = temp.line_3_p1_x;
+    line_start_y = temp.line_3_p1_y;
+    line_end_x = temp.line_3_p2_x;
+    line_end_y = temp.line_3_p2_y;
+  }
+
+  if (LINE == LINE_RIGHT) {
+    line_start_x = temp.line_4_p1_x;
+    line_start_y = temp.line_4_p1_y;
+    line_end_x = temp.line_4_p2_x;
+    line_end_y = temp.line_4_p2_y;
+  }
+
+  if (LINE == LINE_DIAG) {
+    line_start_x = temp.line_3_p1_x;
+    line_start_y = temp.line_3_p1_y;
+    line_end_x = temp.line_3_p2_x;
+    line_end_y = temp.line_3_p2_y - GAME_TILE_HEIGHT;
+  }
+
+  if (LINE == TRIPLE_LINE_RIGHT) {
+    line_start_x = temp.line_2_p1_x + GAME_TILE_WIDTH / 8;
+    line_start_y = temp.line_2_p1_y + GAME_TILE_HEIGHT / 8;
+    line_end_x = temp.line_2_p2_x - GAME_TILE_WIDTH / 8;
+    line_end_y = temp.line_2_p2_y - GAME_TILE_HEIGHT / 8;
+  }
+
+  collision = CheckCollisionPointLine({ref_point.x, ref_point.y},
+                                      {line_start_x, line_start_y},
+                                      {line_end_x, line_end_y}, 1);
+
+  return collision;
+}
+
 inline tile_triangles getTileTriangles(Rectangle& t) {
   tile_triangles temp;
 
-  int padding = 1;
+  float padding = 0;
 
   temp.tri_1_line_1_x = t.x + t.width / 2;
   temp.tri_1_line_1_y = t.y;
@@ -89,7 +287,7 @@ inline tile_triangles getTileTriangles(Rectangle& t) {
 inline tile_rect getTileInnerRect(Rectangle& t) {
   tile_rect temp;
 
-  int padding = 1;
+  float padding = 0.25;
 
   temp.line_1_p1_x = t.x + t.width / 2;
   temp.line_1_p1_y = t.y + padding;
@@ -522,50 +720,84 @@ inline pos GetCordsCollisionIndex(pos pos_cords[40][20], Rectangle e,
 }
 
 inline void SetEllipsesColPointArray(ellipse& e, vector<point>& epoints) {
-  point point_up;
+  point point_up1;
+  point point_up2;
   point point_upright;
-  point point_right;
+  point point_right1;
+  point point_right2;
   point point_downright;
-  point point_down;
+  point point_down1;
+  point point_down2;
   point point_downleft;
-  point point_left;
+  point point_left1;
+  point point_left2;
   point point_upleft;
 
-  epoints.clear();
+  int pixel = 1;
 
-  int pixel = 0;
+  point_up1.x = e.center.x;
+  point_up1.y = e.center.y - e.h / 2;
 
-  point_up.x = e.center.x;
-  point_up.y = e.center.y - e.h / 2;
-  epoints.push_back(point_up);
+  point_up2.x = -pixel + e.center.x;
+  point_up2.y = e.center.y - e.h / 2;
 
   point_upright.x = e.center.x + 0.66666 * (e.w + e.w);
   point_upright.y = e.center.y - 0.75 * (e.h / 2);
-  epoints.push_back(point_upright);
 
-  point_right.x = -pixel + e.center.x + e.w + e.w;
-  point_right.y = e.center.y;
-  epoints.push_back(point_right);
+  point_right1.x = -pixel + e.center.x + e.w + e.w;
+  point_right1.y = e.center.y;
+
+  point_right2.x = -pixel + e.center.x + e.w + e.w;
+  point_right2.y = -pixel + e.center.y;
 
   point_downright.x = e.center.x + 0.66666 * (e.w + e.w);
   point_downright.y = -pixel + e.center.y - (-1 * (0.75 * (e.h / 2)));
-  epoints.push_back(point_downright);
 
-  point_down.x = e.center.x;
-  point_down.y = -pixel + e.center.y - 1 * (-e.h / 2);
-  epoints.push_back(point_down);
+  point_down1.x = e.center.x;
+  point_down1.y = -pixel + e.center.y - 1 * (-e.h / 2);
+
+  point_down2.x = -pixel + e.center.x;
+  point_down2.y = -pixel + e.center.y - 1 * (-e.h / 2);
 
   point_downleft.x = e.center.x + (-1 * (0.66666 * (e.w + e.w)));
   point_downleft.y = -pixel + e.center.y - (-1 * (0.75 * (e.h / 2)));
-  epoints.push_back(point_downleft);
 
-  point_left.x = e.center.x - e.w - e.w;
-  point_left.y = e.center.y;
-  epoints.push_back(point_left);
+  point_left1.x = e.center.x - e.w - e.w;
+  point_left1.y = e.center.y;
+
+  point_left2.x = e.center.x - e.w - e.w;
+  point_left2.y = -pixel + e.center.y;
 
   point_upleft.x = e.center.x + (-1 * (0.66666 * (e.w + e.w)));
   point_upleft.y = e.center.y - 0.75 * (e.h / 2);
-  epoints.push_back(point_upleft);
+
+  if (epoints.empty()) {
+    epoints.push_back(point_up1);
+    epoints.push_back(point_up2);
+    epoints.push_back(point_upright);
+    epoints.push_back(point_right1);
+    epoints.push_back(point_right2);
+    epoints.push_back(point_downright);
+    epoints.push_back(point_down1);
+    epoints.push_back(point_down2);
+    epoints.push_back(point_downleft);
+    epoints.push_back(point_left1);
+    epoints.push_back(point_left2);
+    epoints.push_back(point_upleft);
+  } else {
+    epoints[0] = (point_up1);
+    epoints[1] = (point_up2);
+    epoints[2] = (point_upright);
+    epoints[3] = (point_right1);
+    epoints[4] = (point_right2);
+    epoints[5] = (point_downright);
+    epoints[6] = (point_down1);
+    epoints[7] = (point_down2);
+    epoints[8] = (point_downleft);
+    epoints[9] = (point_left1);
+    epoints[10] = (point_left2);
+    epoints[11] = (point_upleft);
+  }
 }
 
 inline bool CheckEllipsesColPoints(bool* collision, vector<point>& epoints,
@@ -583,45 +815,484 @@ inline bool CheckEllipsesColPoints(bool* collision, vector<point>& epoints,
   return any_collision;
 }
 
-inline bool CheckCollisionPoints(bool* collision, vector<point>& epoints,
-                                 vector<entity>& entities, entity* self,
+inline void CheckCollisionType(bool* collision, int* collision_type,
+                               vector<entity>& entities,
+                               vector<entity*>& ref_entities, int entity_index,
+                               int epoints_index) {
+  bool found = false;
+
+  if (!ref_entities.empty()) {
+    for (size_t j = 0; j < ref_entities.size(); j++) {
+      if (&entities[entity_index] == ref_entities[j]) {
+        found = true;
+      } else {
+      }
+    }
+    if (!found) {
+      ref_entities.push_back(&entities[entity_index]);
+      collision_type[epoints_index] = entities[entity_index].collision_effect;
+    }
+
+  } else {
+    ref_entities.push_back(&entities[entity_index]);
+    collision_type[epoints_index] = entities[entity_index].collision_effect;
+  }
+}
+
+inline void CheckCollisionType(bool* collision, int* collision_type,
+                               vector<entity*>& entities,
+                               vector<entity*>& ref_entities, int entity_index,
+                               int epoints_index) {
+  bool found = false;
+
+  if (!ref_entities.empty()) {
+    for (size_t j = 0; j < ref_entities.size(); j++) {
+      if (entities[entity_index] == ref_entities[j]) {
+        found = true;
+      } else {
+      }
+    }
+    if (!found) {
+      ref_entities.push_back(entities[entity_index]);
+      collision_type[epoints_index] = entities[entity_index]->collision_effect;
+    }
+
+  } else {
+    ref_entities.push_back(entities[entity_index]);
+    collision_type[epoints_index] = entities[entity_index]->collision_effect;
+  }
+}
+
+inline bool CheckCollisionPoints(bool* collision, int* collision_type,
+                                 vector<point>& epoints,
+                                 vector<entity*> entities, entity* self,
+                                 vector<entity*> ref_entities,
                                  bool check_layered) {
   bool any_collision = false;
-
-  int coll_array_size = sizeof(collision) / sizeof(collision[0]);
-
-  for (size_t i = 0; i < coll_array_size; i++) {
-    collision[i] = false;
-  }
+  bool found = false;
 
   for (size_t i = 0; i < epoints.size(); i++) {
-    for (size_t entity = 0; entity < entities.size(); entity++) {
-      if (self != &entities[entity]) {
-        if (self->layer == entities[entity].layer || check_layered == false) {
-          switch (entities[entity].coll_check_type) {
+    collision[i] = false;
+    collision_type[i] = -1;
+
+    for (size_t entity_index = 0; entity_index < entities.size();
+         entity_index++) {
+      if (self != entities[entity_index]) {
+        if (self->layer == entities[entity_index]->layer ||
+            check_layered == false) {
+          switch (entities[entity_index]->coll_check_type) {
             case TILE:
-              if (CollisionIsoTriangles(&entities[entity], epoints[i])) {
+
+              if (CollisionIsoTriangles(entities[entity_index], epoints[i])) {
                 collision[i] = true;
+                any_collision = true;
+
+                CheckCollisionType(collision, collision_type, entities,
+                                   ref_entities, entity_index, i);
               }
               break;
             case ELLIPSE:
-              if (entities[entity].el.is_inside_ellipse(epoints[i])) {
+              if (entities[entity_index]->el.is_inside_ellipse(epoints[i])) {
                 collision[i] = true;
+                any_collision = true;
+
+                CheckCollisionType(collision, collision_type, entities,
+                                   ref_entities, entity_index, i);
               }
+
               break;
             case POINT:
               cout << "NOT IMPLEMENTED" << endl;
               break;
+
+            case LINE_UP:
+              if (CollisionRectLines(entities[entity_index], epoints[i],
+                                     LINE_UP)) {
+                collision[i] = true;
+                any_collision = true;
+
+                CheckCollisionType(collision, collision_type, entities,
+                                   ref_entities, entity_index, i);
+              }
+              break;
+            case LINE_LEFT:
+              if (CollisionRectLines(entities[entity_index], epoints[i],
+                                     LINE_LEFT)) {
+                collision[i] = true;
+                any_collision = true;
+
+                CheckCollisionType(collision, collision_type, entities,
+                                   ref_entities, entity_index, i);
+              }
+              break;
+            case LINE_DOWN:
+              if (CollisionRectLines(entities[entity_index], epoints[i],
+                                     LINE_DOWN)) {
+                collision[i] = true;
+                any_collision = true;
+
+                CheckCollisionType(collision, collision_type, entities,
+                                   ref_entities, entity_index, i);
+              }
+              break;
+            case LINE_RIGHT:
+              if (CollisionRectLines(entities[entity_index], epoints[i],
+                                     LINE_RIGHT)) {
+                collision[i] = true;
+                any_collision = true;
+
+                CheckCollisionType(collision, collision_type, entities,
+                                   ref_entities, entity_index, i);
+              }
+              break;
+
+            case LINE_DIAG:
+              if (CollisionRectLines(entities[entity_index], epoints[i],
+                                     LINE_DIAG)) {
+                collision[i] = true;
+                any_collision = true;
+
+                CheckCollisionType(collision, collision_type, entities,
+                                   ref_entities, entity_index, i);
+              }
+              break;
+            case TRIPLE_LINE_RIGHT:
+              if (CollisionRectLines(entities[entity_index], epoints[i],
+                                     TRIPLE_LINE_RIGHT)) {
+                collision[i] = true;
+                any_collision = true;
+
+                CheckCollisionType(collision, collision_type, entities,
+                                   ref_entities, entity_index, i);
+              }
+              break;
             default:
-              cout << "NO DEFAULT CHECK" << endl;
+
               break;
           }
         }
       }
     }
+
+    if (!any_collision) {
+      ref_entities.clear();
+    }
   }
 
   return any_collision;
+}
+
+void DebugLogEntityCollissions(game_state& GameState) {
+  DebugLog("INDEX_UP ",
+           GameState.WorldPlayer.EllipsePointsCollisionsType[INDEX_UP]);
+  DebugLog("INDEX_UP2 ",
+           GameState.WorldPlayer.EllipsePointsCollisionsType[INDEX_UP2]);
+  DebugLog("INDEX_UP_RIGHT ",
+           GameState.WorldPlayer.EllipsePointsCollisionsType[INDEX_UP_RIGHT]);
+  DebugLog("INDEX_RIGHT ",
+           GameState.WorldPlayer.EllipsePointsCollisionsType[INDEX_RIGHT]);
+  DebugLog("INDEX_RIGHT2 ",
+           GameState.WorldPlayer.EllipsePointsCollisionsType[INDEX_RIGHT2]);
+  DebugLog("INDEX_DOWN_RIGHT ",
+           GameState.WorldPlayer.EllipsePointsCollisionsType[INDEX_DOWN_RIGHT]);
+  DebugLog("INDEX_DOWN ",
+           GameState.WorldPlayer.EllipsePointsCollisionsType[INDEX_DOWN]);
+  DebugLog("INDEX_DOWN2 ",
+           GameState.WorldPlayer.EllipsePointsCollisionsType[INDEX_DOWN2]);
+  DebugLog("INDEX_DOWN_LEFT ",
+           GameState.WorldPlayer.EllipsePointsCollisionsType[INDEX_DOWN_LEFT]);
+  DebugLog("INDEX_LEFT ",
+           GameState.WorldPlayer.EllipsePointsCollisionsType[INDEX_LEFT]);
+  DebugLog("INDEX_LEFT ",
+           GameState.WorldPlayer.EllipsePointsCollisionsType[INDEX_LEFT2]);
+  DebugLog("INDEX_UP_LEFT ",
+           GameState.WorldPlayer.EllipsePointsCollisionsType[INDEX_UP_LEFT]);
+}
+
+inline int DirCollisionCheck(game_state& GameState, combatant& combatant,
+                             bool check_layered, int dir, int effect_index,
+                             int& set_vel, bool& ref_trigger) {
+  ellipse temp_el = combatant.pEntity->el;
+
+  int x_vel = combatant.x_vel;
+  int y_vel = combatant.y_vel;
+
+  int act_vel;
+
+  int n_vel;
+
+  int* DIR_CHECK[4];
+
+  int collision_effect = -1;
+
+  if (dir == DOWN || dir == DOWNUP) {
+    DIR_CHECK[0] = &combatant.EllipsePointsCollisionsType[INDEX_DOWN];
+    DIR_CHECK[1] = &combatant.EllipsePointsCollisionsType[INDEX_DOWN2];
+    DIR_CHECK[2] = &combatant.EllipsePointsCollisionsType[INDEX_DOWN_RIGHT];
+    DIR_CHECK[3] = &combatant.EllipsePointsCollisionsType[INDEX_DOWN_LEFT];
+
+    n_vel = y_vel;
+  } else if (dir == UP || dir == UPDOWN) {
+    DIR_CHECK[0] = &combatant.EllipsePointsCollisionsType[INDEX_UP];
+    DIR_CHECK[1] = &combatant.EllipsePointsCollisionsType[INDEX_UP2];
+    DIR_CHECK[2] = &combatant.EllipsePointsCollisionsType[INDEX_UP_RIGHT];
+    DIR_CHECK[3] = &combatant.EllipsePointsCollisionsType[INDEX_UP_LEFT];
+
+    n_vel = y_vel;
+  } else if (dir == RIGHT || dir == RIGHTLEFT) {
+    DIR_CHECK[0] = &combatant.EllipsePointsCollisionsType[INDEX_RIGHT];
+    DIR_CHECK[1] = &combatant.EllipsePointsCollisionsType[INDEX_RIGHT2];
+    DIR_CHECK[2] = &combatant.EllipsePointsCollisionsType[INDEX_UP_RIGHT];
+    DIR_CHECK[3] = &combatant.EllipsePointsCollisionsType[INDEX_DOWN_RIGHT];
+
+    n_vel = x_vel;
+  } else if (dir == LEFT || dir == LEFTRIGHT) {
+    DIR_CHECK[0] = &combatant.EllipsePointsCollisionsType[INDEX_LEFT];
+    DIR_CHECK[1] = &combatant.EllipsePointsCollisionsType[INDEX_LEFT2];
+    DIR_CHECK[2] = &combatant.EllipsePointsCollisionsType[INDEX_UP_LEFT];
+    DIR_CHECK[3] = &combatant.EllipsePointsCollisionsType[INDEX_DOWN_LEFT];
+
+    n_vel = x_vel;
+  } else {
+    int temp = -1;
+    DIR_CHECK[0] = &temp;
+    DIR_CHECK[1] = &temp;
+    DIR_CHECK[2] = &temp;
+    DIR_CHECK[3] = &temp;
+  }
+
+  for (size_t i = 0; i <= n_vel; i++) {
+    act_vel = i;
+
+    SetEllipsesColPointArray(temp_el, combatant.EllipsePoints);
+
+    // MUST IMPROVE PERFORMANCE HERE
+    CheckCollisionPoints(combatant.EllipsePointsCollisions,
+                         combatant.EllipsePointsCollisionsType,
+                         combatant.EllipsePoints, combatant.EntitiesVicinity,
+                         combatant.pEntity, GameState.EntitiesCollision,
+                         check_layered);
+
+    if ((*DIR_CHECK[0] == GameState.CollisionEffects[effect_index]) ||
+        (*DIR_CHECK[1] == GameState.CollisionEffects[effect_index]) ||
+        (*DIR_CHECK[2] == GameState.CollisionEffects[effect_index]) ||
+        (*DIR_CHECK[3] == GameState.CollisionEffects[effect_index])) {
+      ref_trigger = true;
+      collision_effect = GameState.CollisionEffects[effect_index];
+      break;
+    }
+    if (dir == DOWN || dir == UPDOWN) {
+      temp_el.center.y = temp_el.center.y + 1;
+
+    } else if (dir == UP || dir == DOWNUP) {
+      temp_el.center.y = temp_el.center.y - 1;
+
+    } else if (dir == RIGHT || dir == LEFTRIGHT) {
+      temp_el.center.x = temp_el.center.x + 1;
+
+    } else if (dir == LEFT || dir == RIGHTLEFT) {
+      temp_el.center.x = temp_el.center.x - 1;
+
+    } else {
+    }
+  }
+  set_vel = act_vel;
+  return collision_effect;
+}
+
+inline bool SetCollisionEffect(game_state& GameState, combatant& combatant,
+                               bool movement, int act_vel_x, int act_vel_y,
+                               int& x_vel, int& y_vel, bool trigger_effect,
+                               int collision_effect) {
+  static int apply_once = -1;
+
+  bool set_effect = false;
+
+  if (collision_effect == COLLISION && trigger_effect) {
+    combatant.pEntity->x = combatant.pEntity->x + act_vel_x;
+    combatant.pEntity->y = combatant.pEntity->y + act_vel_y;
+
+    combatant.x_vel = act_vel_x;
+    combatant.y_vel = act_vel_y;
+
+  } else if (collision_effect == NO_COLLISION && trigger_effect) {
+  }
+
+  else if (collision_effect == UP_LAYER && trigger_effect) {
+    if (y_vel < 0) {
+      cout << "UP LAYER - UP " << combatant.x_vel << " " << combatant.y_vel
+           << endl;
+      combatant.pEntity->layer = combatant.pEntity->layer + 2;
+
+      apply_once = 1;
+      set_effect = true;
+      return set_effect;
+
+    } else if (x_vel > 0) {
+      cout << "UP LAYER - RIGHT " << combatant.x_vel << " " << combatant.y_vel
+           << endl;
+
+      combatant.pEntity->layer = combatant.pEntity->layer + 2;
+
+      apply_once = 1;
+      set_effect = true;
+      return set_effect;
+
+    }
+
+    else {
+    }
+
+  }
+
+  else if (collision_effect == DOWN_LAYER && trigger_effect &&
+           apply_once == 1) {
+    if (y_vel > 0) {
+      cout << "DOWN LAYER - DOWN " << combatant.x_vel << " " << combatant.y_vel
+           << endl;
+
+      combatant.pEntity->layer = combatant.pEntity->layer - 2;
+
+      apply_once = -1;
+      set_effect = true;
+      return set_effect;
+
+    } else if (x_vel < 0) {
+      cout << "DOWN LAYER - LEFT " << combatant.x_vel << " " << combatant.y_vel
+           << endl;
+
+      combatant.pEntity->layer = combatant.pEntity->layer - 2;
+
+      apply_once = -1;
+      set_effect = true;
+      return set_effect;
+    }
+
+    else {
+    }
+
+  }
+
+  else if (collision_effect == UP_TWO_LAYER && trigger_effect &&
+           apply_once == 1) {
+    combatant.pEntity->layer = combatant.pEntity->layer + 1;
+    cout << "TWO UP_LAYER" << endl;
+    apply_once = 2;
+
+  }
+
+  else if (collision_effect == DOWN_TWO_LAYER && trigger_effect &&
+           apply_once == 2) {
+    cout << "TWO DOWN_LAYER" << endl;
+
+    combatant.pEntity->layer = combatant.pEntity->layer - 2;
+
+    apply_once = -1;
+  }
+
+  else {
+    if (movement) {
+      combatant.pEntity->x = combatant.pEntity->x + x_vel;
+      combatant.pEntity->y = combatant.pEntity->y + y_vel;
+    }
+  }
+  return set_effect;
+}
+
+inline void ApplyCollissionEffect(game_state& GameState, combatant& combatant,
+                                  bool check_layered, int direction) {
+  bool movement = false;
+  int act_vel = 0;
+  bool trigger_effect = false;
+
+  bool set_effect = false;
+  int collision_effect = -1;
+
+  int zero_vel = 0;
+
+  for (size_t eff = 0; eff < GameState.CollisionEffects.size(); eff++) {
+    if (eff == 0) {
+      movement = true;
+    } else {
+      movement = false;
+    }
+    if (direction == UP) {
+      if (GameState.CollisionEffects[eff] == UP_LAYER) {
+        collision_effect =
+            DirCollisionCheck(GameState, combatant, check_layered, DOWNUP, eff,
+                              act_vel, trigger_effect);
+      } else {
+        collision_effect =
+            DirCollisionCheck(GameState, combatant, check_layered, UP, eff,
+                              act_vel, trigger_effect);
+      }
+
+      combatant.y_vel = -1 * combatant.y_vel;
+      act_vel = -1 * act_vel;
+
+      SetCollisionEffect(GameState, combatant, movement, 0, act_vel, zero_vel,
+                         combatant.y_vel, trigger_effect, collision_effect);
+
+      combatant.y_vel = -1 * combatant.y_vel;
+      act_vel = -1 * act_vel;
+    }
+
+    if (direction == DOWN) {
+      if (GameState.CollisionEffects[eff] == DOWN_LAYER) {
+        collision_effect =
+            DirCollisionCheck(GameState, combatant, check_layered, UPDOWN, eff,
+                              act_vel, trigger_effect);
+      } else {
+        collision_effect =
+            DirCollisionCheck(GameState, combatant, check_layered, DOWN, eff,
+                              act_vel, trigger_effect);
+      }
+
+      SetCollisionEffect(GameState, combatant, movement, 0, act_vel, zero_vel,
+                         combatant.y_vel, trigger_effect, collision_effect);
+    }
+
+    if (direction == RIGHT) {
+      if (GameState.CollisionEffects[eff] == UP_LAYER) {
+        collision_effect =
+            DirCollisionCheck(GameState, combatant, check_layered, LEFTRIGHT,
+                              eff, act_vel, trigger_effect);
+      } else {
+        collision_effect =
+            DirCollisionCheck(GameState, combatant, check_layered, RIGHT, eff,
+                              act_vel, trigger_effect);
+      }
+
+      SetCollisionEffect(GameState, combatant, movement, act_vel, 0,
+                         combatant.x_vel, zero_vel, trigger_effect,
+                         collision_effect);
+    }
+    if (direction == LEFT) {
+      if (GameState.CollisionEffects[eff] == DOWN_LAYER) {
+        collision_effect =
+            DirCollisionCheck(GameState, combatant, check_layered, RIGHTLEFT,
+                              eff, act_vel, trigger_effect);
+      } else {
+        collision_effect =
+            DirCollisionCheck(GameState, combatant, check_layered, LEFT, eff,
+                              act_vel, trigger_effect);
+      }
+
+      combatant.x_vel = -1 * combatant.x_vel;
+      act_vel = -1 * act_vel;
+
+      SetCollisionEffect(GameState, combatant, movement, act_vel, 0,
+                         combatant.x_vel, zero_vel, trigger_effect,
+                         collision_effect);
+
+      combatant.x_vel = -1 * combatant.x_vel;
+      act_vel = -1 * act_vel;
+
+    }
+
+    else {
+    }
+  }
 }
 
 #define LOGIC_FUNC

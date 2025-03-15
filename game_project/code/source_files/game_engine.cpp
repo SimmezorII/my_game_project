@@ -199,7 +199,7 @@ inline void SetSpriteTextures(vector<sprite>& sprite_list,
   }
 }
 
-inline void setSprite(vector<sprite>& sprite_list, entity& e,
+inline void SetSprite(vector<sprite>& sprite_list, entity& e,
                       string sprite_name) {
   for (size_t i = 0; i < sprite_list.size(); i++) {
     if (sprite_name.compare(sprite_list[i].name) == 0) {
@@ -207,10 +207,19 @@ inline void setSprite(vector<sprite>& sprite_list, entity& e,
     }
   }
 }
-inline void setSprite(vector<sprite>& sprite_list, entity& e, int sprite_ID) {
+inline void SetSprite(vector<sprite>& sprite_list, entity& e, int sprite_ID) {
   for (size_t i = 0; i < sprite_list.size(); i++) {
     if (sprite_list[i].ID == sprite_ID) {
       e.sprite = &sprite_list[i];
+      break;
+    }
+  }
+}
+
+inline void SetSprite(vector<sprite>& sprite_list, entity* e, int sprite_ID) {
+  for (size_t i = 0; i < sprite_list.size(); i++) {
+    if (sprite_list[i].ID == sprite_ID) {
+      e->sprite = &sprite_list[i];
       break;
     }
   }
@@ -295,7 +304,7 @@ inline entity& getEntityByPosition(int pos_x, int pos_y,
   return entities[0];
 }
 
-inline entity& getEntityByID(int entity_ID, vector<entity>& entities) {
+inline entity& GetEntityByID(int entity_ID, vector<entity>& entities) {
   for (size_t i = 0; i < entities.size(); i++) {
     if (entities[i].ID == entity_ID) {
       return entities[i];
@@ -307,7 +316,8 @@ inline entity& getEntityByID(int entity_ID, vector<entity>& entities) {
   return entities[0];
 }
 
-inline entity& getEntityByID(string sprite_name, vector<entity>& entities) {
+inline entity& GetEntityBySpriteName(string sprite_name,
+                                     vector<entity>& entities) {
   for (size_t i = 0; i < entities.size(); i++) {
     if (sprite_name.compare(entities[i].sprite->name) == 0) {
       return entities[i];
@@ -320,7 +330,7 @@ inline entity& getEntityByID(string sprite_name, vector<entity>& entities) {
   return entities[0];
 }
 
-inline entity* getEntityByID(int entity_ID, vector<entity*> entities) {
+inline entity* GetEntityByID(int entity_ID, vector<entity*> entities) {
   cout << "Trying to find ID: " << entity_ID << endl;
 
   for (size_t i = 0; i < entities.size(); i++) {
@@ -360,32 +370,6 @@ pos temp = {0, 0};
 
 static int index_counter = 0;
 
-// inline void calcDrawLayer(int layer, vector<pos>& poslayer) {
-//   int counter = 0;
-
-//   // temp.y = 32 * (layer - 1);
-
-//   temp.x = 32 * (layer - 1);
-
-//   for (size_t i = 0; i < layer - 1; i++) {
-//     counter++;
-//   }
-
-//   for (size_t i = 0; i < layer + counter; i++) {
-//     temp.index = index_counter;
-
-//     poslayer.push_back(temp);
-
-//     index_counter++;
-
-//     temp.y = temp.y + down_vel / 2;
-//     temp.x = temp.x + left_vel / 2;
-//   }
-
-//   // cout << poslayer.size() << endl;
-//   temp = {0, 0};
-// }
-
 static int added_once = 0;
 
 inline void RenderEntities(game_state& GameState, vector<entity>& entities,
@@ -402,13 +386,12 @@ inline void RenderEntities(game_state& GameState, vector<entity>& entities,
     recSprite2 = {(float)entities[i].sprite->x, (float)entities[i].sprite->y,
                   (float)entities[i].sprite->w, (float)entities[i].sprite->h};
 
-    recEntity2 = {(float)entities[i].x + entities[i].sprite->offset_x,
+    recEntity2 = {(float)(entities[i].x + entities[i].sprite->offset_x),
                   /*((-GAME_TILE_HEIGHT / 2)*/ (float)entities[i].y +
                       entities[i].sprite->offset_y,
                   (float)entities[i].w, (float)entities[i].h};
 
     entities[i].entity_tile.x = entities[i].x;
-
     entities[i].entity_tile.y = entities[i].y;
 
     if (entities[i].ID == GameState.Target.pEntity->ID) {
@@ -522,35 +505,28 @@ inline void RenderEntityBoxes(vector<entity>& entities) {
       DrawEllipse(GAMESCREEN_OFFSET_X + entities[i].el.center.x,
                   GAMESCREEN_OFFSET_Y + entities[i].el.center.y,
                   entities[i].el.h, entities[i].el.w, YELLOW);
-
-
     }
   }
 }
 
-inline void DrawEllipseCollisionPoints(  vector<point> & ellipses_points)
-{
-
-        for (size_t i = 0; i < ellipses_points.size(); i++) {
-        DrawRectangle(GAMESCREEN_OFFSET_X + ellipses_points[i].x,
-                      GAMESCREEN_OFFSET_Y + ellipses_points[i].y, 1, 1, RED);
-      }
+inline void DrawEllipseCollisionPoints(vector<point>& ellipses_points) {
+  for (size_t i = 0; i < ellipses_points.size(); i++) {
+    DrawRectangle(GAMESCREEN_OFFSET_X + ellipses_points[i].x,
+                  GAMESCREEN_OFFSET_Y + ellipses_points[i].y, 1, 1, BLUE);
+  }
 }
 
 inline void RenderWholeEntity(texture* Texture) {}
 
 inline void RenderTextTexture(texture* Texture, int x, int y) {}
 
-static int current_frame = 0;
+inline void AnimateMovement(entity* en, int d) {
+  static int current_frame = 0;
 
-inline void AnimateMovement(entity* en, Direction d) {
   switch (d) {
     case UP:
-
       en->sprite->x = (current_frame * en->sprite->w);
-
       en->sprite->y = en->sprite->h * 2;
-
       current_frame++;
 
       if (current_frame >= 4) {
@@ -562,9 +538,7 @@ inline void AnimateMovement(entity* en, Direction d) {
     case DOWN:
 
       en->sprite->x = (current_frame * en->sprite->w);
-
       en->sprite->y = 0;
-
       current_frame++;
 
       if (current_frame >= 4) {
@@ -576,9 +550,7 @@ inline void AnimateMovement(entity* en, Direction d) {
     case LEFT:
 
       en->sprite->x = (current_frame * en->sprite->w);
-
       en->sprite->y = en->sprite->h * 3;
-
       current_frame++;
 
       if (current_frame >= 4) {
@@ -590,9 +562,7 @@ inline void AnimateMovement(entity* en, Direction d) {
     case RIGHT:
 
       en->sprite->x = (current_frame * en->sprite->w);
-
       en->sprite->y = en->sprite->h;
-
       current_frame++;
 
       if (current_frame >= 4) {
@@ -602,8 +572,6 @@ inline void AnimateMovement(entity* en, Direction d) {
       break;
   }
 }
-
-static int current_frame2 = 0;
 
 static float timer = 0.0f;
 
@@ -641,15 +609,17 @@ inline void PrintMoveList(vector<int>& move_list) {
   printf("\n");
 }
 
-inline void Animate(entity* en) {
-  int right_vel = (GAME_TILE_WIDTH / 2);
-  int left_vel = -(GAME_TILE_WIDTH / 2);
-  int up_vel = -(GAME_TILE_HEIGHT / 2);
-  int down_vel = (GAME_TILE_HEIGHT / 2);
+inline void Animate(entity* en, vel v) {
+  static int current_frame2 = 0;
+
+  int right_vel = v.right;
+  int left_vel = v.left;
+  int up_vel = v.up;
+  int down_vel = v.down;
 
   timer += GetFrameTime();
 
-  if (timer >= 0.12) {
+  if (timer >= ANIMATION_SPEED) {
     timer = 0.0;
 
     en->sprite->x = (current_frame2 * en->sprite->w);
@@ -678,28 +648,57 @@ inline void Animate(entity* en) {
   }
 }
 
-inline void MovementAnimated(game_state& GameState, entity* en) {
+inline void MovementAnimated(game_state& GameState, entity* en, vel v) {
+  static int current_frame2 = 0;
   static int movecount = 0;
 
   static int steps = 0;
 
-  int right_vel = (GAME_TILE_WIDTH / 2);
-  int left_vel = -(GAME_TILE_WIDTH / 2);
-  int up_vel = -(GAME_TILE_HEIGHT / 2);
-  int down_vel = (GAME_TILE_HEIGHT / 2);
+  int steps_to_move = 2;
+
+  int right_vel = v.right;
+  int left_vel = v.left;
+  int up_vel = v.up;
+  int down_vel = v.down;
 
   if (GameState.AnimatingMovement == true) {
     if (movecount < GameState.MoveList.size()) {
-      if (GameState.MoveList[movecount] == LEFT) {
+      if (GameState.MoveList[movecount] == RIGHT) {
         timer += GetFrameTime();
 
-        if (timer >= 0.12) {
+        if (timer >= ANIMATION_SPEED) {
           timer = 0.0;
 
           /// Animation
+          en->sprite->x = (current_frame2 * en->sprite->w);
+          en->sprite->y = 2 * en->sprite->h;
+
+          current_frame2++;
+
+          if (current_frame2 > 5) {
+            current_frame2 = 0;
+          }
+          /// Movement
+          steps++;
+
+          en->x = en->x + (right_vel / steps_to_move);
+          en->y = en->y + (up_vel / steps_to_move);
+
+          if (steps == steps_to_move) {
+            movecount++;
+            steps = 0;
+            printf("[RIGHT]");
+          }
+        }
+      }
+
+      else if (GameState.MoveList[movecount] == LEFT) {
+        timer += GetFrameTime();
+
+        if (timer >= ANIMATION_SPEED) {
+          timer = 0.0;
 
           en->sprite->x = (current_frame2 * en->sprite->w);
-
           en->sprite->y = 0;
 
           current_frame2++;
@@ -708,62 +707,24 @@ inline void MovementAnimated(game_state& GameState, entity* en) {
             current_frame2 = 0;
           }
 
-          //// Movement
-
           steps++;
 
-          en->x = en->x + (left_vel / 2);
-          en->y = en->y + (down_vel / 2);
+          en->x = en->x + (left_vel / steps_to_move);
+          en->y = en->y + (down_vel / steps_to_move);
 
-          if (steps == 2) {
+          if (steps == steps_to_move) {
             movecount++;
             steps = 0;
             printf("[LEFT]");
           }
         }
-      }
-
-      else if (GameState.MoveList[movecount] == RIGHT) {
-        timer += GetFrameTime();
-
-        if (timer >= 0.12) {
-          timer = 0.0;
-
-          /// Animation
-
-          en->sprite->x = (current_frame2 * en->sprite->w);
-
-          en->sprite->y = 2 * en->sprite->h;
-
-          current_frame2++;
-
-          if (current_frame2 > 5) {
-            current_frame2 = 0;
-          }
-
-          //// Movement
-
-          steps++;
-
-          en->x = en->x + (right_vel / 2);
-          en->y = en->y + (up_vel / 2);
-
-          if (steps == 2) {
-            movecount++;
-            steps = 0;
-            printf("[RIGHT]");
-          }
-        }
       } else if (GameState.MoveList[movecount] == UP) {
         timer += GetFrameTime();
 
-        if (timer >= 0.12) {
+        if (timer >= ANIMATION_SPEED) {
           timer = 0.0;
 
-          /// Animation
-
           en->sprite->x = (current_frame2 * en->sprite->w);
-
           en->sprite->y = 3 * en->sprite->h;
 
           current_frame2++;
@@ -772,14 +733,12 @@ inline void MovementAnimated(game_state& GameState, entity* en) {
             current_frame2 = 0;
           }
 
-          //// Movement
-
           steps++;
 
-          en->x = en->x + (left_vel / 2);
-          en->y = en->y + (up_vel / 2);
+          en->x = en->x + (left_vel / steps_to_move);
+          en->y = en->y + (up_vel / steps_to_move);
 
-          if (steps == 2) {
+          if (steps == steps_to_move) {
             movecount++;
             steps = 0;
             printf("[UP]");
@@ -788,13 +747,10 @@ inline void MovementAnimated(game_state& GameState, entity* en) {
       } else if (GameState.MoveList[movecount] == DOWN) {
         timer += GetFrameTime();
 
-        if (timer >= 0.12) {
+        if (timer >= ANIMATION_SPEED) {
           timer = 0.0;
 
-          /// Animation
-
           en->sprite->x = (current_frame2 * en->sprite->w);
-
           en->sprite->y = 1 * en->sprite->h;
 
           current_frame2++;
@@ -803,14 +759,12 @@ inline void MovementAnimated(game_state& GameState, entity* en) {
             current_frame2 = 0;
           }
 
-          //// Movement
-
           steps++;
 
-          en->x = en->x + (right_vel / 2);
-          en->y = en->y + (down_vel / 2);
+          en->x = en->x + (right_vel / steps_to_move);
+          en->y = en->y + (down_vel / steps_to_move);
 
-          if (steps == 2) {
+          if (steps == steps_to_move) {
             movecount++;
             steps = 0;
             printf("[DOWN]");
@@ -818,58 +772,81 @@ inline void MovementAnimated(game_state& GameState, entity* en) {
         }
       }
     } else {
-      printf("steps reset\n");
+      printf("steps reset movement\n");
 
       GameState.AnimatingMovement = false;
 
+      // Reset the sprite animate frames
       if (GameState.MoveList.back() == LEFT) {
-        printf("(GameState.MoveList.back() == LEFT)\n");
-
-        // en->sprite->x = 0;
-
-        // en->sprite->y = 0;
       } else if (GameState.MoveList.back() == RIGHT) {
         en->sprite->x = 0;
-
         en->sprite->y = 2 * en->sprite->h;
       } else if (GameState.MoveList.back() == UP) {
         en->sprite->x = 0;
-
         en->sprite->y = 3 * en->sprite->h;
       } else if (GameState.MoveList.back() == DOWN) {
         en->sprite->x = 0;
-
         en->sprite->y = 1 * en->sprite->h;
       }
 
       steps = 0;
       movecount = 0;
-
       GameState.MoveList.clear();
     }
   }
 }
 
-inline void EnemyMovementAnimated(game_state& GameState) {
-  static int movecount = 0;
-
-  static int steps = 0;
-
+inline void EnemyMovementAnimated(game_state& GameState, vel v) {
+  static int current_frame2 = 0;
+  // static int movecount = 0;
   static int enemy_checked = 0;
 
-  int right_vel = (GAME_TILE_WIDTH / 2);
-  int left_vel = -(GAME_TILE_WIDTH / 2);
-  int up_vel = -(GAME_TILE_HEIGHT / 2);
-  int down_vel = (GAME_TILE_HEIGHT / 2);
+  int steps_to_move = 4;
+
+  // int right_vel = v.right;
+  // int left_vel = v.left;
+  // int up_vel = v.up;
+  // int down_vel = v.down;
 
   combatant& en = GameState.Map.EnemyList[enemy_checked];
 
+  int right_vel = en.x_vel;
+  int left_vel = en.x_vel * (-1);
+  int up_vel = en.y_vel * (-1);
+  int down_vel = en.y_vel;
+
   if (!en.movelist.empty()) {
-    if (movecount < en.movelist.size()) {
-      if (en.movelist[movecount] == LEFT) {
+    if (en.current_movecount < en.movelist.size()) {
+      if (en.movelist[en.current_movecount] == RIGHT) {
         timer += GetFrameTime();
 
-        if (timer >= 0.12) {
+        if (timer >= ANIMATION_SPEED) {
+          timer = 0.0;
+
+          /// Animation
+          en.pEntity->sprite->x = (current_frame2 * en.pEntity->sprite->w);
+          en.pEntity->sprite->y = 2 * en.pEntity->sprite->h;
+
+          current_frame2++;
+
+          if (current_frame2 > 5) {
+            current_frame2 = 0;
+          }
+
+          //// Movement
+          en.current_steps++;
+          en.pEntity->x = en.pEntity->x + (right_vel / (2 * steps_to_move));
+          en.pEntity->y = en.pEntity->y + (up_vel / (2 * steps_to_move));
+
+          if (en.current_steps == steps_to_move) {
+            en.current_movecount++;
+            en.current_steps = 0;
+          }
+        }
+      } else if (en.movelist[en.current_movecount] == LEFT) {
+        timer += GetFrameTime();
+
+        if (timer >= ANIMATION_SPEED) {
           timer = 0.0;
 
           /// Animation
@@ -885,61 +862,25 @@ inline void EnemyMovementAnimated(game_state& GameState) {
           }
 
           //// Movement
+          en.current_steps++;
+          en.pEntity->x = en.pEntity->x + (left_vel / (2 * steps_to_move));
+          en.pEntity->y = en.pEntity->y + (down_vel / (2 * steps_to_move));
 
-          steps++;
-
-          en.pEntity->x = en.pEntity->x + (left_vel / 2);
-          en.pEntity->y = en.pEntity->y + (down_vel / 2);
-
-          if (steps == 2) {
-            movecount++;
-            steps = 0;
-            printf("[LEFT]");
+          if (en.current_steps == steps_to_move) {
+            en.current_movecount++;
+            en.current_steps = 0;
           }
         }
       }
 
-      else if (en.movelist[movecount] == RIGHT) {
+      else if (en.movelist[en.current_movecount] == UP) {
         timer += GetFrameTime();
 
-        if (timer >= 0.12) {
+        if (timer >= ANIMATION_SPEED) {
           timer = 0.0;
 
           /// Animation
-
           en.pEntity->sprite->x = (current_frame2 * en.pEntity->sprite->w);
-
-          en.pEntity->sprite->y = 2 * en.pEntity->sprite->h;
-
-          current_frame2++;
-
-          if (current_frame2 > 5) {
-            current_frame2 = 0;
-          }
-
-          //// Movement
-
-          steps++;
-
-          en.pEntity->x = en.pEntity->x + (right_vel / 2);
-          en.pEntity->y = en.pEntity->y + (up_vel / 2);
-
-          if (steps == 2) {
-            movecount++;
-            steps = 0;
-            printf("[RIGHT]");
-          }
-        }
-      } else if (en.movelist[movecount] == UP) {
-        timer += GetFrameTime();
-
-        if (timer >= 0.12) {
-          timer = 0.0;
-
-          /// Animation
-
-          en.pEntity->sprite->x = (current_frame2 * en.pEntity->sprite->w);
-
           en.pEntity->sprite->y = 3 * en.pEntity->sprite->h;
 
           current_frame2++;
@@ -949,30 +890,25 @@ inline void EnemyMovementAnimated(game_state& GameState) {
           }
 
           //// Movement
+          en.current_steps++;
+          en.pEntity->x = en.pEntity->x + (left_vel / (2 * steps_to_move));
+          en.pEntity->y = en.pEntity->y + (up_vel / (2 * steps_to_move));
 
-          steps++;
-
-          en.pEntity->x = en.pEntity->x + (left_vel / 2);
-          en.pEntity->y = en.pEntity->y + (up_vel / 2);
-
-          if (steps == 2) {
-            movecount++;
-            steps = 0;
-            printf("[UP]");
+          if (en.current_steps == steps_to_move) {
+            en.current_movecount++;
+            en.current_steps = 0;
           }
         }
-      } else if (en.movelist[movecount] == DOWN) {
+      } else if (en.movelist[en.current_movecount] == DOWN) {
         timer += GetFrameTime();
 
-        if (timer >= 0.12) {
+        if (timer >= ANIMATION_SPEED) {
           timer = 0.0;
 
           /// Animation
 
           en.pEntity->sprite->x = (current_frame2 * en.pEntity->sprite->w);
-
           en.pEntity->sprite->y = 1 * en.pEntity->sprite->h;
-
           current_frame2++;
 
           if (current_frame2 > 5) {
@@ -980,21 +916,20 @@ inline void EnemyMovementAnimated(game_state& GameState) {
           }
 
           //// Movement
+          en.current_steps++;
+          en.pEntity->x = en.pEntity->x + (right_vel / (2 * steps_to_move));
+          en.pEntity->y = en.pEntity->y + (down_vel / (2 * steps_to_move));
 
-          steps++;
-
-          en.pEntity->x = en.pEntity->x + (right_vel / 2);
-          en.pEntity->y = en.pEntity->y + (down_vel / 2);
-
-          if (steps == 2) {
-            movecount++;
-            steps = 0;
-            printf("[DOWN]");
+          if (en.current_steps == steps_to_move) {
+            en.current_movecount++;
+            en.current_steps = 0;
+            printf("[DOWN]\n");
           }
         }
       }
     } else {
-      printf(" enemy steps reset");
+      // cout <<  en.pEntity->sprite->x << " " << en.unique_sprite.x << endl;
+      // cout <<  en.pEntity->sprite->y << " " << en.unique_sprite.y << endl;
 
       if (!en.movelist.empty()) {
         if (en.movelist.back() == LEFT) {
@@ -1016,8 +951,8 @@ inline void EnemyMovementAnimated(game_state& GameState) {
         }
       }
 
-      steps = 0;
-      movecount = 0;
+      en.current_steps = 0;
+      en.current_movecount = 0;
       en.movelist.clear();
 
       enemy_checked++;
@@ -1030,6 +965,93 @@ inline void EnemyMovementAnimated(game_state& GameState) {
     enemy_checked = 0;
     GameState.AnimatingEnemyMovement = false;
   }
+}
+
+inline void VicinityCheck(combatant& combatant, vector<entity>& entities) {
+  Rectangle temp;
+
+  temp.height = GAME_TILE_HEIGHT * 2;
+  temp.width = GAME_TILE_WIDTH * 2;
+  temp.x = combatant.pEntity->x - temp.width / 2 + (GAME_TILE_WIDTH / 2);
+  temp.y = combatant.pEntity->y - temp.height / 2 + (GAME_TILE_HEIGHT / 2);
+
+  combatant.EntitiesVicinity.clear();
+
+  if (ToggleEntityBoxes) {
+    DrawRectangle(temp.x + GAMESCREEN_OFFSET_X, temp.y + GAMESCREEN_OFFSET_Y,
+                  temp.width, temp.height, ORANGE);
+  }
+
+  for (size_t entity_index = 0; entity_index < entities.size();
+       entity_index++) {
+    if (combatant.pEntity->ID != entities[entity_index].ID) {
+      if (CheckCollisionRecs(temp, entities[entity_index].entity_tile)) {
+        combatant.EntitiesVicinity.push_back(&entities[entity_index]);
+      }
+    }
+  }
+}
+
+inline bool CheckIsoMoveCol(vector<entity>& entities, combatant& en, int dir1,
+                            int dir2) {
+  bool trigger_effect = false;
+  int collision_effect1 = -1;
+
+  int steps_to_move = 2;
+
+  bool collision = false;
+
+  float temp_en_x = en.pEntity->x;
+  float temp_en_y = en.pEntity->y;
+
+  VicinityCheck(en, entities);
+  DebugLog("Check:", (int)en.EntitiesVicinity.size());
+
+  temp_en_x = temp_en_x - (en.x_vel * (dir1 / 2)) / 2;
+  temp_en_y = temp_en_y - (en.y_vel * dir2) / 2;
+
+  for (size_t i = 0; i < en.EntitiesVicinity.size(); i++) {
+    if (en.EntitiesVicinity[i]->x == temp_en_x &&
+        en.EntitiesVicinity[i]->y == temp_en_y) {
+      collision_effect1 = en.EntitiesVicinity[i]->collision_effect;
+      cout << "collision " << en.EntitiesVicinity[i]->x << " "
+           << en.EntitiesVicinity[i]->y << endl;
+      break;
+    }
+  }
+
+  return collision_effect1;
+}
+
+inline int CheckIsoMoveCol(vector<entity>& entities, combatant& en, int dir1,
+                           int dir2, float x, float y) {
+  bool trigger_effect = false;
+
+  int collision_effect1 = -1;
+  int steps_to_move = 2;
+
+  bool collision = false;
+
+  float temp_en_x = x;
+  float temp_en_y = y;
+
+  VicinityCheck(en, entities);
+  DebugLog("Check:", (int)en.EntitiesVicinity.size());
+
+  temp_en_x = temp_en_x - (en.x_vel * (dir1 / 2)) / 2;
+  temp_en_y = temp_en_y - (en.y_vel * dir2) / 2;
+
+  for (size_t i = 0; i < en.EntitiesVicinity.size(); i++) {
+    if (en.EntitiesVicinity[i]->x == temp_en_x &&
+        en.EntitiesVicinity[i]->y == temp_en_y) {
+      collision_effect1 = en.EntitiesVicinity[i]->collision_effect;
+      cout << "collision " << en.EntitiesVicinity[i]->x << " "
+           << en.EntitiesVicinity[i]->y << endl;
+      break;
+    }
+  }
+
+  return collision_effect1;
 }
 
 // inline void RendedDebugInfo()
@@ -1559,12 +1581,11 @@ inline void RenderAllLayers(game_state& GameState) {
 }
 
 inline void RenderAllLayers(game_state& GameState,
-                            vector<RenderObject*>& RenderObjectList) {
+                             vector<RenderObject*>& RenderObjectList) {
   float offset_x = 0;
   float offset_y = 0;
 
   float dest_x = 0;
-
   float dest_y = 0;
 
   int render_count = 0;
@@ -1575,10 +1596,12 @@ inline void RenderAllLayers(game_state& GameState,
     if (RenderObjectList[i] != NULL) {
       if (RenderObjectList[i]->render_this == true) {
         render_count++;
+
+        render_count++;
+        // CENTER SPRITES IN THE MIDDLE OF TILE
         if (RenderObjectList[i]->dest.width < 500) {
           offset_x = (RenderObjectList[i]->dest.width - GAME_TILE_WIDTH) / 2;
         }
-
         if (RenderObjectList[i]->dest.height < 500) {
           offset_y = RenderObjectList[i]->dest.height - (GAME_TILE_HEIGHT);
         }
@@ -1591,15 +1614,11 @@ inline void RenderAllLayers(game_state& GameState,
         }
 
         dest_x = RenderObjectList[i]->dest.x + GAMESCREEN_OFFSET_X - offset_x;
-
         dest_y = RenderObjectList[i]->dest.y + GAMESCREEN_OFFSET_Y - offset_y;
 
         if (RenderObjectList[i]->use_shader == true) {
           BeginShaderMode(GAME_SHADER);
-        } else {
-          EndShaderMode();
         }
-
 
         DrawTexturePro(
             RenderObjectList[i]->texture, RenderObjectList[i]->source,
@@ -1607,6 +1626,9 @@ inline void RenderAllLayers(game_state& GameState,
              RenderObjectList[i]->dest.height},
             RenderObjectList[i]->origin, RenderObjectList[i]->rotation,
             RenderObjectList[i]->tint);
+
+        EndShaderMode();
+
       }
     }
   }
@@ -1987,9 +2009,9 @@ inline void DrawIsoTriangles(entity* e) {
   Rectangle temp;
 
   temp.x = e->entity_tile.x + GAMESCREEN_OFFSET_X;
-    temp.y = e->entity_tile.y+ GAMESCREEN_OFFSET_Y;
-      temp.width = e->entity_tile.width;
-        temp.height = e->entity_tile.height;
+  temp.y = e->entity_tile.y + GAMESCREEN_OFFSET_Y;
+  temp.width = e->entity_tile.width;
+  temp.height = e->entity_tile.height;
 
   temp_rect = getTileTriangles(temp);
 
@@ -2006,7 +2028,7 @@ inline void DrawIsoTriangles(entity* e) {
   p3.x = temp_rect.tri_1_line_3_x;
   p3.y = temp_rect.tri_1_line_3_y;
 
-  DrawTriangle(p1, p2, p3, BLUE);
+  DrawTriangle(p1, p2, p3, ORANGE);
 
   p1.x = temp_rect.tri_2_line_1_x;
   p1.y = temp_rect.tri_2_line_1_y;
@@ -2017,7 +2039,7 @@ inline void DrawIsoTriangles(entity* e) {
   p3.x = temp_rect.tri_2_line_3_x;
   p3.y = temp_rect.tri_2_line_3_y;
 
-  DrawTriangle(p1, p2, p3, RED);
+  DrawTriangle(p1, p2, p3, BLUE);
 
   p1.x = temp_rect.tri_3_line_1_x;
   p1.y = temp_rect.tri_3_line_1_y;
@@ -2028,7 +2050,7 @@ inline void DrawIsoTriangles(entity* e) {
   p3.x = temp_rect.tri_3_line_3_x;
   p3.y = temp_rect.tri_3_line_3_y;
 
-  DrawTriangle(p1, p2, p3, GREEN);
+  DrawTriangle(p1, p2, p3, ORANGE);
 
   p1.x = temp_rect.tri_4_line_1_x;
   p1.y = temp_rect.tri_4_line_1_y;
@@ -2039,7 +2061,7 @@ inline void DrawIsoTriangles(entity* e) {
   p3.x = temp_rect.tri_4_line_3_x;
   p3.y = temp_rect.tri_4_line_3_y;
 
-  DrawTriangle(p1, p2, p3, ORANGE);
+  DrawTriangle(p1, p2, p3, BLUE);
 }
 
 inline void drawInnerIsoRect(entity* e) {
@@ -2071,6 +2093,44 @@ inline void InitLog() {
 
     GAME_LOG.LogLines.push_back(temp);
   }
+}
+
+inline void InitUniqueSprite(game_state& GameState, combatant& com,
+                             int unique_id) {
+  com.unique_sprite.h = com.pEntity->sprite->h;
+  com.unique_sprite.ID = com.pEntity->sprite->ID + unique_id;
+  com.unique_sprite.img = com.pEntity->sprite->img;
+  com.unique_sprite.index = com.pEntity->sprite->index;
+  com.unique_sprite.name = com.pEntity->sprite->name;
+  com.unique_sprite.offset_x = com.pEntity->sprite->offset_x;
+  com.unique_sprite.offset_y = com.pEntity->sprite->offset_y;
+  com.unique_sprite.tex_ID = com.pEntity->sprite->tex_ID;
+  com.unique_sprite.w = com.pEntity->sprite->w;
+  com.unique_sprite.x = com.pEntity->sprite->x;
+  com.unique_sprite.y = com.pEntity->sprite->y;
+
+  GameState.SpriteList.push_back(com.unique_sprite);
+
+  SetSprite(GameState.SpriteList, com.pEntity, com.unique_sprite.ID);
+  // SetSprite(GameState.SpriteList, com.pEntity,  com.unique_sprite.ID);
+}
+
+inline void InitCamera(Camera2D& camera) {
+  camera.offset =
+      Vector2{(float)GAMEWINDOW_WIDTH / 2, (float)GAMEWINDOW_HEIGHT / 2};
+  camera.rotation = 0;
+  camera.zoom = CAMERA_ZOOM;
+}
+
+inline point GetCameraMousePosition(game_state& GameState) {
+  point temp;
+
+  temp.x = GetMousePosition().x + GameState.WorldPlayer.pEntity->x -
+           CAMERA.offset.x - GAMESCREEN_OFFSET_X;
+  temp.y = GetMousePosition().y + GameState.WorldPlayer.pEntity->y -
+           CAMERA.offset.y - GAMESCREEN_OFFSET_X;
+
+  return temp;
 }
 
 #endif

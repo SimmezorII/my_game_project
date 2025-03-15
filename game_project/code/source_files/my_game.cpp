@@ -30,9 +30,12 @@ static void GameUpdateAndRender(game_state &GameState, int CurrentScreen) {
   // Draw
   //----------------------------------------------------------------------------------
 
+
+
   BeginDrawing();
 
   ClearBackground(WHITE);
+
 
   switch (CurrentScreen) {
     case GAMEPLAY:

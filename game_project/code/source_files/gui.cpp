@@ -11,7 +11,7 @@
 
 Rectangle gui_temp = {0, 0, 100, 18};
 
-Rectangle SpriteGroupBoxRect = {(float)(GAMESCREEN_OFFSET_X + GRID_WIDTH + 60),
+Rectangle SpriteGroupBoxRect = {(float)(GAMEWINDOW_WIDTH - 220),
                                 20, 200, 800};
 
 entity gui_temp_entity;
@@ -33,8 +33,6 @@ inline void RenderEntityInfo( game_state & GameState) {
   string s;
   string name;
   Rectangle temp;
-
-
 
     DebugLog(GameState.CombatantSelected.pEntity->sprite->name);
 
@@ -84,6 +82,8 @@ inline void DrawEditorGui(game_state &GameState) {
   bool ToggleSpriteY = false;
 
   bool dropDown001EditMode = false;
+
+  DrawRectangle(GAMEWINDOW_WIDTH - 280,0, 280, GAMEWINDOW_HEIGHT, WHITE);
 
   Rectangle SaveRect2 = {0, 0, 40, 24};
 
@@ -203,8 +203,8 @@ inline void DrawEditorGui(game_state &GameState) {
 
   GuiGroupBox({gui_temp.x, gui_temp.y, 100, 100}, "Options");
 
-  Rectangle OptionsGroupBoxRect = {(float)GAMESCREEN_OFFSET_X + 1280,
-                                   (float)GAMESCREEN_OFFSET_Y + 640, 280, 400};
+  Rectangle OptionsGroupBoxRect = {(float)GAMEWINDOW_WIDTH  -100,
+                                   (float)GAMEWINDOW_HEIGHT  -100, 280, 400};
 
   //
 
@@ -251,8 +251,8 @@ inline void RenderSelectedSprite(game_state &GameState) {
   temp_sprite_rec.height = 60;
   temp_sprite_rec.width = 100;
 
-  temp_sprite_rec.x = GAMESCREEN_OFFSET_X + GRID_WIDTH + 100;
-  temp_sprite_rec.y = GAMESCREEN_OFFSET_Y + 400;
+  temp_sprite_rec.x = GAMEWINDOW_WIDTH-200;
+  temp_sprite_rec.y = GAMEWINDOW_HEIGHT - 400;
 
   GuiSpinner({temp_sprite_rec.x, temp_sprite_rec.y - 30, 100, 20}, "sprite id",
              &selected_sprite, 1, GameState.SpriteList.size(), false);

@@ -11,6 +11,23 @@
 
 using namespace std;
 
+enum CollisionEffect {
+  COLLISION = 0,
+  NO_COLLISION = 1,
+  UP_LAYER = 10,
+  DOWN_LAYER = 11,
+  UP_TWO_LAYER = 12,
+  DOWN_TWO_LAYER = 13,
+
+};
+
+struct vel {
+  int right;
+  int left;
+  int up;
+  int down;
+};
+
 struct win32_window_dimension {
   int Width;
   int Height;
@@ -63,18 +80,16 @@ struct sprite {
   std::string img;
 };
 
-
-
 struct point {
-  int x;
-  int y;
+  float x;
+  float y;
 };
 
 struct ellipse {
   point center;
 
-  int w;
-  int h;
+  float w;
+  float h;
 
   bool is_on_ellipse(point p) {
     return std::pow(p.x - center.x, 2) / std::pow(h, 2) +
@@ -114,6 +129,7 @@ struct entity {
 
   ellipse el;
   int coll_check_type = 0;
+  int collision_effect = 0;
 };
 
 struct pos {
@@ -136,67 +152,67 @@ struct tile {
 };
 
 struct tile_rect {
-  int line_1_p1_x;
-  int line_1_p1_y;
+  float line_1_p1_x;
+  float line_1_p1_y;
 
-  int line_1_p2_x;
-  int line_1_p2_y;
+  float line_1_p2_x;
+  float line_1_p2_y;
 
-  int line_2_p1_x;
-  int line_2_p1_y;
+  float line_2_p1_x;
+  float line_2_p1_y;
 
-  int line_2_p2_x;
-  int line_2_p2_y;
+  float line_2_p2_x;
+  float line_2_p2_y;
 
-  int line_3_p1_x;
-  int line_3_p1_y;
+  float line_3_p1_x;
+  float line_3_p1_y;
 
-  int line_3_p2_x;
-  int line_3_p2_y;
+  float line_3_p2_x;
+  float line_3_p2_y;
 
-  int line_4_p1_x;
-  int line_4_p1_y;
+  float line_4_p1_x;
+  float line_4_p1_y;
 
-  int line_4_p2_x;
-  int line_4_p2_y;
+  float line_4_p2_x;
+  float line_4_p2_y;
 };
 
 struct tile_triangles {
-  int tri_1_line_1_x;
-  int tri_1_line_1_y;
+  float tri_1_line_1_x;
+  float tri_1_line_1_y;
 
-  int tri_1_line_2_x;
-  int tri_1_line_2_y;
+  float tri_1_line_2_x;
+  float tri_1_line_2_y;
 
-  int tri_1_line_3_x;
-  int tri_1_line_3_y;
+  float tri_1_line_3_x;
+  float tri_1_line_3_y;
 
-  int tri_2_line_1_x;
-  int tri_2_line_1_y;
+  float tri_2_line_1_x;
+  float tri_2_line_1_y;
 
-  int tri_2_line_2_x;
-  int tri_2_line_2_y;
+  float tri_2_line_2_x;
+  float tri_2_line_2_y;
 
-  int tri_2_line_3_x;
-  int tri_2_line_3_y;
+  float tri_2_line_3_x;
+  float tri_2_line_3_y;
 
-  int tri_3_line_1_x;
-  int tri_3_line_1_y;
+  float tri_3_line_1_x;
+  float tri_3_line_1_y;
 
-  int tri_3_line_2_x;
-  int tri_3_line_2_y;
+  float tri_3_line_2_x;
+  float tri_3_line_2_y;
 
-  int tri_3_line_3_x;
-  int tri_3_line_3_y;
+  float tri_3_line_3_x;
+  float tri_3_line_3_y;
 
-  int tri_4_line_1_x;
-  int tri_4_line_1_y;
+  float tri_4_line_1_x;
+  float tri_4_line_1_y;
 
-  int tri_4_line_2_x;
-  int tri_4_line_2_y;
+  float tri_4_line_2_x;
+  float tri_4_line_2_y;
 
-  int tri_4_line_3_x;
-  int tri_4_line_3_y;
+  float tri_4_line_3_x;
+  float tri_4_line_3_y;
 };
 
 struct target {
@@ -220,7 +236,7 @@ struct field {
   int w;
   int h;
 
-  tile tiles[124];
+  tile tiles[1024];
 
   int sum_of_field_tiles;
 
@@ -248,9 +264,12 @@ struct combatant {
 
   int attack_range;
 
-  int current_movecount = 1;
+  int current_movecount = 0;
+  int current_steps = 0;
 
   entity *pEntity;
+
+  sprite unique_sprite;
 
   std::vector<int> movelist;
 
@@ -260,9 +279,19 @@ struct combatant {
 
   stats Stats = {200, 200, 20, 20};
 
-  bool EllipsePointsCollisions[8] = {false, false, false, false, false, false, false, false};
+  bool EllipsePointsCollisions[12] = {false, false, false, false, false, false,
+                                      false, false, false, false, false, false};
+
+  int EllipsePointsCollisionsType[12];
+
   vector<point> EllipsePoints;
 
+  int x_vel;
+  int y_vel;
+
+  ellipse roaming_ellipse;
+
+  vector<entity*> EntitiesVicinity;
 
 };
 
@@ -376,7 +405,7 @@ struct game_state {
   bool AnimatingMovement = false;
   bool AnimatingEnemyMovement = false;
 
-  int CurrentLayerList[4000];
+  int CurrentLayerList[1000];
 
   int ObjectsToRender[10];
 
@@ -396,7 +425,7 @@ struct game_state {
 
   vector<Render_List> RenderList;
 
-  RenderObject AllRenderObjects[2048][4];
+  RenderObject AllRenderObjects[4096][2];
 
   vector<RenderObject *> SortedRenderObjectList;
 
@@ -404,6 +433,11 @@ struct game_state {
   combatant &CombatantSelected = WorldPlayer;
 
   vector<field *> FieldList;
+
+  vector<entity*> EntitiesCollision;
+
+  vector<int> CollisionEffects = {COLLISION,  NO_COLLISION, UP_LAYER,
+                                  DOWN_LAYER, UP_TWO_LAYER, DOWN_TWO_LAYER};
 
   target Target;
 

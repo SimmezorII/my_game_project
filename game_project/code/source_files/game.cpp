@@ -92,18 +92,18 @@ inline void Load(game_state &GameState) {
   SetEntityCords(GameState.Map, GameState.EntityList, 0);
   SetEntityCords(GameState.Map, GameState.EntityList, 1);
   SetEntityCords(GameState.Map, GameState.EntityList, 2);
+  SetEntityCords(GameState.Map, GameState.EntityList, 4);
+  SetEntityCords(GameState.Map, GameState.EntityList, 5);
 
   // Loads entities seperate from game entities that need to be present on a map
   SetGuiEntities(GameState.Gui, GameState.EntityList);
 
-  setPlayer(GameState);
+  SetPlayer(GameState, PLAYER_SPRITE_ID);
 
   printf("Load done\n");
 }
 
 inline void Init(game_state &GameState) {
-  // player_entity_ID = 9;
-
   Load(GameState);
 
   InitLog();
@@ -117,14 +117,15 @@ inline void Init(game_state &GameState) {
 
   GameState.RenderList.push_back(temp1);
 
-  GameState.RenderList.push_back(temp1);
+  GameState.RenderList.push_back(temp2);
 
   // Init this with the first entity, used to render entity info
   GameState.Editor.GameEntity = &GameState.EntityList[0];
 
   ////////////////////   TARGET //////////////////////////////////
 
-  GameState.Target.pEntity = &getEntityByID("target", GameState.Gui.EntityList);
+  GameState.Target.pEntity =
+      &GetEntityByID(TARGET_ID, GameState.Gui.EntityList);
 
   GameState.Target.pEntity->render_this = false;
 
@@ -138,23 +139,21 @@ inline void Init(game_state &GameState) {
   cout << "PLAYER this happens " << endl;
 
   GameState.WorldPlayer.pEntity =
-      &getEntityByID("Julius", GameState.Map.EntityList);
+      &GetEntityByID(PLAYER_ID, GameState.Map.EntityList);
 
-  GameState.WorldPlayer.move_range = 6;
+  cout << "PLAYER ID " << GameState.WorldPlayer.pEntity->ID << endl;
 
+  GameState.WorldPlayer.move_range = 9;
   GameState.WorldPlayer.attack_range = 4;
-
   GameState.WorldPlayer.pEntity->use_shader = true;
 
   GameState.WorldPlayer.attack_field.range = 4;
-
   GameState.WorldPlayer.attack_field.field_alpha = 0.5;
-
   GameState.WorldPlayer.pEntity->render_this = true;
 
   SetField(GameState, GameState.WorldPlayer.attack_field,
-           GameState.EntityList[0].x, GameState.EntityList[0].y, SQUARE,
-           BLUE_TILE);
+           GameState.WorldPlayer.pEntity->x, GameState.WorldPlayer.pEntity->y,
+           SQUARE, BLUE_TILE);
 
   GameState.FieldList.push_back(&GameState.WorldPlayer.attack_field);
 
@@ -168,27 +167,37 @@ inline void Init(game_state &GameState) {
   combatant e1;
 
   e1.move_range = 2;
-
   e1.move_field.range = 3;
 
-  e1.pEntity = &getEntityByID(211, GameState.Map.EntityList);
+  e1.pEntity = &GetEntityByID(SLIME_ID, GameState.Map.EntityList);
+  e1.pEntity->render_this = true;
+
+  e1.x_vel = ROAMING_VEL.right;
+  e1.y_vel = ROAMING_VEL.down;
+
+  InitUniqueSprite(GameState, e1, 1000);
 
   GameState.Map.EnemyList.push_back(e1);
 
+  e1.pEntity = &GetEntityByID(SLIME_ID2, GameState.Map.EntityList);
+
+  InitUniqueSprite(GameState, e1, 1001);
+  GameState.Map.EnemyList.push_back(e1);
 
   InitEnemyFields(GameState);
 
   ////////////////////   LOG  //////////////////////////////////
-
   Log("Init");
-
   Log("test 1");
-
-  Log(GameState.Map.EnemyList[0].pEntity->sprite->name);
 
   for (size_t i = 0; i < 15; i++) {
     Log("Log");
   }
+
+  CAMERA.offset =
+      Vector2{(float)GAMEWINDOW_WIDTH / 2, (float)GAMEWINDOW_HEIGHT / 2};
+  CAMERA.rotation = 0;
+  CAMERA.zoom = CAMERA_ZOOM;
 }
 
 inline void InitShaders() {
@@ -200,7 +209,7 @@ inline void InitShaders() {
   float outlineColor[4] = {0.0f, 1.0f, 0.0f, 1.0f};  // Normalized Greed color
 
   // sprite w : [28] sprite h : [40] -> Julius
-  float textureSize[2] = {(float)(140), (float)(158)};
+  float textureSize[2] = {(float)(200), (float)(200)};
 
   // Get shader locations
   int outlineSizeLoc = GetShaderLocation(GAME_SHADER, "outlineSize");
@@ -225,182 +234,193 @@ inline void InitGameplayScreen(game_state &GameState) {
   Init(GameState);
 
   InitShaders();
-
   InitActionMenu(GameState.ActionMenu);
 
   for (size_t i = 0; i < GameState.Map.EnemyList.size(); i++) {
     cout << GameState.Map.EnemyList[i].pEntity->sprite->name << endl;
+
+    GameState.Map.EnemyList[i].roaming_ellipse.center = {
+        GameState.Map.EnemyList[i].pEntity->x + GAME_TILE_WIDTH / 2,
+        GameState.Map.EnemyList[i].pEntity->y + GAME_TILE_HEIGHT / 2};
+
+    GameState.Map.EnemyList[i].roaming_ellipse.w = (GAME_TILE_WIDTH * 8) / 4;
+    GameState.Map.EnemyList[i].roaming_ellipse.h = (GAME_TILE_HEIGHT * 8) / 1;
   }
+
+  for (size_t i = 0; i < GameState.EntityList.size(); i++) {
+    cout << GameState.EntityList[i].collision_effect << " ";
+  }
+  cout << endl;
+
+
+  
+
 }
 
+static int DrawGameplayScreen_runonce = 0;
 // Game logic
 inline void UpdateGameplayScreen(game_state &GameState) {
   static int UpdateGameplayScreen_runonce = 0;
 
   static int animating = 0;
-
+  CAMERA.zoom = CAMERA_ZOOM;
+  // TODO Optimize this seem ineffieicent
   SetEntityListEllipses(GameState.Map.EntityList);
 
-  if (GameState.AnimatingMovement != true &&
-      GameState.AnimatingEnemyMovement != true) {
-    CheckKeyboardInput(GameState);
-    // UpdateDebugText();
+  if (UpdateGameplayScreen_runonce == 0) {
+    printf("UpdateGameplayScreen\n");
 
-    for (size_t i = 0; i < GameState.Map.EntityList.size(); i++) {
-      if (GameState.Map.EntityList[i].ID == 1) {
-        // if (({(float)world_player.pEntity->x, (float)world_player.pEntity->y,
-        // (float)world_player.pEntity->w, (float)world_player.pEntity->h },
-        // 	                   {(float)(GameState.Map.EntityList[i].x),(float)(GameState.Map.EntityList[i].y),
-        // (float)(GameState.Map.EntityList[i].w) / 2,
-        // (float)(GameState.Map.EntityList[i].h) / 2
-        // }))
-        // {
-        // 	cout << "collision sedric" << endl;
-        // //combat = true;
-        // 	collision_map = true;
-        // 	break;
+    UpdateGameplayScreen_runonce++;
+  }
 
-        // }else
-        // {
-        // 	collision_map = false;
-        // }
-      }
+  if (NewEntityButton) {
+    printf("NewEntityButton Clicked\n");
+    PLACING_ENTITY = true;
+    NewEntityButton = false;
+  }
+
+  CheckKeyboardInput(GameState);
+  MouseLogic();
+
+  MOUSE_POINT= GetCameraMousePosition(GameState);
+
+
+  // if (setMouseEntity(GameState.Map.EntityList) == true) {
+  // }
+
+  // CreateNewEntity(GameState.Editor,GameState.Map,GameState.EntityList);
+
+  if (DEBUG_TOGGLE_COMBAT == true) {
+    CombatLogic(GameState);
+
+    if (GameState.CombatantSelected.pEntity != 0) {
+      MovementAnimated(GameState, GameState.CombatantSelected.pEntity,
+                       COMBAT_VEL);
+      // moving = false;
     }
 
-    if (UpdateGameplayScreen_runonce == 0) {
-      printf("UpdateGameplayScreen\n");
-
-      UpdateGameplayScreen_runonce++;
-    }
-
-    if (NewEntityButton) {
-      printf("NewEntityButton Clicked\n");
-      PLACING_ENTITY = true;
-      NewEntityButton = false;
-    }
-
-    // if (setMouseEntity(GameState.Map.EntityList) == true) {
-    // }
-
-    // CreateNewEntity(GameState.Editor,GameState.Map,GameState.EntityList);
-
-    MouseLogic();
-
-    if (DEBUG_TOGGLE_COMBAT == true) {
-      CombatLogic(GameState);
-
-    } else {
-      // Overworld Logic
-
-      MoveUnit(GameState);
-    }
-
-    if (GameState.ActionMenu.is_menu_up == true) {
-      ActionGuiLogic(GameState);
-    } else {
-      GameState.Target.pEntity->render_this = true;
-
-      TargetLogic(GameState);
-    }
-
-    // render_entity_boxes = ToggleEntityBoxes;
+    EnemyMovementAnimated(GameState, ROAMING_VEL);
 
   } else {
-    if (GameState.AnimatingMovement == true) {
-      if (GameState.CombatantSelected.pEntity != 0) {
-        MovementAnimated(GameState, GameState.CombatantSelected.pEntity);
-        // moving = false;
-      }
+    // Overworld Logic
+
+    if (GameState.AnimatingMovement == false) {
+      MoveUnit(GameState, PLAYER_VEL);
+    } else {
     }
 
-    if (GameState.AnimatingEnemyMovement == true) {
-      EnemyMovementAnimated(GameState);
+    if (DrawGameplayScreen_runonce != 0) {
+      if (GameState.AnimatingEnemyMovement == false &&
+          GameState.AnimatingMovement == false) {
+      //  EnemyRoaming2(GameState, ROAMING_VEL);
+      } else {
+       // EnemyMovementAnimated(GameState, ROAMING_VEL);
+      }
     }
   }
+
+  if (GameState.ActionMenu.is_menu_up == true) {
+    ActionGuiLogic(GameState);
+  } else {
+    GameState.Target.pEntity->render_this = true;
+
+    TargetLogic(GameState);
+  }
+
+  CAMERA.target =
+      Vector2{(GameState.WorldPlayer.pEntity->x) ,
+              (GameState.WorldPlayer.pEntity->y) };
+
 }
 
 // Gameplay Screen Rendering
 inline void DrawGameplayScreen(game_state &GameState) {
-  static int DrawGameplayScreen_runonce = 0;
-
   if (DrawGameplayScreen_runonce == 0) {
     printf("DrawGameplayScreen\n");
+    for (size_t i = 0; i < 10; i++)
+    {
+      cout << 64*i << " ";
+    }
+
   }
 
-  DrawFPS(GAMESCREEN_OFFSET_X, 0);
+  DrawFPS(GRID_WIDTH- GAME_TILE_WIDTH*1, 0);
 
   // Zero out the render objects array
   memset(GameState.ObjectsToRender, 0, sizeof(GameState.ObjectsToRender));
 
   if (DrawGameplayScreen_runonce == 0) {
-    printf("This happens 1\n");
+    printf("memset GameState.ObjectsToRender\n");
   }
 
   RenderEntities(GameState, GameState.Gui.EntityList, GameState.RENDER_INDEX);
 
   RenderEntities(GameState, GameState.Map.EntityList, GameState.RENDER_INDEX);
 
-  // RenderEntities(GameState, new_entity_list, RENDER_INDEX);
-
   if (DrawGameplayScreen_runonce == 0) {
-    printf("This happens 2\n");
+    printf("RenderEntities GameState.Map.EntityList\n");
   }
 
   RenderAllFields(GameState, GameState.RENDER_INDEX);
 
   if (DrawGameplayScreen_runonce == 0) {
-    printf("This happens 3\n");
+    printf("RenderAllFields\n");
   }
 
   SortLayerRenderObjectList(GameState.RenderList[GameState.RENDER_INDEX],
                             GameState.SortedRenderObjectList,
                             GameState.CurrentLayerList);
 
+  // ############################### BEGIN CAMERA
+  // ###############################
+  if (TOGGLE_CAMERA_MODE) {
+    BeginMode2D(CAMERA);
+  }
+
+  for (size_t i = 0; i < GameState.Map.EnemyList.size(); i++) {
+    DrawEllipse(GameState.Map.EnemyList[i].roaming_ellipse.center.x +
+                    GAMESCREEN_OFFSET_X,
+                GameState.Map.EnemyList[i].roaming_ellipse.center.y +
+                    GAMESCREEN_OFFSET_Y,
+                GameState.Map.EnemyList[i].roaming_ellipse.h,
+                GameState.Map.EnemyList[i].roaming_ellipse.w, BLUE);
+  }
+
   RenderAllLayers(GameState, GameState.SortedRenderObjectList);
 
-  DrawEditorGui(GameState);
 
-  RenderSelectedSprite(GameState);
-
-  if (DrawGameplayScreen_runonce == 0) {
-    printf("This happens 4\n");
-  }
 
   if (GameState.ActionMenu.is_menu_up == true) {
     DrawActionGui(GameState.ActionMenu);
   }
 
+  if (DEBUG_TOGGLE_COMBAT) {
+    RenderEntityInfo(GameState);
+  }
+
+  RenderEntityBoxes(GameState.Map.EntityList);
+
   if (PLACING_ENTITY == true) {
     RenderNewEntity(GameState);
   }
 
-  for (size_t i = 0; i < GameState.Map.EnemyList.size(); i++) {
-    entity *temp = GameState.Map.EnemyList[i].pEntity;
+  RenderSelectedSprite(GameState);
 
-    DrawIsoTriangles(temp);
+  //DrawCircle(MOUSE_POINT.x + GAME_TILE_WIDTH, MOUSE_POINT.y+ GAME_TILE_HEIGHT, 10, RED);
+
+  // ############################### END CAMERA ###############################
+  if (TOGGLE_CAMERA_MODE) {
+    EndMode2D();
   }
 
-  // RenderEntityBoxes(gui_entity_list);
-  RenderEntityBoxes(GameState.Map.EntityList);
+  //DrawLineEx( {(float)GAMEWINDOW_WIDTH/2, 0},{(float)GAMEWINDOW_WIDTH/2, (float)GAMEWINDOW_HEIGHT}, 3,BLACK );
 
-  // RenderEntityBoxes(new_entity_list);
-
-  RenderEntityInfo(GameState);
+  DrawEditorGui(GameState);
 
   RenderLog();
-
   RenderDebugLog();
 
-  if (DrawGameplayScreen_runonce == 0) {
-    printf("This happens 5\n");
-  }
-
   DrawGameplayScreen_runonce++;
-
-  // for(int i : last_sorted_list)
-  // {
-  // 	last_sorted_list[i] = 0;
-  // }
 }
 
 // Unload logic

@@ -11,10 +11,20 @@ entity h : [64]
 entity sprite ID : [71]
 ------
 ------
-entity ID : [3] "GreenBlock"
+entity ID : [3] "GreenBlock" 
 entity w : [64]
 entity h : [64]
 entity sprite ID : [72]
+entity collision effect : [10]
+entity collision type : [8]
+------
+------
+entity ID : [30]
+entity w : [64]
+entity h : [64]
+entity sprite ID : [100]
+entity collision effect : [0]
+entity collision type : [0]
 ------
 ------
 entity ID : [200] "Grid"
@@ -32,17 +42,184 @@ entity sprite ID : [59]
 entity ID : [209] "Julius"
 entity w : [48]
 entity h : [64]
-entity sprite ID : [67]
+entity sprite ID : [67] 
 ------
 ------
-entity ID : [210]
+entity ID : [210] "Tree"
 entity w : [126]
 entity h : [143]
 entity sprite ID : [62]
 ------
 ------
-entity ID : [211] "Girl"
+entity ID : [211] "Slime"
+entity w : [96]
+entity h : [96]
+entity sprite ID : [200]
+------
+------
+entity ID : [212] "Slime"
+entity w : [96]
+entity h : [96]
+entity sprite ID : [200]
+------
+------
+------
+entity ID : [15] 
 entity w : [64]
 entity h : [64]
-entity sprite ID : [26]
+entity sprite ID : [85]
+entity collision effect : [0]
+entity collision type : [6]
+------
+------
+entity ID : [16] 
+entity w : [64]
+entity h : [64]
+entity sprite ID : [86]
+entity collision effect : [0]
+entity collision type : [7]  "LINE_DIAG"
+------
+------
+entity ID : [17] 
+entity w : [64]
+entity h : [64]
+entity sprite ID : [87]
+entity collision effect : [0]
+entity collision type : [5]
+------
+------
+entity ID : [18] 
+entity w : [64]
+entity h : [64]
+entity sprite ID : [87]
+entity collision effect : [11]
+entity collision type : [0]
+------
+------
+entity ID : [21]
+entity w : [64]
+entity h : [64]
+entity sprite ID : [91]
+entity collision effect : [0]
+entity collision type : [3]  "LINE_UP"
+------
+------
+entity ID : [22]
+entity w : [64]
+entity h : [64]
+entity sprite ID : [92]
+entity collision effect : [0]
+entity collision type : [4]  "LINE_LEFT"
+------
+------
+entity ID : [23] 
+entity w : [64]
+entity h : [64]
+entity sprite ID : [93]
+entity collision effect : [0]
+entity collision type : [5]  "LINE_DOWN"
+------
+------
+entity ID : [24] 
+entity w : [64]
+entity h : [64]
+entity sprite ID : [100]
+entity collision effect : [11]
+entity collision type : [6]  "LINE_RIGHT"
+------
+------
+entity ID : [25] 
+entity w : [64]
+entity h : [64]
+entity sprite ID : [100]
+entity collision effect : [13]
+entity collision type : [4]  "LINE_RIGHT"
+------
+------
+entity ID : [26] 
+entity w : [64]
+entity h : [64]
+entity sprite ID : [100]
+entity collision effect : [13]
+entity collision type : [3]  "LINE_RIGHT"
+------
+------
+entity ID : [93] 
+entity w : [64]
+entity h : [64]
+entity sprite ID : [97]
+entity collision effect : [13]
+entity collision type : [3]  "LINE_RIGHT"
+------
+------
+entity ID : [94] 
+entity w : [64]
+entity h : [64]
+entity sprite ID : [94]
+entity collision effect : [13]
+entity collision type : [3]  "LINE_RIGHT"
+------
+------
+entity ID : [93] 
+entity w : [64]
+entity h : [64]
+entity sprite ID : [93]
+entity collision effect : [13]
+entity collision type : [3]  "LINE_RIGHT"
+------
+------
+entity ID : [94] 
+entity w : [64]
+entity h : [64]
+entity sprite ID : [94]
+entity collision effect : [13]
+entity collision type : [3]  "LINE_RIGHT"
+------
+------
+entity ID : [95] 
+entity w : [64]
+entity h : [64]
+entity sprite ID : [95]
+entity collision effect : [13]
+entity collision type : [3]  "LINE_RIGHT"
+------
+------
+entity ID : [96] 
+entity w : [64]
+entity h : [64]
+entity sprite ID : [96]
+entity collision effect : [13]
+entity collision type : [3]  "LINE_RIGHT"
+------
+------
+entity ID : [97] 
+entity w : [64]
+entity h : [64]
+entity sprite ID : [97]
+entity collision effect : [13]
+entity collision type : [3]  "LINE_RIGHT"
+------
+------
+entity ID : [98] 
+entity w : [64]
+entity h : [64]
+entity sprite ID : [98]
+entity collision effect : [13]
+entity collision type : [3]  "LINE_RIGHT"
+------
+------
+entity ID : [99] 
+entity w : [64]
+entity h : [64]
+entity sprite ID : [99]
+entity collision effect : [13]
+entity collision type : [3]  "LINE_RIGHT"
+------
+------
+entity ID : [100] 
+entity w : [64]
+entity h : [64]
+entity sprite ID : [100]
+entity collision effect : [13]
+entity collision type : [3]  "LINE_RIGHT"
 ------

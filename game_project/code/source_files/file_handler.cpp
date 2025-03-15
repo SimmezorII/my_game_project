@@ -196,7 +196,7 @@ inline string GetDataFromReadlineTwo(string line) {
   return line;
 }
 
-inline string GetDataFromReadlineThree(map &Map,string line, int layer) {
+inline string GetDataFromReadlineThree(map& Map, string line, int layer) {
   global_variable int row = 0;
 
   // entity sprite w:	[64] <-- example this functions reads and returns what
@@ -235,7 +235,8 @@ inline string GetDataFromReadlineThree(map &Map,string line, int layer) {
 
     // cout << "loop " << loop << endl;
 
-    Map.StringCords[row][0] = (line.substr(start_at + 1, (end_at - 1 - start_at)));
+    Map.StringCords[row][0] =
+        (line.substr(start_at + 1, (end_at - 1 - start_at)));
 
     Map.Cords[row][0][layer] = stoi(Map.StringCords[row][0]);
 
@@ -274,7 +275,7 @@ inline string GetDataFromReadlineThree(map &Map,string line, int layer) {
   return line;
 }
 
-inline string GetDataFromReadlineTiledMap(map &Map,string line, int layer) {
+inline string GetDataFromReadlineTiledMap(map& Map, string line, int layer) {
   // entity sprite w:	[64] <-- example this functions reads and returns what
   // is inside []
 
@@ -287,7 +288,6 @@ inline string GetDataFromReadlineTiledMap(map &Map,string line, int layer) {
   string end = ",";
 
   size_t start_at = line.find(start);
-
 
   if (start_at != string::npos) {
   } else {
@@ -302,18 +302,18 @@ inline string GetDataFromReadlineTiledMap(map &Map,string line, int layer) {
   }
 
   if (line != "" && start_at != -1) {
-
     loop = (line.size() - start_at) / (end_at - start_at + 1);
 
-    Map.StringCords[Map.CurrentRow][0] = (line.substr(start_at, (end_at - start_at)));
+    Map.StringCords[Map.CurrentRow][0] =
+        (line.substr(start_at, (end_at - start_at)));
 
-    Map.Cords[Map.CurrentRow][0][layer] = stoi(Map.StringCords[Map.CurrentRow][0]);
+    Map.Cords[Map.CurrentRow][0][layer] =
+        stoi(Map.StringCords[Map.CurrentRow][0]);
 
     temp = line.substr((end_at + 1), line.size());
 
     for (size_t i = 1; i < 19; i++) {
       start_at = temp.find(start);
-
 
       if (start_at != string::npos) {
       } else {
@@ -327,15 +327,16 @@ inline string GetDataFromReadlineTiledMap(map &Map,string line, int layer) {
         end_at = 0;
       }
 
-      Map.StringCords[Map.CurrentRow][i] = (temp.substr(start_at, (end_at - start_at)));
+      Map.StringCords[Map.CurrentRow][i] =
+          (temp.substr(start_at, (end_at - start_at)));
 
-      Map.Cords[Map.CurrentRow][i][layer] = stoi(Map.StringCords[Map.CurrentRow][i]);
+      Map.Cords[Map.CurrentRow][i][layer] =
+          stoi(Map.StringCords[Map.CurrentRow][i]);
 
       temp = temp.substr((end_at + 1), temp.size());
     }
 
     Map.Cords[Map.CurrentRow][19][layer] = stoi(temp);
-
 
     Map.CurrentRow++;
   }
@@ -365,21 +366,7 @@ inline string GetPropertyNameFromReadline(string line) {
   return line;
 }
 
-inline void setSprite(vector<sprite>& sprite_list, entity* e, int ID) {
-  //	printf("Searching for: %d \n", ID);
-  for (size_t i = 0; i < sprite_list.size(); i++) {
-    // printf("Compare: %d vs %d \n", sprite_list[i].ID, ID);
 
-    if (sprite_list[i].ID == ID) {
-      e->sprite = &sprite_list[i];
-
-      //	printf("Match! %s\n", sprite_list[i].img.c_str());
-      break;
-    } else {
-      //	printf("Didn't find: %d \n", ID);
-    }
-  }
-}
 
 inline void LoadSpriteData(game_state& GameState, int sprite_count) {
   //------
@@ -458,6 +445,8 @@ inline void LoadEntityData(game_state& GameState, int entity_count) {
   // printf("Loadentity: %s\n", temp.sprite.img);
 
   entity temp;
+  int coll_effect = 0;
+   int coll_type = 0;
 
   int index = 0;
   size_t i = 1;
@@ -467,7 +456,9 @@ inline void LoadEntityData(game_state& GameState, int entity_count) {
 
   for (; i <= entity_count; i++) {
     tmp_str = GetDataFromReadline(GameState.Resources.EntityLines[index]);
+
     temp.ID = atoi(tmp_str.c_str());  // entity ID : [n]
+    cout << "ID: " << temp.ID << endl;
     index++;
 
     // tmp_str = GetDataFromReadline(entity_lines[index]);
@@ -489,9 +480,35 @@ inline void LoadEntityData(game_state& GameState, int entity_count) {
     tmp_str = GetDataFromReadline(GameState.Resources.EntityLines[index]);
     tempSpriteID = atoi(tmp_str.c_str());  // entity sprite ID : [n]
 
-    setSprite(GameState.SpriteList, &temp, tempSpriteID);
+    SetSprite(GameState.SpriteList, &temp, tempSpriteID);
 
     index++;
+
+    if (index < GameState.Resources.EntityLines.size()) {
+      if (GameState.Resources.EntityLines[index].find(
+              "entity collision effect") != std::string::npos) {
+
+        cout << GameState.Resources.EntityLines[index] << endl;
+        tmp_str = GetDataFromReadline(GameState.Resources.EntityLines[index]);
+        coll_effect = atoi(tmp_str.c_str());
+
+        temp.collision_effect = coll_effect;
+        index++;
+      }
+    }
+
+    if (index < GameState.Resources.EntityLines.size()) {
+      if (GameState.Resources.EntityLines[index].find(
+              "entity collision type") != std::string::npos) {
+                
+        cout << GameState.Resources.EntityLines[index] << endl;
+        tmp_str = GetDataFromReadline(GameState.Resources.EntityLines[index]);
+        coll_type = atoi(tmp_str.c_str());
+
+        temp.coll_check_type = coll_type;
+        index++;
+      }
+    }
 
     temp.entity_tile = {(float)temp.x, (float)temp.y, (float)GAME_TILE_WIDTH,
                         (float)GAME_TILE_HEIGHT};
@@ -631,29 +648,30 @@ inline bool ReadMapDataTiledMap(game_state& GameState, string path) {
 
 inline void SetMapCords(game_state& GameState, int layer) {
   for (size_t i = 0; i < GameState.Resources.MapLines.size(); i++) {
-    GetDataFromReadlineThree(GameState.Map,GameState.Resources.MapLines[i], layer);
+    GetDataFromReadlineThree(GameState.Map, GameState.Resources.MapLines[i],
+                             layer);
   }
 }
 
-inline void SetMapCordsTiled(game_state &GameState) {
+inline void SetMapCordsTiled(game_state& GameState) {
   int layer = 0;
 
   GameState.Map.CurrentRow = 0;
 
   for (size_t i = 0; i < GameState.Resources.MapLinesTiledFormat.size(); i++) {
     if (i % Y_TILES == 0 && i != 0) {
-
-      if(DEBUG_PRINT){
-      cout << "layer: " << layer << endl;
-      cout << "lines: " << GameState.Resources.MapLinesTiledFormat.size() << endl;
-      cout << "layer switch: " << i << endl;
-
+      if (DEBUG_PRINT) {
+        cout << "layer: " << layer << endl;
+        cout << "lines: " << GameState.Resources.MapLinesTiledFormat.size()
+             << endl;
+        cout << "layer switch: " << i << endl;
       }
       layer++;
       GameState.Map.CurrentRow = 0;
     }
 
-    GetDataFromReadlineTiledMap(GameState.Map,GameState.Resources.MapLinesTiledFormat[i], layer);
+    GetDataFromReadlineTiledMap(
+        GameState.Map, GameState.Resources.MapLinesTiledFormat[i], layer);
   }
 }
 inline void SetEntityCords(map& Map, vector<entity>& entity_list, int layer) {
@@ -680,6 +698,8 @@ inline void SetEntityCords(map& Map, vector<entity>& entity_list, int layer) {
           temp.h = entity_list[k].h;
           temp.entity_tile = entity_list[k].entity_tile;
           temp.sprite = entity_list[k].sprite;
+          temp.collision_effect = entity_list[k].collision_effect;
+          temp.coll_check_type = entity_list[k].coll_check_type;
 
           temp.layer = layer;
 
@@ -709,7 +729,11 @@ inline void SetPosCords(pos pos_cords[40][20]) {
 inline void SetGuiEntities(gui& Gui, vector<entity>& entity_list) {
   entity temp;
 
+  cout << "SetGuiEntities " << entity_list.size() << endl;
+
   for (size_t k = 0; k < entity_list.size(); k++) {
+    cout << "ID: " << entity_list[k].ID << endl;
+
     // if (sprite_list[k].ID == 999) // Background
     //{
     //	cout << "ID == 29 found, background set, setGuiEntities" << endl;
@@ -753,19 +777,17 @@ inline void SetGuiEntities(gui& Gui, vector<entity>& entity_list) {
 
       cout << "ID == 2 found, Grid set, setGuiEntities" << endl;
     }
-
-    // cout << " " << k << " ";
   }
 
-  // cout << " " << endl;
+  cout << " " << endl;
 }
 
-inline void setPlayer(game_state& GameState) {
+inline void SetPlayer(game_state& GameState, int sprite_id) {
   entity temp;
 
   cout << "setPlayer start " << endl;
 
-  temp.ID = 9;
+  temp.ID = PLAYER_ID;
   temp.x = 64;
   temp.y = 64;
 
@@ -774,7 +796,7 @@ inline void setPlayer(game_state& GameState) {
   temp.entity_tile = {temp.x, temp.y, (float)GAME_TILE_WIDTH,
                       (float)GAME_TILE_HEIGHT};
 
-  setSprite(GameState.SpriteList, &temp, 67);
+  SetSprite(GameState.SpriteList, &temp, sprite_id);
 
   GameState.Map.EntityList.push_back(temp);
 }

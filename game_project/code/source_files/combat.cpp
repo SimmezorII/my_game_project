@@ -1090,14 +1090,14 @@ inline void InitCombat(game_state& GameState) {
   Log("InitCombat");
 
   GameState.Gui.EntityList[0].render_this = true;
-
+  
   SetEnemyFields(GameState);
 
   GameState.CombatantSelected.position_field.range = 5;
 
   GameState.CombatantSelected.position_field.render_field = true;
 
-  SetField(GameState, GameState.CombatantSelected.position_field, 576, 512, NON_ISO_SQUARE, GREEN_TILE);
+  SetField(GameState, GameState.CombatantSelected.position_field, 10 * GAME_TILE_WIDTH, 10 * GAME_TILE_HEIGHT, NON_ISO_SQUARE, GREEN_TILE);
 
   GameState.FieldList.push_back(&GameState.CombatantSelected.position_field);
 }
